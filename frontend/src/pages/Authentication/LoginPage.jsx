@@ -15,7 +15,7 @@ export default function LoginPage() {
                        
                     </div>
                     <h2 className='login-title'>Sign in to your account</h2>
-                    <p className="login-subtitle">Bus Management System</p>
+                    <p className="login-subtitle">Bus Tracking System</p>
                 </div>
 
                 <form action="" className="login-form">
@@ -38,13 +38,13 @@ export default function LoginPage() {
                         <button type='button' 
                                 className='password-toggle' 
                                 onClick={() => setShowPassword(!showPassword)}>
-                            {showPassword ? <EyeOff className='h-5 w-5 text-gray-400' /> : <Eye className='h-5 w-5 text-gray-400'/> }
+                            {showPassword ? <EyeOff className='login-icon-pasword' /> : <Eye className='login-icon-pasword'/> }
                         </button>
                         {/*  Chưa viết Error */}
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <Link to="" className='login-link'>
+                        <Link to="/register" className='login-link'>
                             Don't have an account? Sign up
                         </Link>
                     </div>
