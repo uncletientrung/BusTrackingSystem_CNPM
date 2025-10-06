@@ -13,7 +13,7 @@ export default function RegisterPage() {
                 <div className="register-header">
 
                     <div className="register-icon">
-                        <UserPlus className="w-6 h-6"></UserPlus>
+                        <UserPlus style={{ width: "1.5rem", height: "1.5rem"}}></UserPlus>
                     </div>
                     <h2 className="register-title"> Create your account</h2>
                     <p className="register-subtitle"> Bus Tracking System</p>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
 
                     <button type="submit" className="btn-primary">
                         <>
-                            <UserPlus className="w-4 h-4 mr-2" /> Create account
+                            <UserPlus className="register-icon-submit" /> Create account
                         </>
                     </button>
                 </form>

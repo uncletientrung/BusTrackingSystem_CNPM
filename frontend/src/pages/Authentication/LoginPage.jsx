@@ -11,7 +11,7 @@ export default function LoginPage() {
             <div className="login-wrapper">
                 <div className="login-header">
                     <div className="login-icon">
-                        <LogIn className="w-6 h-6"></LogIn>  {/* Hình cái mũi tên vào trong */}
+                        <LogIn  style={{ width: "1.5rem", height: "1.5rem"}}></LogIn>  {/* Hình cái mũi tên vào trong */}
                        
                     </div>
                     <h2 className='login-title'>Sign in to your account</h2>
@@ -51,7 +51,7 @@ export default function LoginPage() {
 
                     <button type='submit'
                             className='btn-primary'>
-                        <LogIn className="w-4 h-4 mr-2" />Sign in        
+                        <LogIn className="login-icon-submit" />Sign in        
                     </button>
                 </form>
             </div>
