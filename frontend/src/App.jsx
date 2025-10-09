@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom"; // Định nghĩa Router thì 
 // Authentication
 import LoginPage from './pages/Authentication/LoginPage'
 import RegisterPage from './pages/Authentication/RegisterPage';
+import DashboardPage from './pages/Dashboard/DashboardPage';
 
 
 function App() {
@@ -11,10 +12,11 @@ function App() {
 
   return (
     <>
-      <Routes>
+      {/* <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-      </Routes>
+      </Routes> */}
+      <DashboardPage></DashboardPage>
     </>
   )
 }
