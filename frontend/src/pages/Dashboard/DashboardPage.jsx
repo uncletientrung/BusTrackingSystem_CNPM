@@ -13,7 +13,6 @@ export default function DashboardPage() {
     alerts: 3
   }
   
-
   const recentActivity = [ // Giả lập thông báo
     { id: 1, type: 'info', message: 'Bus #101 completed Route A', time: '2 minutes ago' },
     { id: 2, type: 'warning', message: 'Bus #205 is running 5 minutes late', time: '10 minutes ago' },
