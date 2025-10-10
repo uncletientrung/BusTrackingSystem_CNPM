@@ -1,5 +1,5 @@
-import {  useState } from "react"
-import { BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Hourglass, RefreshCcw } from "lucide-react"
+import {  useState, useEffect } from "react"
+import { BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Hourglass, RefreshCcw, SquarePen, Trash2 } from "lucide-react"
 
 
 export default function SchedulePage() {
@@ -37,85 +37,85 @@ export default function SchedulePage() {
     ];
 
 //     // Giả lập lịch trình
-//     useEffect(() => {
-//         const demoSchedules = [
-//         {
-//             id: 1,
-//             busNumber: 'BUS-001',
-//             route: 'Bến Thành - Sân Bay',
-//             departureTime: '06:00',
-//             arrivalTime: '07:30',
-//             driver: 'Nguyễn Văn A',
-//             status: 'running',
-//             passengers: 25, // Hành khách
-//             capacity: 40, // Sức chứa
-//             date: selectedDate
-//         },
-//         {
-//             id: 2,
-//             busNumber: 'BUS-002',
-//             route: 'Quận 1 - Quận 7',
-//             departureTime: '07:00',
-//             arrivalTime: '08:45',
-//             driver: 'Trần Văn B',
-//             status: 'scheduled',
-//             passengers: 0,
-//             capacity: 35,
-//             date: selectedDate
-//         },
-//         {
-//             id: 3,
-//             busNumber: 'BUS-001',
-//             route: 'Bến Thành - Sân Bay',
-//             departureTime: '08:30',
-//             arrivalTime: '10:00',
-//             driver: 'Nguyễn Văn A',
-//             status: 'completed',
-//             passengers: 38,
-//             capacity: 40,
-//             date: selectedDate
-//         },
-//         {
-//             id: 4,
-//             busNumber: 'BUS-003',
-//             route: 'Thủ Đức - Quận 3',
-//             departureTime: '09:15',
-//             arrivalTime: '11:00',
-//             driver: 'Lê Văn C',
-//             status: 'delayed',
-//             passengers: 20,
-//             capacity: 45,
-//             date: selectedDate
-//         }
-//         ];
+    useEffect(() => {
+        const demoSchedules = [
+        {
+            id: 1,
+            busNumber: 'BUS-001',
+            route: 'Bến Thành - Sân Bay',
+            departureTime: '06:00',
+            arrivalTime: '07:30',
+            driver: 'Nguyễn Văn A',
+            status: 'running',
+            passengers: 25, // Hành khách
+            capacity: 40, // Sức chứa
+            date: selectedDate
+        },
+        {
+            id: 2,
+            busNumber: 'BUS-002',
+            route: 'Quận 1 - Quận 7',
+            departureTime: '07:00',
+            arrivalTime: '08:45',
+            driver: 'Trần Văn B',
+            status: 'scheduled',
+            passengers: 0,
+            capacity: 35,
+            date: selectedDate
+        },
+        {
+            id: 3,
+            busNumber: 'BUS-001',
+            route: 'Bến Thành - Sân Bay',
+            departureTime: '08:30',
+            arrivalTime: '10:00',
+            driver: 'Nguyễn Văn A',
+            status: 'completed',
+            passengers: 38,
+            capacity: 40,
+            date: selectedDate
+        },
+        {
+            id: 4,
+            busNumber: 'BUS-003',
+            route: 'Thủ Đức - Quận 3',
+            departureTime: '09:15',
+            arrivalTime: '11:00',
+            driver: 'Lê Văn C',
+            status: 'delayed',
+            passengers: 20,
+            capacity: 45,
+            date: selectedDate
+        }
+        ];
         
-//         const filtered = selectedRoute === 'all' // Bộ lọc
-//             ? demoSchedules 
-//             : demoSchedules.filter(s => s.route.includes(selectedRoute));
-//         setLichTrinh(filtered);
-//     }, [selectedDate, selectedRoute]);
+        const filtered = selectedRoute === 'all' // Bộ lọc
+            ? demoSchedules 
+            : demoSchedules.filter(s => s.route.includes(selectedRoute));
+        setLichTrinh(filtered);
+    }, [selectedDate, selectedRoute]);
 
-//     const getStatusColor = (status) => { // Màu trạng thái
-//         switch (status) {
-//         case 'running': return 'bg-blue-100 text-blue-800';
-//         case 'completed': return 'bg-green-100 text-green-800';
-//         case 'scheduled': return 'bg-yellow-100 text-yellow-800';
-//         case 'delayed': return 'bg-red-100 text-red-800';
-//         case 'cancelled': return 'bg-gray-100 text-gray-800';
-//         default: return 'bg-gray-100 text-gray-800';
-//         }
-//     };
+    const getStatusColor = (status) => { // Màu trạng thái
+        switch (status) {
+        case 'running': return 'bg-blue-100 text-blue-800';
+        case 'completed': return 'bg-green-100 text-green-800';
+        case 'scheduled': return 'bg-yellow-100 text-yellow-800';
+        case 'delayed': return 'bg-red-100 text-red-800';
+        case 'cancelled': return 'bg-gray-100 text-gray-800';
+        default: return 'bg-gray-100 text-gray-800';
+        }
+    };
 
-//     const getStatusText = (status) => { // Chuyển đổi text trạng thái
-//         switch (status) {
-//         case 'running': return 'Đang chạy';
-//         case 'completed': return 'Hoàn thành';
-//         case 'scheduled': return 'Đã lên lịch';
-//         case 'delayed': return 'Trễ giờ';
-//         case 'cancelled': return 'Hủy bỏ';
-//         default: return status;
-//         }
-//     };
+    const getStatusText = (status) => { // Chuyển đổi text trạng thái
+        switch (status) {
+        case 'running': return 'Đang chạy';
+        case 'completed': return 'Hoàn thành';
+        case 'scheduled': return 'Đã lên lịch';
+        case 'delayed': return 'Trễ giờ';
+        case 'cancelled': return 'Hủy bỏ';
+        default: return status;
+        }
+    };
 
 
    return (
@@ -189,9 +189,9 @@ export default function SchedulePage() {
                     </div>
                 </div>
                 
-                {/* Thống kê nhanh */}
+                {/* Lọc nhanh */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    {/* Thống kê bus */}
+                    {/* Lọc số bus */}
                     <div className="bg-white p-6 rounded-lg shadow-md">
                         <div className="flex items-center">
                             <div className="p-3 bg-blue-100 rounded-full">
@@ -207,7 +207,7 @@ export default function SchedulePage() {
                         </div>
                     </div>
                     
-                    {/* Thống kê hoàn thành */}
+                    {/* Lọc hoàn thành */}
                     <div className="bg-white p-6 rounded-lg shadow-md">
                         <div className="flex items-center">
                             <div className="p-3 bg-green-100 rounded-full">
@@ -226,6 +226,7 @@ export default function SchedulePage() {
                     </div>
                 </div>
                 
+                {/* Lọc đang chạy*/}
                 <div className="bg-white p-6 rounded-lg shadow-md">
                     <div className="flex items-center">
                         <div className="p-3 bg-yellow-100 rounded-full">
@@ -242,7 +243,119 @@ export default function SchedulePage() {
                         </div>
                     </div>
                 </div>
-                
+
+                {/* Danh sách lịch trình */}
+                <div className="bg-white rounded-lg shadow-md">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-800">Danh sách lịch trình</h3>
+                        <p className="text-sm text-gray-600">
+                            Ngày: {new Date(selectedDate).toLocaleDateString('vi-VN')}
+                        </p>
+                    </div>
+
+                    <div className="overflow-x-auto"> {/* Tạo row và col của Table */}
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Xe buýt
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tuyến đường
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giờ khởi hành
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Giờ đến
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tài xế
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành khách
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Trạng thái
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Hành động
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            {/* Thêm dữ liệu vào table */}
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {lichTrinh.map((item) => {
+                                    <tr key={item.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <span className="text-blue-600 font-bold text-sm">
+                                                        <BusFront></BusFront>
+                                                    </span>
+                                                </div>
+
+                                                <div className="ml-3">
+                                                    <div className="text-sm font-medium text-gray-900">
+                                                        {lichTrinh.busNumber}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">{lichTrinh.route}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">{lichTrinh.departureTime}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">{lichTrinh.arrivalTime}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">{lichTrinh.driver}</div>
+                                        </td>
+
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">
+                                                {lichTrinh.passengers}/{lichTrinh.capacity}
+                                            </div>
+                                            
+                                            {/* Thanh Progress */}
+                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                                <div className="bg-blue-600 h-2 rounded-full"
+                                                    style={{ width: `${(lichTrinh.passengers / lichTrinh.capacity) * 100}%` }}
+                                                > 
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td className="px-6 py-4 whitespace-nowrap"> {/* Màu trạng thái */}
+                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(lichTrinh.status)}`}>
+                                                {getStatusText(lichTrinh.status)}
+                                            </span>
+                                        </td>
+
+                                        {/* Thanh hành động */}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex space-x-2">
+                                                <button className="text-blue-600 hover:text-blue-900">
+                                                    <SquarePen></SquarePen>
+                                                </button>
+                                                <button className="text-red-600 hover:text-red-900">
+                                                    <Trash2></Trash2>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                })}
+                            </tbody>
+                        </table>
+
+                        
+
+                    </div>
+                </div>
 
 
 
