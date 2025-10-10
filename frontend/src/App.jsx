@@ -5,6 +5,7 @@ import { Routes, Route } from "react-router-dom"; // Định nghĩa Router thì 
 import LoginPage from './pages/Authentication/LoginPage'
 import RegisterPage from './pages/Authentication/RegisterPage';
 import DashboardPage from './pages/Dashboard/DashboardPage';
+import Layout from './components/Layout/Layout';
 
 
 function App() {
@@ -13,11 +14,15 @@ function App() {
   return (
     <>
       <Routes>
+         <Route path='/' element={<Layout />}> 
+          {/* Các route con sẽ được render trong <Outlet /> của Layout */}
+          <Route path="dashboard" element={<DashboardPage />} />
+        </Route>
+
+         {/* Các route không dùng Layout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
-      
     </>
   )
 }
