@@ -212,11 +212,13 @@ export default function SchedulePage() {
                     <div className="flex items-end"> {/* Nút làm mới */}
                         <button
                             onClick={() => window.location.reload() /*Reload lại trang hàm JS */} 
-                            className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 
-                                            rounded-lg font-medium transition-colors"
+                            className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg 
+                                        font-semibold transition-colors flex items-center justify-center space-x-2"
                         >
-                            {/* <RefreshCcw></RefreshCcw>   */}
-                            🔄 Làm mới
+                            <span>
+                                <RefreshCcw className="h-5 w-5 text-white" />
+                            </span>
+                            <span>Làm mới</span>
                             
                         </button>
                     </div>       
@@ -407,7 +409,9 @@ export default function SchedulePage() {
                     {/* Thông báo không có lịch trình */}
                     {lichTrinh.length == 0 && (
                         <div className="text-center py-12">
-                            <span className="text-6xl">📅</span>
+                            <div className="flex justify-center items-center">
+                                <CalendarCheck className="h-10 w-10 text-black-500 " />
+                            </div>
                             <p className="text-gray-500 text-lg mt-4">Không có lịch trình nào cho ngày đã chọn</p>
                             <button 
                                 onClick={() => setIsCreating(true)}
