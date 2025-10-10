@@ -1,9 +1,23 @@
 import { Eye, EyeOff, LogIn } from 'lucide-react' // Thư viện Icon trạng thái đăng nhập, xuất
-import { Link } from 'react-router-dom' // Thư viện Thẻ link 
+import { Link, useNavigate } from 'react-router-dom' // Thư viện Thẻ link 
 import { useState } from 'react'
 import './LoginPage.css'  
 
 export default function LoginPage() {
+    const [username, setUsername]=useState("");
+    const [password, setPassword]=useState("");
+    const navigate = useNavigate(); // Ngăn chặn reload lại trang khi gửi form
+    const handleLogin = (e) => {
+        e.preventDefault();
+        if (username === "admin@123" && password === "123456") {
+            // Lưu trạng thái đăng nhập (vd: localStorage)
+            localStorage.setItem("isLoggedIn", "true");
+            navigate("/dashboard");
+        } else {
+            alert("Sai tài khoản hoặc mật khẩu!");
+        }
+    };
+
     const [showPassword, setShowPassword]= useState(false);
    return (
       <>        
@@ -18,13 +32,15 @@ export default function LoginPage() {
                     <p className="login-subtitle">Bus Tracking System</p>
                 </div>
 
-                <form action="" className="login-form">
+                <form action="" className="login-form" onSubmit={handleLogin}>
                     <div className="input-group">
                         <input  id="email"
                                 type="email" 
                                 autoComplete='email' 
                                 placeholder='Email address'
-                                className="input"/>
+                                className="input"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)} />
                         {/* Chưa viết error */}
                     </div>
 
@@ -33,6 +49,8 @@ export default function LoginPage() {
                                type={showPassword ? "text" : "password"} 
                                placeholder='Password'
                                className="input"
+                               value={password}
+                               onChange={(e) => setPassword(e.target.value)}
                                 />
                         {/* Show mật khẩu */}
                         <button type='button' 
