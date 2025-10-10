@@ -14,7 +14,17 @@ function App() {
 
   return (
     <>
-      <SchedulePage></SchedulePage>
+      <Routes>
+         <Route path='/' element={<Layout />}> 
+          {/* Các route con sẽ được render trong <Outlet /> của Layout */}
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path='schedule' element={<SchedulePage />} />
+        </Route>
+
+         {/* Các route không dùng Layout */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
     </>
   )
 }
