@@ -28,6 +28,7 @@ import TrackingPage from './pages/Tracking/TrackingPage';
 
 //User
 import UsersPage from './pages/Users/UsersPage';
+import ProfilePage from './pages/Profile/ProfilePage';
 
 
 function App() {
@@ -45,12 +46,15 @@ function App() {
           <Route path='tracking' element={<TrackingPage />} />
           <Route path='schedule' element={<SchedulePage />} />
           <Route path='users' element={<UsersPage />} />
+
+          <Route path='profile' element={<ProfilePage />} />
         </Route>
 
          {/* Các route không dùng Layout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
+      
     </>
   )
 }
