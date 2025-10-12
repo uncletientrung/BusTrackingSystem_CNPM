@@ -326,7 +326,7 @@ export default function ProfilePage() {
                                  {/* Mật khẩu mới */}
                                  <div className="relative"> 
                                     <input 
-                                       type={showPasswords.confirm ? 'text' : 'password'}
+                                       type={showPasswords.new ? 'text' : 'password'}
                                        placeholder="Mật khẩu mới"
                                        value={passwordForm.newPassword}
                                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
@@ -359,6 +359,7 @@ export default function ProfilePage() {
                                     </button>
                                  </div>
 
+                                 {/* Hủy/ Xác nhận mật khẩu */}
                                  <div className="flex justify-end space-x-3"> 
                                     <button
                                        onClick={() => setShowChangePassword(false)}
