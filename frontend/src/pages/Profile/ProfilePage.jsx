@@ -1,4 +1,4 @@
-import { Edit, Mail, MapPin, Phone, Save, Shield, User } from "lucide-react";
+import { Edit, Eye, EyeOff, KeyRound, Mail, MapPin, Phone, Save, Shield, User } from "lucide-react";
 import { useState } from "react"
 
 export default function ProfilePage() {
@@ -11,6 +11,16 @@ export default function ProfilePage() {
       email: '',
       phone: '',
       address: ''
+   })
+   const [showPasswords, setShowPasswords] = useState({ // Show/Hide 3 kiểu mật khẩu
+      current: false,
+      new: false,
+      confirm: false
+   })
+   const [passwordForm, setPasswordForm] = useState({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
    })
    // Giả lập dữ liệu
    const [userProfile, setUserProfile] = useState({
@@ -41,6 +51,24 @@ export default function ProfilePage() {
    const handleSaveProfile = () => { // Hàm chỉnh sửa
       setIsEditing(false)
       alert('Thông tin cá nhân đã được cập nhật!')
+   }
+   const handleChangePassword = () => {
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+         alert('Mật khẩu xác nhận không khớp!')
+         return
+      }
+      if (passwordForm.newPassword.length < 6) {
+         alert('Mật khẩu mới phải có ít nhất 6 ký tự!')
+         return
+      }
+      // In real app, this would make an API call
+      alert('Mật khẩu đã được thay đổi thành công!')
+      setPasswordForm({
+         currentPassword: '',
+         newPassword: '',
+         confirmPassword: ''
+      })
+      setShowChangePassword(false)
    }
    
    const getRoleColor = (role) => { // Lấy màu role
@@ -123,18 +151,20 @@ export default function ProfilePage() {
                </div>
 
                <div className="p-6">
-                  {/* Trang của tab Info */}
+                  {/* Information Tab*/}
                   {activeTab === 'personal'  && (
                      <div className="space-y-6">
                         <div className="flex justify-between items-center"> 
                            <h2 className="text-lg font-medium text-gray-900">Thông tin cá nhân</h2>
-                           <button
+                           {!isEditing && (
+                              <button
                                  onClick={() => setIsEditing(!isEditing)}
                                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                           >
+                              >
                                  <Edit className="h-4 w-4 mr-2"></Edit>
-                                 {isEditing ? 'Hủy' : 'Chỉnh Sửa'}
-                           </button>
+                                 Chỉnh sửa
+                              </button>
+                           )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> 
@@ -242,6 +272,113 @@ export default function ProfilePage() {
                            </div>
                         )}
                      </div>
+                  )}
+                  
+                  {/* Security Tab */}
+                  {activeTab === 'security' && (
+                     <div className="space-y-6">
+                        <h2 className="text-lg font-medium text-gray-900">Cài đặt bảo mật</h2>
+
+                        {/* Đổi mật khẩu */}
+                        <div className="bg-gray-50 rounded-lg p-4"> 
+                           <div className="flex justify-between items-center mb-4"> 
+                              <div>
+                                 <h3 className="font-medium text-gray-900">
+                                    Thay đổi mật khẩu
+                                 </h3>
+                                 <p className="text-sm text-gray-600">
+                                    Cập nhật mật khẩu để bảo mật tài khoản
+                                 </p>
+                              </div>
+
+                              {!showChangePassword && (
+                                 <button 
+                                    onClick={() => setShowChangePassword(!showChangePassword)}
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                 >
+                                    <KeyRound className="h-4 w-4 mr-2" />
+                                    Thay đổi
+                                 </button>
+                              )}
+                           </div>
+
+                           {/* Hiển thị khi ấn thay đổi */}
+                           {showChangePassword && (
+                              <div className="space-y-4"> 
+                                 {/* Mật khẩu hiện tại */}
+                                 <div className="relative"> 
+                                    <input 
+                                       type={showPasswords.current ? 'text' : 'password'}
+                                       placeholder="Mật khẩu hiện tại"
+                                       value={passwordForm.currentPassword}
+                                       onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <button
+                                       type="button"
+                                       onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                       {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                 </div>
+
+                                 {/* Mật khẩu mới */}
+                                 <div className="relative"> 
+                                    <input 
+                                       type={showPasswords.confirm ? 'text' : 'password'}
+                                       placeholder="Mật khẩu mới"
+                                       value={passwordForm.newPassword}
+                                       onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <button
+                                       type="button"
+                                       onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                       {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                 </div>
+
+                                 {/* Confirm mật khẩu mới */}
+                                 <div className="relative"> 
+                                    <input
+                                       type={showPasswords.confirm ? 'text' : 'password'}
+                                       placeholder="Xác nhận mật khẩu mới"
+                                       value={passwordForm.confirmPassword}
+                                       onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <button
+                                       type="button"
+                                       onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                       {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                 </div>
+
+                                 <div className="flex justify-end space-x-3"> 
+                                    <button
+                                       onClick={() => setShowChangePassword(false)}
+                                       className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                    >
+                                       Hủy
+                                    </button>
+
+                                    <button
+                                       onClick={handleChangePassword}
+                                       className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                                    >
+                                       Cập nhật mật khẩu
+                                    </button>
+                                 </div>
+                              </div>
+                           )}
+                        </div>
+                     </div>
+                  
                   )}
                </div>
             </div>
