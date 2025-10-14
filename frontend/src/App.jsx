@@ -41,7 +41,25 @@ function App() {
 
   return (
     <>
-      <BusesPage></BusesPage>
+      <Routes>
+         <Route path='/' element={<Layout />}> 
+          {/* Các route con sẽ được render trong <Outlet /> của Layout */}
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path='buses' element={<BusesPage />} />
+          <Route path='routes' element={<RoutesPage />} />
+          <Route path='students' element={<StudentsPage />} />
+          <Route path='tracking' element={<TrackingPage />} />
+          <Route path='schedule' element={<SchedulePage />} />
+          <Route path='users' element={<UsersPage />} />
+          <Route path='notifications' element={<NotificationPage />} />
+          <Route path='profile' element={<ProfilePage />} />
+        </Route>
+
+         {/* Các route không dùng Layout */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+      
     </>
   )
 }
