@@ -661,8 +661,9 @@ export default function BusesPage() {
                         {/* Nút Ok */}
                         <button
                            onClick={editingBus ? handleUpdateBus : handleCreateBus}
+                           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
                         >
-
+                           {editingBus ? 'Cập nhật' : 'Thêm xe'}
                         </button>
                         <button
                            onClick={() => {
