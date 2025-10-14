@@ -1,5 +1,5 @@
-import { BusFront, Check, Plus, RefreshCcw, Users, Wrench } from "lucide-react";
-import { useState } from "react";
+import { BusFront, Check, Plus, RefreshCcw, SquarePen, Trash2, Users, Wrench, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 
 export default function BusesPage() {
@@ -22,7 +22,7 @@ export default function BusesPage() {
       fuelType: 'diesel'
    });
 
-   const handleCreateBus = () => {
+   const handleCreateBus = () => { // Hàm xử lý thêm 
       if (!newBus.number || !newBus.licensePlate || !newBus.capacity) {
          alert('Vui lòng điền đầy đủ thông tin cơ bản!');
          return;
@@ -65,6 +65,38 @@ export default function BusesPage() {
       alert('Đã thêm xe buýt mới thành công!');
    };
 
+   const handleDeleteBus = (id) => { // Hàm xử lý xóa
+      if (confirm('Bạn có chắc muốn xóa xe buýt này?')) {
+         setBuses(buses.filter(bus => bus.id !== id));
+         alert('Đã xóa xe buýt thành công!');
+      }
+   };
+   const handleUpdateBus = () => { // Hàm xử lý sửa
+      if (!editingBus.number || !editingBus.licensePlate || !editingBus.capacity) {
+         alert('Vui lòng điền đầy đủ thông tin cơ bản!');
+         return;
+      }
+
+      const selectedRoute = routes.find(r => r.id.toString() === editingBus.route);
+      const selectedDriver = drivers.find(d => d.id.toString() === editingBus.driver);
+
+      setBuses(buses.map(bus =>
+         bus.id === editingBus.id
+            ? {
+               ...editingBus,
+               capacity: parseInt(editingBus.capacity),
+               year: parseInt(editingBus.year),
+               route: selectedRoute?.name || '',
+               routeCode: selectedRoute?.code || '',
+               driver: selectedDriver?.name || '',
+               driverLicense: selectedDriver?.license || ''
+            }
+            : bus
+      ));
+      setEditingBus(null);
+      alert('Đã cập nhật xe buýt thành công!');
+   };
+
    const getStatusColor = (status) => { // Lấy màu trạng thái
       switch (status) {
          case 'active': return 'bg-green-100 text-green-800';
@@ -99,7 +131,140 @@ export default function BusesPage() {
       { id: 3, name: 'Lê Văn C', license: 'B2-345678' },
       { id: 4, name: 'Phạm Văn D', license: 'B2-901234' }
    ];
+   useEffect(() => {
+      const demoBuses = [
+         {
+            id: 1,
+            number: 'BUS-001',
+            licensePlate: '51B-123.45',
+            capacity: 40,
+            model: 'Thaco TB120S',
+            year: 2022,
+            route: 'Bến Thành - Sân Bay',
+            routeCode: 'BT-SB-01',
+            driver: 'Nguyễn Văn A',
+            driverLicense: 'B2-123456',
+            status: 'active',
+            fuelType: 'diesel',
+            mileage: '45,230 km',
+            lastMaintenance: '2024-09-15',
+            nextMaintenance: '2024-11-15',
+            dailyTrips: 4,
+            monthlyRevenue: '12,500,000 VND',
+            fuelConsumption: '8.5 L/100km',
+            createdAt: '2022-03-15'
+         },
+         {
+            id: 2,
+            number: 'BUS-002',
+            licensePlate: '51B-678.90',
+            capacity: 35,
+            model: 'Hyundai County',
+            year: 2021,
+            route: 'Quận 1 - Quận 7',
+            routeCode: 'Q1-Q7-02',
+            driver: 'Trần Văn B',
+            driverLicense: 'B2-789012',
+            status: 'active',
+            fuelType: 'diesel',
+            mileage: '62,150 km',
+            lastMaintenance: '2024-08-20',
+            nextMaintenance: '2024-10-20',
+            dailyTrips: 3,
+            monthlyRevenue: '10,200,000 VND',
+            fuelConsumption: '9.2 L/100km',
+            createdAt: '2021-05-10'
+         },
+         {
+            id: 3,
+            number: 'BUS-003',
+            licensePlate: '51B-234.56',
+            capacity: 45,
+            model: 'Isuzu NQR75',
+            year: 2023,
+            route: 'Thủ Đức - Quận 3',
+            routeCode: 'TD-Q3-03',
+            driver: 'Lê Văn C',
+            driverLicense: 'B2-345678',
+            status: 'maintenance',
+            fuelType: 'CNG',
+            mileage: '28,900 km',
+            lastMaintenance: '2024-10-01',
+            nextMaintenance: '2024-10-15',
+            dailyTrips: 0,
+            monthlyRevenue: '0 VND',
+            fuelConsumption: '12.5 m³/100km',
+            createdAt: '2023-01-20'
+         },
+         {
+            id: 4,
+            number: 'BUS-004',
+            licensePlate: '51B-789.01',
+            capacity: 32,
+            model: 'Ford Transit',
+            year: 2020,
+            route: '',
+            routeCode: '',
+            driver: '',
+            driverLicense: '',
+            status: 'inactive',
+            fuelType: 'diesel',
+            mileage: '89,450 km',
+            lastMaintenance: '2024-06-10',
+            nextMaintenance: '2024-12-10',
+            dailyTrips: 0,
+            monthlyRevenue: '0 VND',
+            fuelConsumption: '7.8 L/100km',
+            createdAt: '2020-08-05'
+         },
+         {
+            id: 5,
+            number: 'BUS-005',
+            licensePlate: '51B-345.67',
+            capacity: 50,
+            model: 'Daewoo BU120',
+            year: 2024,
+            route: 'Gò Vấp - Bình Thạnh',
+            routeCode: 'GV-BT-04',
+            driver: 'Phạm Văn D',
+            driverLicense: 'B2-901234',
+            status: 'active',
+            fuelType: 'electric',
+            mileage: '5,200 km',
+            lastMaintenance: '2024-09-01',
+            nextMaintenance: '2024-12-01',
+            dailyTrips: 2,
+            monthlyRevenue: '8,800,000 VND',
+            fuelConsumption: '1.2 kWh/km',
+            createdAt: '2024-02-28'
+         }
+      ];
+      setBuses(demoBuses);
+   }, []);
 
+   // Render lại sau khi tìm 
+   useEffect(() => {
+      let filtered = buses;
+
+      if (searchTerm) {
+         filtered = filtered.filter(bus =>
+            bus.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            bus.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            bus.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            bus.driver.toLowerCase().includes(searchTerm.toLowerCase())
+         );
+      }
+
+      if (statusFilter !== 'all') {
+         filtered = filtered.filter(bus => bus.status === statusFilter);
+      }
+
+      if (routeFilter !== 'all') {
+         filtered = filtered.filter(bus => bus.routeCode === routeFilter);
+      }
+
+      setFilteredBuses(filtered);
+   }, [buses, searchTerm, statusFilter, routeFilter]);
 
    return (
       <>
@@ -225,7 +390,7 @@ export default function BusesPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                      >
                         <option value="all">Tất cả</option>
-                        {routes.map((route) =>(
+                        {routes.map((route) => (
                            <option key={route.id} value={route.code}>
                               {route.name}
                            </option>
@@ -245,7 +410,7 @@ export default function BusesPage() {
                                         font-semibold transition-colors flex items-center justify-center space-x-2"
                      >
                         <span>
-                                <RefreshCcw className="h-5 w-5 text-white" />
+                           <RefreshCcw className="h-5 w-5 text-white" />
                         </span>
                         <span>Làm mới</span>
                      </button>
@@ -253,15 +418,266 @@ export default function BusesPage() {
                </div>
             </div>
 
-            {/* Danh sách xe */}
+            {/* Danh sách xe hiển thị sau lọc*/}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                {filteredBuses.map((bus) => (
                   <div key={bus.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                  
+                     <div className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                           <div className="flex-1">
+                              {/* Mã xe và trạng thái*/}
+                              <div className="flex items-center space-x-2 mb-2">
+                                 <h3 className="text-lg font-semibold text-gray-900">{bus.number}</h3>
+                                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(bus.status)}`}>
+                                    {getStatusText(bus.status)}
+                                 </span>
+                              </div>
+                              {/* Biển số */}
+                              <p className="text-sm text-gray-600 mb-1">Biển số: {bus.licensePlate}</p>
+                              <p className="text-sm text-gray-600">Năm sản xuất: {bus.year}</p>
+                           </div>
+                        </div>
+
+                        <div className="space-y-2 mb-4">
+                           {/* Sức chứa */}
+                           <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Sức chứa:</span>
+                              <span className="font-medium">{bus.capacity} chỗ</span>
+                           </div>
+                           {/* Tuyến */}
+                           <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Tuyến:</span>
+                              <span className="font-medium">{bus.route || 'Chưa phân công'}</span>
+                           </div>
+                           {/* Tài xế */}
+                           <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Tài xế:</span>
+                              <span className="font-medium">{bus.driver || 'Chưa phân công'}</span>
+                           </div>
+                           {/* Quãng đường */}
+                           <div className="flex justify-between text-sm">
+                              <span className="text-gray-600">Quãng đường:</span>
+                              <span className="font-medium">{bus.mileage}</span>
+                           </div>
+                        </div>
+
+                        <div className="flex space-x-2">
+                           {/* Nút sửa */}
+                           <button
+                              onClick={() => setEditingBus(bus)}
+                              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm 
+                                                   font-medium transition-colors flex items-center justify-center space-x-2"
+                           >
+                              <span><SquarePen /></span>
+                              <span>Sửa</span>
+                           </button>
+
+                           {/* Nút xóa */}
+                           <button
+                              onClick={() => handleDeleteBus(bus.id)}
+                              className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm 
+                                                font-medium transition-colors flex items-center justify-center space-x-2"
+                           >
+                              <span><Trash2></Trash2></span>
+                              <span>Xóa</span>
+                           </button>
+                        </div>
+                     </div>
                   </div>
                ))}
             </div>
-         </div>
+
+            {/* Info khi không có gì để lọc */}
+            {filteredBuses.length === 0 && (
+               <div className="text-center py-12">
+                  <p className="text-gray-500 text-lg mt-4">
+                     Không tìm thấy xe buýt nào phù hợp
+                  </p>
+               </div>
+            )}
+
+            {/* Dialog tạo/ sửa */}
+            {(isCreating || editingBus) && (
+               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                     <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                           {editingBus ? 'Sửa thông tin xe buýt' : 'Thêm xe buýt mới'}
+                        </h3>
+                        {/* Nút tắt */}
+                        <button
+                           onClick={() => {
+                              setIsCreating(false);
+                              setEditingBus(null);
+                           }}
+                           className="text-gray-400 hover:text-gray-600"
+                        >
+                           <X></X>
+                        </button>
+                     </div>
+
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Mã xe*/}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Mã xe *</label>
+                           <input
+                              type="text"
+                              value={editingBus ? editingBus.number : newBus.number}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, number: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, number: e.target.value });
+                                 }
+                              }}
+                              placeholder="VD: BUS-001"
+                              disabled={!!editingBus}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           />
+                        </div>
+
+                        {/* Biển số xe */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Biển số xe *</label>
+                           <input
+                              type="text"
+                              value={editingBus ? editingBus.licensePlate : newBus.licensePlate}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, licensePlate: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, licensePlate: e.target.value });
+                                 }
+                              }}
+                              placeholder="VD: 51B-123.45"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           />
+                        </div>
+
+                        {/* Năm sản xuất */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Năm sản xuất</label>
+                           <input
+                              type="number"
+                              value={editingBus ? editingBus.year : newBus.year}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, year: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, year: e.target.value });
+                                 }
+                              }}
+                              placeholder="2024"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           />
+                        </div>
+
+                        {/* Sức chứa */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Sức chứa *</label>
+                           <input
+                              type="number"
+                              value={editingBus ? editingBus.capacity : newBus.capacity}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, capacity: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, capacity: e.target.value });
+                                 }
+                              }}
+                              placeholder="40"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           />
+                        </div>
+
+                        {/* Tuyến */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Tuyến</label>
+                           <select
+                              value={editingBus ? editingBus.route : newBus.route}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, route: e.target.value });
+                                 } else {
+                                    newBus({ ...newBus, route: e.target.value });
+                                 }
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           >
+                              {routes.map((route) => (
+                                 <option key={route.id} value={route.id}>
+                                    {route.name}
+                                 </option>
+                              ))}
+                           </select>
+                        </div>
+
+                        {/* Tài xế */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Tài xế</label>
+                           <select
+                              value={editingBus ? editingBus.driver : newBus.driver}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, driver: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, driver: e.target.value });
+                                 }
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           >
+                              <option value="">Chưa phân công</option>
+                              {drivers.map((driver) => (
+                                 <option key={driver.id} value={driver.id}>
+                                    {driver.name} - {driver.license}
+                                 </option>
+                              ))}
+                           </select>
+                        </div>
+
+                        {/* Trạng thái */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                           <select
+                              value={editingBus ? editingBus.status : newBus.status}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, status: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, status: e.target.value });
+                                 }
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           >
+                              <option value="active">Hoạt động</option>
+                              <option value="maintenance">Bảo trì</option>
+                              <option value="repair">Sửa chữa</option>
+                              <option value="inactive">Ngưng hoạt động</option>
+                           </select>
+                        </div>
+                     </div>
+
+                     <div className="flex space-x-3 mt-6">
+                        {/* Nút Ok */}
+                        <button
+                           onClick={editingBus ? handleUpdateBus : handleCreateBus}
+                        >
+
+                        </button>
+                        <button
+                           onClick={() => {
+                              setIsCreating(false);
+                              setEditingBus(null);
+                           }}
+                           className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
+                        >
+                           Hủy
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            )}
+         </div >
       </>
    )
 };
