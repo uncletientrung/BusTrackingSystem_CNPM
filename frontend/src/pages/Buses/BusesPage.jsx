@@ -1,4 +1,4 @@
-import { BusFront, Check, Plus, RefreshCcw, SquarePen, Trash2, Users, Wrench, X } from "lucide-react";
+import { BusFront, Check, Plus, PlusCircle, RefreshCcw, SquarePen, Trash2, Users, Wrench, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
@@ -283,7 +283,7 @@ export default function BusesPage() {
                   onClick={() => setIsCreating(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
                >
-                  <span><Plus></Plus></span>
+                  <span><PlusCircle></PlusCircle></span>
                   <span>Thêm xe mới</span>
                </button>
             </div>
