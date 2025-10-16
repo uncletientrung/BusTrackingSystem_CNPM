@@ -22,6 +22,7 @@ import RoutesPage from './pages/Routes/RoutesPage';
 
 // Students
 import StudentsPage from './pages/Students/StudentsPage';
+import StudentDetailPage from './pages/Students/StudentDetailPage';
 
 // Tracking
 import TrackingPage from './pages/Tracking/TrackingPage';
@@ -36,18 +37,27 @@ import NotificationPage from './pages/Notifications/NotificationPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 
 
+
 function App() {
 
 
   return (
     <>
       <Routes>
-         <Route path='/' element={<Layout />}> 
+        <Route path='/' element={<Layout />}>
           {/* Các route con sẽ được render trong <Outlet /> của Layout */}
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path='buses' element={<BusesPage />} />
           <Route path='routes' element={<RoutesPage />} />
-          <Route path='students' element={<StudentsPage />} />
+          <Route
+            path='students'
+            element={<StudentsPage />}
+
+          />
+          <Route
+            path='students/:id'
+            element={<StudentDetailPage />}
+          />
           <Route path='tracking' element={<TrackingPage />} />
           <Route path='schedule' element={<SchedulePage />} />
           <Route path='users' element={<UsersPage />} />
@@ -55,11 +65,11 @@ function App() {
           <Route path='profile' element={<ProfilePage />} />
         </Route>
 
-         {/* Các route không dùng Layout */}
+        {/* Các route không dùng Layout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
-      
+
     </>
   )
 }

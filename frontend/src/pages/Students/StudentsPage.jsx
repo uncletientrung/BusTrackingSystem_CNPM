@@ -1,4 +1,4 @@
-import { Check, CheckCircle, Clock, Edit, Eye, Filter, GraduationCap, Phone, Plus, PlusCircle, Route, Search, Trash2, Users2, X, XCircle } from "lucide-react"
+import { Check, CheckCircle, CirclePlus, Clock, Edit, Eye, Filter, GraduationCap, Phone, Plus, PlusCircle, Route, Search, Trash2, Users2, X, XCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -292,10 +292,14 @@ export default function StudentsPage() {
           {/* Nút thêm học sinh */}
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 
+                    rounded-lg font-semibold transition-colors flex items-center space-x-2"
           >
-            <PlusCircle className="h-4 w-4 mr-2"></PlusCircle>
-            Thêm học sinh
+
+            <span>
+              <CirclePlus className="h-5 w-5 text-white" />
+            </span>
+            <span>Thêm học sinh</span>
           </button>
         </div>
 
@@ -400,6 +404,7 @@ export default function StudentsPage() {
                   </th>
                 </tr>
               </thead>
+
               {/* Body của Table */}
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredStudents.map((student) => (
@@ -448,8 +453,8 @@ export default function StudentsPage() {
                     </td>
 
                     {/* Nội dung cột thao tác */}
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <div className="flex items-center justify-center space-x-2">
                         {/* Nút xem chi tiết */}
                         <button
                           onClick={() => navigate(`/students/${student.id}`)}
