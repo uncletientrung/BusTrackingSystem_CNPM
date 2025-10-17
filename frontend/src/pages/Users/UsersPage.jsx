@@ -659,7 +659,7 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Tên đăng nhập"
                         value={editingUser.username}
-                        onChange={(e) => setNewUser({ ...editingUser, username: e.target.value })}
+                        onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -673,7 +673,7 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Mật khẩu"
                         value={editingUser.password}
-                        onChange={(e) => setNewUser({ ...editingUser, password: e.target.value })}
+                        onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -687,7 +687,7 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Nhập lại mật khẩu"
                         value={editingUser.confirmPassword}
-                        onChange={(e) => setNewUser({ ...editingUser, confirmPassword: e.target.value })}
+                        onChange={(e) => setEditingUser({ ...editingUser, confirmPassword: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>

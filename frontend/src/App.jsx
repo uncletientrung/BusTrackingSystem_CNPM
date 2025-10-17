@@ -35,6 +35,7 @@ import NotificationPage from './pages/Notifications/NotificationPage';
 
 // Profile
 import ProfilePage from './pages/Profile/ProfilePage';
+import UserDetailPage from './pages/Users/UserDetailPage';
 
 
 
@@ -60,7 +61,12 @@ function App() {
           />
           <Route path='tracking' element={<TrackingPage />} />
           <Route path='schedule' element={<SchedulePage />} />
-          <Route path='users' element={<UsersPage />} />
+          <Route path='users'
+            element={<UsersPage />}
+          />
+          <Route path='users/:id'
+            element={<UserDetailPage />}
+          />
           <Route path='notifications' element={<NotificationPage />} />
           <Route path='profile' element={<ProfilePage />} />
         </Route>
