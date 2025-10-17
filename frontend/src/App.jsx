@@ -37,6 +37,9 @@ import NotificationPage from './pages/Notifications/NotificationPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import UserDetailPage from './pages/Users/UserDetailPage';
 
+// Error
+import NotFoundPage from './pages/Error/NotFoundPage';
+
 
 
 function App() {
@@ -69,12 +72,18 @@ function App() {
           />
           <Route path='notifications' element={<NotificationPage />} />
           <Route path='profile' element={<ProfilePage />} />
+
+
         </Route>
 
         {/* Các route không dùng Layout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+
+        {/* Route bắt tất cả đường dẫn không tồn tại */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
 
     </>
   )
