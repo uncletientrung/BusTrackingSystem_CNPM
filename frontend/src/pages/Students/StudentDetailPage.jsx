@@ -8,8 +8,8 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState(null) // Học sinh được chọn
   const [loading, setLoading] = useState(true) // trạng thái loading
   const [activeTab, setActiveTab] = useState('info')
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [editingStudent, setEditingStudent] = useState(null)
+  const [showEditModal, setShowEditModal] = useState(false) // Trạng thái dialog sửa
+  const [editingStudent, setEditingStudent] = useState(null) // đối tượng sửa
 
   // Giả lập dữ liệu
   const demoStudents = [
