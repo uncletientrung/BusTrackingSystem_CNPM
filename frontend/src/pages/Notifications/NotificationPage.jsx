@@ -530,13 +530,14 @@ export default function NotificationPage() {
               </div>
 
               {/* Nút hủy và nút gửi ngay/ lên lịch */}
-              <div className="flex space-x-3 mt-6">
+              <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setIsCreating(false)}
                   className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
                 >
                   Hủy
                 </button>
+                
                 <button
                   onClick={handleCreateNotification}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
