@@ -242,7 +242,7 @@ export default function UserDetailPage() {
           {/* Thông tin cơ bản */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-medium text-gray-900 mb-6">Thông tin cơ bản</h2>
-            {/* Avartar Icon */}
+            {/* Avatar Icon */}
             <div className="flex items-start space-x-6">
               <div className="flex-shrink-0">
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">

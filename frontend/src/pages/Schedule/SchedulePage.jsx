@@ -146,8 +146,6 @@ export default function SchedulePage() {
     alert('Đã tạo lịch trình mới thành công!');
   };
 
-
-
   return (
     <>
       <div className="space-y-6">
@@ -177,53 +175,7 @@ export default function SchedulePage() {
           </button>
         </div>
 
-        {/* Filter */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div> {/* CBB ngày */}
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ngày
-              </label>
-              <input type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
-                                                focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
 
-            <div> {/* CBB tuyến đường */}
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tuyến đường</label>
-              <select
-                value={selectedRoute}
-                onChange={(e) => setSelectedRoute(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
-                                                focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">Tất cả tuyến</option>
-                {demoRoutes.map((route) => (
-                  <option key={route.id} value={route.code}>
-                    {route.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-end"> {/* Nút làm mới */}
-              <button
-                onClick={() => window.location.reload() /*Reload lại trang hàm JS */}
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg 
-                                        font-semibold transition-colors flex items-center justify-center space-x-2"
-              >
-                <span>
-                  <RefreshCcw className="h-5 w-5 text-white" />
-                </span>
-                <span>Làm mới</span>
-
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Lọc nhanh */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -297,6 +249,53 @@ export default function SchedulePage() {
           </div>
         </div>
 
+        {/* Filter */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div> {/* CBB ngày */}
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ngày
+              </label>
+              <input type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                                                focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div> {/* CBB tuyến đường */}
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tuyến đường</label>
+              <select
+                value={selectedRoute}
+                onChange={(e) => setSelectedRoute(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
+                                                focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tất cả tuyến</option>
+                {demoRoutes.map((route) => (
+                  <option key={route.id} value={route.code}>
+                    {route.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-end"> {/* Nút làm mới */}
+              <button
+                onClick={() => window.location.reload() /*Reload lại trang hàm JS */}
+                className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg 
+                                        font-semibold transition-colors flex items-center justify-center space-x-2"
+              >
+                <span>
+                  <RefreshCcw className="h-5 w-5 text-white" />
+                </span>
+                <span>Làm mới</span>
+
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Danh sách lịch trình */}
         <div className="bg-white rounded-lg shadow-md">

@@ -39,6 +39,7 @@ import UserDetailPage from './pages/Users/UserDetailPage';
 
 // Error
 import NotFoundPage from './pages/Error/NotFoundPage';
+import DriverPage from './pages/Driver/DriverPage';
 
 
 
@@ -71,6 +72,7 @@ function App() {
             element={<UserDetailPage />}
           />
           <Route path='notifications' element={<NotificationPage />} />
+          <Route path='driver' element={<DriverPage />} />
           <Route path='profile' element={<ProfilePage />} />
 
 
