@@ -554,6 +554,24 @@ export default function BusesPage() {
                            />
                         </div>
 
+                        {/* Hãng xe */}
+                        <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-1">Hãng xe</label>
+                           <input
+                              type="number"
+                              value={editingBus ? editingBus.model : newBus.model}
+                              onChange={(e) => {
+                                 if (editingBus) {
+                                    setEditingBus({ ...editingBus, year: e.target.value });
+                                 } else {
+                                    setNewBus({ ...newBus, year: e.target.value });
+                                 }
+                              }}
+                              placeholder="Hyundai"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           />
+                        </div>
+
                         {/* Năm sản xuất */}
                         <div>
                            <label className="block text-sm font-medium text-gray-700 mb-1">Năm sản xuất</label>
@@ -588,28 +606,6 @@ export default function BusesPage() {
                               placeholder="40"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                            />
-                        </div>
-
-                        {/* Tuyến */}
-                        <div>
-                           <label className="block text-sm font-medium text-gray-700 mb-1">Tuyến</label>
-                           <select
-                              value={editingBus ? editingBus.route : newBus.route}
-                              onChange={(e) => {
-                                 if (editingBus) {
-                                    setEditingBus({ ...editingBus, route: e.target.value });
-                                 } else {
-                                    newBus({ ...newBus, route: e.target.value });
-                                 }
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                           >
-                              {routes.map((route) => (
-                                 <option key={route.id} value={route.id}>
-                                    {route.name}
-                                 </option>
-                              ))}
-                           </select>
                         </div>
 
                         {/* Tài xế */}

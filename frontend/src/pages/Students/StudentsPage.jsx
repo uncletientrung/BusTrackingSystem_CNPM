@@ -22,6 +22,9 @@ export default function StudentsPage() {
     address: '',
     route: '',
     pickupPoint: '',
+    dropdownPoint: '',
+    sex: '',
+    birthday: '',
     status: 'active'
   })
 
@@ -39,10 +42,13 @@ export default function StudentsPage() {
       route: 'Tuyến A',
       routeId: 'route-1',
       pickupPoint: 'Điểm đón A1 - Chợ Bến Thành',
+      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
       pickupTime: '07:00',
       dropoffTime: '16:30',
       status: 'active',
       avatar: null,
+      sex: 'Nam',
+      birthday: '2024-01-15',
       emergencyContact: '0987654321',
       medicalNotes: 'Không có',
       createdAt: '2024-01-15',
@@ -64,10 +70,13 @@ export default function StudentsPage() {
       route: 'Tuyến B',
       routeId: 'route-2',
       pickupPoint: 'Điểm đón B2 - Trường THCS Nam Sài Gòn',
+      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
       pickupTime: '07:15',
       dropoffTime: '16:45',
       status: 'active',
       avatar: null,
+      sex: 'Nam',
+      birthday: '2024-01-15',
       emergencyContact: '0987654322',
       medicalNotes: 'Dị ứng với đậu phộng',
       createdAt: '2024-02-01',
@@ -89,10 +98,13 @@ export default function StudentsPage() {
       route: 'Tuyến A',
       routeId: 'route-1',
       pickupPoint: 'Điểm đón A3 - Công viên Tao Đàn',
+      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
       pickupTime: '07:30',
       dropoffTime: '17:00',
       status: 'inactive',
       avatar: null,
+      sex: 'Nam',
+      birthday: '2024-01-15',
       emergencyContact: '0987654323',
       medicalNotes: 'Không có',
       createdAt: '2024-02-15',
@@ -114,9 +126,12 @@ export default function StudentsPage() {
       route: 'Tuyến C',
       routeId: 'route-3',
       pickupPoint: 'Điểm đón C1 - Chợ Tân Định',
+      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
       pickupTime: '06:45',
       dropoffTime: '16:15',
       status: 'active',
+      sex: 'Nam',
+      birthday: '2024-01-15',
       avatar: null,
       emergencyContact: '0987654324',
       medicalNotes: 'Cần thuốc hen suyễn',
@@ -139,9 +154,12 @@ export default function StudentsPage() {
       route: 'Tuyến B',
       routeId: 'route-2',
       pickupPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
+      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
       pickupTime: '07:00',
       dropoffTime: '16:30',
       status: 'active',
+      sex: 'Nam',
+      birthday: '2024-01-15',
       avatar: null,
       emergencyContact: '0987654325',
       medicalNotes: 'Không có',
@@ -537,6 +555,25 @@ export default function StudentsPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
+                  {/* Ô mã học sinh */}
+                  <input
+                    type="date"
+                    placeholder="Ngày sinh"
+                    value={newStudent.birthday}
+                    onChange={(e) => setNewStudent({ ...newStudent, birthday: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+
+                  {/* Ô giới tính */}
+                  <select
+                    value={newStudent.sex}
+                    onChange={(e) => setNewStudent({ ...newStudent, sex: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                  </select>
+
                   {/* Chọn lớp */}
                   <select
                     value={newStudent.grade}
@@ -558,16 +595,7 @@ export default function StudentsPage() {
                   </select>
 
                   {/* Ô ẩn */}
-                  <input type="hide" />
-
-                  {/* Ô tên phụ huynh */}
-                  <input
-                    type="text"
-                    placeholder="Tên phụ huynh"
-                    value={newStudent.parentName}
-                    onChange={(e) => setNewStudent({ ...newStudent, parentName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  <p></p>
 
                   {/* Ô số điện thoại phụ huynh */}
                   <input
@@ -575,6 +603,15 @@ export default function StudentsPage() {
                     placeholder="Số điện thoại phụ huynh"
                     value={newStudent.parentPhone}
                     onChange={(e) => setNewStudent({ ...newStudent, parentPhone: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+
+                  {/* Ô tên phụ huynh */}
+                  <input
+                    type="text"
+                    placeholder="Tên phụ huynh"
+                    value={newStudent.parentName}
+                    onChange={(e) => setNewStudent({ ...newStudent, parentName: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
@@ -590,6 +627,27 @@ export default function StudentsPage() {
                     ))}
                   </select>
 
+                  {/* Ô ẩn */}
+                  <p></p>
+
+                  {/* Ô điểm đón */}
+                  <input
+                    type="text"
+                    placeholder="Điểm đón"
+                    value={newStudent.pickupPoint}
+                    onChange={(e) => setNewStudent({ ...newStudent, pickupPoint: e.target.value })}
+                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+
+                  {/* Ô điểm dừng trả */}
+                  <input
+                    type="text"
+                    placeholder="Điểm dừng"
+                    value={newStudent.dropdownPoint}
+                    onChange={(e) => setNewStudent({ ...newStudent, dropdownPoint: e.target.value })}
+                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+
                   {/* Ô địa chỉ */}
                   <textarea
                     placeholder="Địa chỉ nhà"
@@ -599,16 +657,8 @@ export default function StudentsPage() {
                     rows={2}
                   />
 
-                  {/* Ô điểm đón */}
-                  <input
-                    type="text"
-                    placeholder="Điểm đón"
-                    value={newStudent.pickupPoint}
-                    onChange={(e) => setNewStudent({ ...newStudent, pickupPoint: e.target.value })}
-                    className="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
                 </div>
+
 
                 {/* Nút tắt và thêm */}
                 <div className="flex justify-end space-x-3 mt-6">
@@ -666,6 +716,25 @@ export default function StudentsPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
+                  {/* Ô mã học sinh */}
+                  <input
+                    type="date"
+                    placeholder="Ngày sinh"
+                    value={editingStudent.birthday}
+                    onChange={(e) => setNewStudent({ ...editingStudent, birthday: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+
+                  {/* Ô giới tính */}
+                  <select
+                    value={editingStudent.sex}
+                    onChange={(e) => setNewStudent({ ...editingStudent, sex: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                  </select>
+
                   {/* Ô chọn lớp*/}
                   <select
                     value={editingStudent.grade}
@@ -680,7 +749,7 @@ export default function StudentsPage() {
                   </select>
 
                   {/* Ô ẩn */}
-                  <input type="hide" />
+                  <p></p>
 
                   {/* Ô tên phụ huynh */}
                   <input
@@ -700,6 +769,7 @@ export default function StudentsPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
+
                   {/* Ô chọn tuyến đường */}
                   <select
                     value={editingStudent.route}
@@ -711,6 +781,27 @@ export default function StudentsPage() {
                       <option key={route.id} value={route.name}>{route.name}</option>
                     ))}
                   </select>
+
+                  {/* Ô ẩn */}
+                  <p></p>
+
+                  {/* Ô điểm đón */}
+                  <input
+                    type="text"
+                    placeholder="Điểm đón"
+                    value={editingStudent.pickupPoint}
+                    onChange={(e) => setNewStudent({ ...editingStudent, pickupPoint: e.target.value })}
+                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+
+                  {/* Ô điểm dừng trả */}
+                  <input
+                    type="text"
+                    placeholder="Điểm dừng"
+                    value={editingStudent.dropdownPoint}
+                    onChange={(e) => setNewStudent({ ...editingStudent, dropdownPoint: e.target.value })}
+                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
 
                   {/* Ô địa chỉ */}
                   <textarea

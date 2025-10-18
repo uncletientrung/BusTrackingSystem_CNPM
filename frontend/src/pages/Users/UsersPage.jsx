@@ -18,6 +18,8 @@ export default function UsersPage() {
     phone: '',
     username: '',
     password: '',
+    sex: '',
+    birthday: '',
     confirmPassword: '',
     role: 'parent',
     status: 'active',
@@ -33,6 +35,8 @@ export default function UsersPage() {
       phone: '0901234567',
       username: '0901234567',
       password: '123012',
+      sex: 'Nam',
+      birthday: '11-11-2011',
       role: 'admin',
       status: 'active',
       address: '123 Đường ABC, Quận 1, TP.HCM',
@@ -46,6 +50,8 @@ export default function UsersPage() {
       phone: '0902345678',
       username: '0902345678',
       password: '123012',
+      sex: 'Nam',
+      birthday: '11-11-2011',
       role: 'dispatch',
       status: 'active',
       address: '456 Đường DEF, Quận 2, TP.HCM',
@@ -59,6 +65,8 @@ export default function UsersPage() {
       phone: '0902345678',
       username: '0902345678',
       password: '123012',
+      sex: 'Nam',
+      birthday: '11-11-2011',
       role: 'driver',
       status: 'active',
       address: '789 Đường GHI, Quận 3, TP.HCM',
@@ -72,6 +80,8 @@ export default function UsersPage() {
       phone: '0904567890',
       username: '0902345678',
       password: '123012',
+      sex: 'Nam',
+      birthday: '11-11-2011',
       role: 'parent',
       status: 'active',
       address: '321 Đường JKL, Quận 4, TP.HCM',
@@ -85,6 +95,8 @@ export default function UsersPage() {
       phone: '0905678901',
       username: '0902345678',
       password: '123012',
+      sex: 'Nam',
+      birthday: '11-11-2011',
       role: 'driver',
       status: 'inactive',
       address: '654 Đường MNO, Quận 5, TP.HCM',
@@ -227,7 +239,7 @@ export default function UsersPage() {
             <span>
               <CirclePlus className="h-5 w-5 text-white" />
             </span>
-            <span>Thêm học sinh</span>
+            <span>Thêm người dùng</span>
           </button>
         </div>
 
@@ -450,6 +462,35 @@ export default function UsersPage() {
                       />
                     </div>
 
+                    {/* Ô Giới tính */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Giới tính *
+                      </label>
+                      <select
+                        value={newUser.sex}
+                        onChange={(e) => setEditingUser({ ...newUser, sex: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="male">Nam</option>
+                        <option value="female">Nữ</option>
+                      </select>
+                    </div>
+
+                    {/* Ô Ngày sinh*/}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ngày sinh *
+                      </label>
+                      <input
+                        type="date"
+                        placeholder="Ngày sinh"
+                        value={newUser.birthday}
+                        onChange={(e) => setEditingUser({ ...newUser, birthday: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
                     {/* Email */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -618,6 +659,35 @@ export default function UsersPage() {
                         placeholder="Họ tên"
                         value={editingUser.name}
                         onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Ô Giới tính */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Giới tính *
+                      </label>
+                      <select
+                        value={editingUser.sex}
+                        onChange={(e) => setEditingUser({ ...editingUser, sex: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="male">Nam</option>
+                        <option value="female">Nữ</option>
+                      </select>
+                    </div>
+
+                    {/* Ô Ngày sinh*/}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ngày sinh *
+                      </label>
+                      <input
+                        type="date"
+                        placeholder="Ngày sinh"
+                        value={editingUser.birthday}
+                        onChange={(e) => setEditingUser({ ...editingUser, birthday: e.target.value })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
