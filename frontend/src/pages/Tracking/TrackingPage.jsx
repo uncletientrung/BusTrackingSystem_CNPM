@@ -1,5 +1,6 @@
 import { CircleCheck, FlagTriangleRight, Hourglass, MapPin, RefreshCcw, VibrateIcon, Map } from "lucide-react";
 import { useState } from "react";
+import SimpleMap from "../../components/Map/SimpleMap";
 
 export default function TrackingPage() {
   const [selectedBus, setSelectedBus] = useState(1); // Trạng thái con xe bus số id x
@@ -106,7 +107,7 @@ export default function TrackingPage() {
               </p>
             </div>
             <div className="flex-1 p-0">
-              <Map
+              <SimpleMap
                 center={[10.8231, 106.6297]}
                 zoom={13}
                 markers={demoMarkers}
