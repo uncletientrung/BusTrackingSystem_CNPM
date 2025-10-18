@@ -1,141 +1,88 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-export default function SimpleMap({
-  center = [10.8231, 106.6297], // mặc định là toạ độ TP.HCM.
-  zoom = 13, // mức phóng to mặc định.
-  markers = [], // <mảng Marker> truyền bên TrackingPage
-  onMapClick, // callback khi click lên bản đồ
-  className = "h-96" }) {
-  const mapRef = useRef(null);  // Dùng để lưu DOM element (container) cho Leaflet 
-  const mapInstance = useRef(null); // Dùng để lưu instance của Leaflet map
-  // Lý do dùng useRef: giữ giá trị qua các lần render mà không gây render lại component
+// Fix for default markers
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
-  useEffect(() => { // Hàm khởi tạo map render 1 lần
-    const loadLeaflet = async () => { // Nạp tài nguyên Leaflet
-      // Load CSS
-      if (!document.querySelector('link[href*="leaflet"]')) { // Kiểm tra có thẻ Link leaflet chưa
-        const cssLink = document.createElement('link'); // Nếu chưa thì tạo 
-        cssLink.rel = 'stylesheet'; // Gán thuộc tính rel="stylesheet", nó là một stylesheet (CSS).
-        cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; // Đường dẫn file css leaflet
-        cssLink.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY='; // mã hash của leaflet
-        cssLink.crossOrigin = ''; // Cho phép dùng SRI khi tải tài nguyên từ domain khác
-        document.head.appendChild(cssLink); // gán cái này vào <head>
+const Map = ({
+  center = [10.8231, 106.6297], //Tọa độ trung tâm HCM
+  zoom = 13,
+  markers = [], // danh sách Marker
+  onMapClick, // callback khi click bản đồ.
+  className = "h-96"
+}) => {
+  const mapRef = useRef(null);  // div DOM để render bản đồ (mục đích để lưu giá trị khi render lại)
+  const mapInstance = useRef(null); // instance của Leaflet map
+  const markersLayer = useRef(null); // layer group chứa tất cả markers
+
+  useEffect(() => {
+    if (mapRef.current && !mapInstance.current) { // Kiểm tra đã tồn tại mapref và chưa có bản đồ để tránh tạo nhiều
+      // Tạo bản đồ bằng L, gắn vào div mà mapRef trỏ tới.
+      // Đặt vị trí trung tâm (center) và mức phóng (zoom)
+      mapInstance.current = L.map(mapRef.current).setView(center, zoom);
+
+      // Thêm lớp bản đồ nền từ OpenStreetMap.
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(mapInstance.current);
+
+      // Tạo một LayerGroup để chứa các marker (có thể thêm/xóa toàn bộ marker trong nhóm này)
+      markersLayer.current = L.layerGroup().addTo(mapInstance.current);
+
+      // Handle map click
+      if (onMapClick) {
+        mapInstance.current.on('click', (e) => {
+          onMapClick(e.latlng); // Trả về tọa đọ được Click
+        });
       }
+    }
 
-      // Load Leaflet JS
-      if (!window.L) { // window.L chính là object toàn cục của Leaflet
-        const script = document.createElement('script'); // Tạo js mới vào trong DOM
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; // Đường dẫn file js
-        script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo='; // Chuỗi SRI, đảm bảo file tải về khớp hash
-        script.crossOrigin = ''; // Cho phép kiểm tra SRI với file tải từ domain khác.
-
-        script.onload = () => { // Load xong thì gọi hàm initializeMap()
-          initializeMap();
-        };
-        document.head.appendChild(script); // Thêm vào <head>
-      } else {
-        initializeMap(); //Nếu đã có thì gọi thôi
-      }
-    };
-
-    const initializeMap = () => {
-      if (mapRef.current && window.L && !mapInstance.current) {
-        try {
-          // Initialize map
-          mapInstance.current = window.L.map(mapRef.current).setView(center, zoom);
-
-          // Add OpenStreetMap tiles
-          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-          }).addTo(mapInstance.current);
-
-          // Add markers if any
-          markers.forEach((marker) => {
-            const leafletMarker = window.L.marker([marker.lat, marker.lng]);
-            if (marker.popup || marker.title) { 
-              leafletMarker.bindPopup(marker.popup || marker.title); // hiển thị khi bấm vào Marker
-            }
-            leafletMarker.addTo(mapInstance.current); // Thêm market vào bản đồ
-          });
-
-          // Handle map click
-          if (onMapClick) {
-            mapInstance.current.on('click', (e) => {
-              onMapClick(e.latlng); // gọi callBack trả về tọa độ Click
-            });
-          }
-
-        } catch (error) { // Hiển thị đang tải bản đồ
-          console.error('Error initializing map:', error);
-          // Show fallback message
-          if (mapRef.current) {
-            mapRef.current.innerHTML = `
-              <div class="flex items-center justify-center h-full bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg">
-                <div class="text-center">
-                  <div class="text-4xl mb-2">🗺️</div>
-                  <p class="text-blue-600 font-semibold">Bản đồ tuyến xe buýt</p>
-                  <p class="text-blue-500 text-sm mt-1">Đang tải bản đồ...</p>
-                  <div class="mt-4 space-y-2">
-                    ${markers.map((marker, index) =>
-              `<div class="bg-white px-3 py-2 rounded shadow text-sm">
-                        📍 ${marker.title || `Điểm ${index + 1}`}
-                      </div>`
-            ).join('')}
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-        }
-      }
-    };
-
-    loadLeaflet();
-
-    return () => {
+    return () => { // Nếu component bị hủy nó xóa map
       if (mapInstance.current) {
-        try {
-          mapInstance.current.remove();
-          mapInstance.current = null;
-        } catch (error) {
-          console.error('Error cleaning up map:', error);
-        }
+        mapInstance.current.remove();
+        mapInstance.current = null;
       }
     };
   }, []);
 
-  // Update markers when they change
+  // Update markers khi markers trong danh sách thay đổi
   useEffect(() => {
-    if (mapInstance.current && window.L) {
-      try {
-        // Clear existing markers
-        mapInstance.current.eachLayer((layer) => {
-          if (layer instanceof window.L.Marker) {
-            mapInstance.current.removeLayer(layer);
-          }
-        });
+    if (markersLayer.current) {
+      markersLayer.current.clearLayers(); // Xóa hết marker cũ
 
-        // Add new markers
-        markers.forEach((marker) => {
-          const leafletMarker = window.L.marker([marker.lat, marker.lng]);
-          if (marker.popup || marker.title) {
-            leafletMarker.bindPopup(marker.popup || marker.title);
-          }
-          leafletMarker.addTo(mapInstance.current);
-        });
-      } catch (error) {
-        console.error('Error updating markers:', error);
-      }
+      markers.forEach((marker) => { // Duyệt qua mảng markers để tạo marker mới
+        const { lat, lng, title, popup } = marker;
+        const leafletMarker = L.marker([lat, lng]); // Tạo 1 marker tại vị trí (lat, lng)
+
+        if (title || popup) { // Nếu có title hoặc popup thì gắn popup hiển thị khi click marker
+          leafletMarker.bindPopup(popup || title);
+        }
+
+        leafletMarker.addTo(markersLayer.current); // Thêm marker này vào layerGroup
+      });
     }
   }, [markers]);
 
+  // Render mỗi khi đổi tọa độ center hoặc zoom
+  useEffect(() => {
+    if (mapInstance.current) {
+      mapInstance.current.setView(center, zoom);
+    }
+  }, [center, zoom]);
+
   return (
-    <>
-      <div
-        ref={mapRef}
-        className={`w-full ${className} border rounded-lg shadow-md bg-gray-100`}
-        style={{ minHeight: '300px' }}
-      />
-    </>
-  )
+    <div
+      ref={mapRef} // khởi tạo bản đồ
+      className={`w-full ${className} border rounded-lg shadow-md`}
+    />
+  );
 };
+
+export default Map;
