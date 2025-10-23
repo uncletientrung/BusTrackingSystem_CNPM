@@ -20,6 +20,9 @@ import BusesPage from './pages/Buses/BusesPage';
 // Routes
 import RoutesPage from './pages/Routes/RoutesPage';
 
+// Stops
+import StopsPage from './pages/Stops/StopsPage';
+
 // Students
 import StudentsPage from './pages/Students/StudentsPage';
 import StudentDetailPage from './pages/Students/StudentDetailPage';
@@ -54,6 +57,7 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path='buses' element={<BusesPage />} />
           <Route path='routes' element={<RoutesPage />} />
+          <Route path='stops' element={<StopsPage />} />
           <Route
             path='students'
             element={<StudentsPage />}

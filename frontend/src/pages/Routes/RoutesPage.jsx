@@ -1,5 +1,6 @@
 import { BusFront, Check, PlusCircle, RefreshCcw, RouteIcon, Search, SquarePen, Trash2, Wrench, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import StopSelector from "../../components/Routes/StopSelector";
 
 export default function RoutesPage() {
   const [routes, setRoutes] = useState([]);
@@ -18,6 +19,7 @@ export default function RoutesPage() {
     status: 'active',
     fare: ''
   });
+  const [availableStops, setAvailableStops] = useState([]); // Danh sách điểm dừng có sẵn
 
   // Demo routes data
   useEffect(() => {
@@ -101,6 +103,24 @@ export default function RoutesPage() {
       }
     ];
     setRoutes(demoRoutes);
+
+    // Demo available stops data
+    const demoStops = [
+      { id: 1, code: 'ST-001', name: 'Bến xe Bến Thành', latitude: 10.8231, longitude: 106.6297, address: '1 Phạm Ngũ Lão, Quận 1, TP.HCM' },
+      { id: 2, code: 'ST-002', name: 'Chợ Tân Định', latitude: 10.7890, longitude: 106.6850, address: '120 Hai Bà Trưng, Quận 1, TP.HCM' },
+      { id: 3, code: 'ST-003', name: 'Công viên Tao Đàn', latitude: 10.7769, longitude: 106.6909, address: 'Trương Định, Quận 1, TP.HCM' },
+      { id: 4, code: 'ST-004', name: 'Sân bay Tân Sơn Nhất', latitude: 10.8187, longitude: 106.6519, address: 'Trường Sơn, Tân Bình, TP.HCM' },
+      { id: 5, code: 'ST-005', name: 'Nhà thờ Đức Bà', latitude: 10.7798, longitude: 106.6990, address: '01 Công xã Paris, Quận 1, TP.HCM' },
+      { id: 6, code: 'ST-006', name: 'Cầu Sài Gòn', latitude: 10.7624, longitude: 106.6832, address: 'Võ Văn Kiệt, Quận 1, TP.HCM' },
+      { id: 7, code: 'ST-007', name: 'TTTM Crescent Mall', latitude: 10.7292, longitude: 106.7197, address: '101 Tôn Dật Tiên, Quận 7, TP.HCM' },
+      { id: 8, code: 'ST-008', name: 'ĐH Quốc gia TP.HCM', latitude: 10.8700, longitude: 106.8030, address: 'Linh Trung, Thủ Đức, TP.HCM' },
+      { id: 9, code: 'ST-009', name: 'Chợ Thủ Đức', latitude: 10.8506, longitude: 106.7717, address: 'Võ Văn Ngân, Thủ Đức, TP.HCM' },
+      { id: 10, code: 'ST-010', name: 'Bệnh viện Chợ Rẫy', latitude: 10.7554, longitude: 106.6665, address: '201B Nguyễn Chí Thanh, Quận 5, TP.HCM' },
+      { id: 11, code: 'ST-011', name: 'Chợ Gò Vấp', latitude: 10.8142, longitude: 106.6438, address: 'Quang Trung, Gò Vấp, TP.HCM' },
+      { id: 12, code: 'ST-012', name: 'Đầm Sen', latitude: 10.7889, longitude: 106.6542, address: 'Hòa Bình, Quận 11, TP.HCM' },
+      { id: 13, code: 'ST-013', name: 'Vincom Bình Thạnh', latitude: 10.8012, longitude: 106.7109, address: 'Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM' },
+    ];
+    setAvailableStops(demoStops);
   }, []);
 
   // Tìm kiếm và lọc dữ liệu
@@ -546,6 +566,21 @@ export default function RoutesPage() {
                       <option value="inactive">Ngưng hoạt động</option>
                     </select>
                   </div>
+                </div>
+
+                {/* Stop Selector */}
+                <div className="mt-6">
+                  <StopSelector
+                    selectedStops={editingRoute ? editingRoute.stops : newRoute.stops}
+                    onStopsChange={(stops) => {
+                      if (editingRoute) {
+                        setEditingRoute({ ...editingRoute, stops });
+                      } else {
+                        setNewRoute({ ...newRoute, stops });
+                      }
+                    }}
+                    availableStops={availableStops}
+                  />
                 </div>
               </div>
 
