@@ -1,6 +1,7 @@
 import { BusFront, Check, PlusCircle, RefreshCcw, RouteIcon, Search, SquarePen, Trash2, Wrench, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import StopSelector from "../../components/Routes/StopSelector";
+import { calculateRouteDistance, estimateTravelTime } from "../../utils/distanceCalculator";
 
 export default function RoutesPage() {
   const [routes, setRoutes] = useState([]);
@@ -508,39 +509,37 @@ export default function RoutesPage() {
 
                 {/* Nội dung chi tiết */}
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Khoảng cách */}
+                  {/* Khoảng cách - Tự động tính */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Khoảng cách</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Khoảng cách 
+                      <span className="ml-2 text-xs text-blue-600 font-normal">
+                        (Tự động tính từ điểm dừng)
+                      </span>
+                    </label>
                     <input
                       type="text"
                       value={editingRoute ? editingRoute.distance : newRoute.distance}
-                      onChange={(e) => {
-                        if (editingRoute) {
-                          setEditingRoute({ ...editingRoute, distance: e.target.value });
-                        } else {
-                          setNewRoute({ ...newRoute, distance: e.target.value });
-                        }
-                      }}
-                      placeholder="VD: 15.2 km"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      readOnly
+                      placeholder="Thêm điểm dừng để tính tự động"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
                     />
                   </div>
 
-                  {/* Thời gian dự kiến */}
+                  {/* Thời gian dự kiến - Tự động tính */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Thời gian dự kiến</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Thời gian dự kiến
+                      <span className="ml-2 text-xs text-blue-600 font-normal">
+                        (Tự động tính)
+                      </span>
+                    </label>
                     <input
                       type="text"
                       value={editingRoute ? editingRoute.estimatedTime : newRoute.estimatedTime}
-                      onChange={(e) => {
-                        if (editingRoute) {
-                          setEditingRoute({ ...editingRoute, estimatedTime: e.target.value });
-                        } else {
-                          setNewRoute({ ...newRoute, estimatedTime: e.target.value });
-                        }
-                      }}
-                      placeholder="VD: 45 phút"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      readOnly
+                      placeholder="Tự động tính dựa trên khoảng cách"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -568,15 +567,30 @@ export default function RoutesPage() {
                   </div>
                 </div>
 
-                {/* Stop Selector */}
+                {/* Stop Selector - Chọn từ danh sách điểm dừng có sẵn */}
                 <div className="mt-6">
                   <StopSelector
                     selectedStops={editingRoute ? editingRoute.stops : newRoute.stops}
                     onStopsChange={(stops) => {
+                      // Auto calculate distance and time
+                      const distance = calculateRouteDistance(stops);
+                      const distanceNum = parseFloat(distance);
+                      const time = estimateTravelTime(distanceNum);
+                      
                       if (editingRoute) {
-                        setEditingRoute({ ...editingRoute, stops });
+                        setEditingRoute({ 
+                          ...editingRoute, 
+                          stops,
+                          distance,
+                          estimatedTime: time
+                        });
                       } else {
-                        setNewRoute({ ...newRoute, stops });
+                        setNewRoute({ 
+                          ...newRoute, 
+                          stops,
+                          distance,
+                          estimatedTime: time
+                        });
                       }
                     }}
                     availableStops={availableStops}
