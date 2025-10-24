@@ -514,7 +514,7 @@ export default function RoutesPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Khoảng cách
                       <span className="ml-2 text-xs text-blue-600 font-normal">
-                        (Tự động tính từ điểm dừng)
+                        (Tự động tính)
                       </span>
                     </label>
                     <input
