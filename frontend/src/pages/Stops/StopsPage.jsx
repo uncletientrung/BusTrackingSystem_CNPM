@@ -235,10 +235,11 @@ export default function StopsPage() {
           {/* Add Button */}
           <button
             onClick={handleAddStop}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 
+                    rounded-lg font-semibold transition-colors flex items-center space-x-2"
           >
-            <PlusCircle className="h-5 w-5" />
-            Thêm điểm dừng mới
+            <span> <PlusCircle /></span>
+            <span>Thêm điểm dừng</span>
           </button>
         </div>
 
@@ -310,14 +311,12 @@ export default function StopsPage() {
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                         >
                           <SquarePen className="h-4 w-4" />
-                          Sửa
                         </button>
                         <button
                           onClick={() => handleDeleteStop(stop.id)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
-                          Xóa
                         </button>
                       </div>
                     </td>
@@ -363,11 +362,10 @@ export default function StopsPage() {
                   <button
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}
-                    className={`px-3 py-1 rounded-lg ${
-                      currentPage === index + 1
-                        ? 'bg-primary-600 text-white'
-                        : 'border border-gray-300 hover:bg-gray-50'
-                    }`}
+                    className={`px-3 py-1 rounded-lg ${currentPage === index + 1
+                      ? 'bg-primary-600 text-white'
+                      : 'border border-gray-300 hover:bg-gray-50'
+                      }`}
                   >
                     {index + 1}
                   </button>
