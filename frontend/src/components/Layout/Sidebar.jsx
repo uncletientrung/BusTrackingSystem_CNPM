@@ -1,4 +1,4 @@
-import { Bell, BriefcaseBusiness, Bus, Calendar, GraduationCap, LayoutDashboard, MapPin, MapPinned, Route, User, Users, X } from "lucide-react";
+import { Bell, BriefcaseBusiness, Bus, Calendar, GraduationCap, LayoutDashboard, MapPin, MapPinned, MessageCircle, Route, User, Users, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { clsx } from 'clsx' // Dùng để nối chuỗi lại giống Stringbuilder
 
@@ -47,6 +47,12 @@ export default function Sidebar({ isOpen, onClose }) {
       href: '/schedule',
       icon: Calendar,
       roles: ['admin', 'driver', 'parent']
+    },
+    {
+      name: 'Tin nhắn',
+      href: '/chat',
+      icon: MessageCircle,
+      roles: ['admin']
     },
     {
       name: 'Người dùng',

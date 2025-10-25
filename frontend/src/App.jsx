@@ -40,6 +40,9 @@ import NotificationPage from './pages/Notifications/NotificationPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import UserDetailPage from './pages/Users/UserDetailPage';
 
+// Chat
+import ChatPage from './pages/Chat/ChatPage';
+
 // Error
 import NotFoundPage from './pages/Error/NotFoundPage';
 import DriverPage from './pages/Driver/DriverPage';
@@ -69,6 +72,7 @@ function App() {
           />
           <Route path='tracking' element={<TrackingPage />} />
           <Route path='schedule' element={<SchedulePage />} />
+          <Route path='chat' element={<ChatPage />} />
           <Route path='users'
             element={<UsersPage />}
           />

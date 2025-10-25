@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { AlertTriangle, BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Hourglass, RefreshCcw, SquarePen, Trash2, X } from "lucide-react"
+import { AlertTriangle, BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Hourglass, RefreshCcw, SquarePen, Trash2, UserPlus, Users, X } from "lucide-react"
+import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector"
 
 
 export default function SchedulePage() {
@@ -14,8 +15,11 @@ export default function SchedulePage() {
     departureTime: '', // Giờ khởi hành
     arrivalTime: '', // Giờ cập bến
     driverId: '',   // Mã tài xế
-    status: 'scheduled'
+    status: 'scheduled',
+    students: []    // Danh sách học sinh
   });
+  const [isStudentSelectorOpen, setIsStudentSelectorOpen] = useState(false); // Modal chọn học sinh
+  const [editingScheduleId, setEditingScheduleId] = useState(null); // ID lịch trình đang sửa
 
   // Giả lập dữ liệu
   const demoRoutes = [
@@ -507,6 +511,67 @@ export default function SchedulePage() {
                     ))}
                   </select>
                 </div>
+
+                {/* Danh sách học sinh */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Học sinh trên chuyến
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsStudentSelectorOpen(true)}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Thêm học sinh
+                    </button>
+                  </div>
+
+                  {newSchedule.students && newSchedule.students.length > 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-3 space-y-2 max-h-60 overflow-y-auto">
+                      <div className="text-sm text-gray-600 mb-2">
+                        Đã chọn: <strong className="text-primary-600">{newSchedule.students.length}</strong> học sinh
+                      </div>
+                      {newSchedule.students.map((student) => (
+                        <div
+                          key={student.id}
+                          className="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:shadow-sm transition-shadow"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                              <Users className="h-5 w-5 text-primary-600" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">{student.name}</div>
+                              <div className="text-sm text-gray-500">
+                                {student.studentCode} • {student.class}
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewSchedule({
+                                ...newSchedule,
+                                students: newSchedule.students.filter(s => s.id !== student.id)
+                              });
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                      <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-gray-500">Chưa có học sinh nào</p>
+                      <p className="text-sm text-gray-400 mt-1">Click "Thêm học sinh" để bắt đầu</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex space-x-3 mt-6">
@@ -527,6 +592,16 @@ export default function SchedulePage() {
             </div>
           </div>
         )}
+
+        {/* Student Selector Modal */}
+        <ScheduleStudentSelector
+          selectedStudents={newSchedule.students}
+          onStudentsChange={(students) => {
+            setNewSchedule({ ...newSchedule, students });
+          }}
+          isOpen={isStudentSelectorOpen}
+          onClose={() => setIsStudentSelectorOpen(false)}
+        />
       </div>
     </>
   )
