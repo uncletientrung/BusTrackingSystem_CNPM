@@ -512,9 +512,9 @@ export default function RoutesPage() {
                   {/* Khoảng cách - Tự động tính */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Khoảng cách 
+                      Khoảng cách
                       <span className="ml-2 text-xs text-blue-600 font-normal">
-                        (Tự động tính từ điểm dừng)
+                        (Tự động tính)
                       </span>
                     </label>
                     <input
@@ -576,17 +576,17 @@ export default function RoutesPage() {
                       const distance = calculateRouteDistance(stops);
                       const distanceNum = parseFloat(distance);
                       const time = estimateTravelTime(distanceNum);
-                      
+
                       if (editingRoute) {
-                        setEditingRoute({ 
-                          ...editingRoute, 
+                        setEditingRoute({
+                          ...editingRoute,
                           stops,
                           distance,
                           estimatedTime: time
                         });
                       } else {
-                        setNewRoute({ 
-                          ...newRoute, 
+                        setNewRoute({
+                          ...newRoute,
                           stops,
                           distance,
                           estimatedTime: time

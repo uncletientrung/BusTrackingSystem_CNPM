@@ -61,12 +61,6 @@ export default function LoginPage() {
                         {/*  Chưa viết Error */}
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <Link to="/register" className='login-link'>
-                            Don't have an account? Sign up
-                        </Link>
-                    </div>
-
                     <button type='submit'
                             className='btn-primary'>
                         <LogIn className="login-icon-submit" />Sign in        

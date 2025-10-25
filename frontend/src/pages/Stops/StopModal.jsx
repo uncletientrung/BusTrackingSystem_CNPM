@@ -150,7 +150,7 @@ export default function StopModal({ stop, onClose, onSave }) {
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] ">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
@@ -190,9 +190,8 @@ export default function StopModal({ stop, onClose, onSave }) {
                       name="code"
                       value={formData.code}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${
-                        errors.code ? 'border-red-500' : 'border-gray-300'
-                      } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      className={`w-full px-3 py-2 border ${errors.code ? 'border-red-500' : 'border-gray-300'
+                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="ST-001"
                     />
                     {errors.code && (
@@ -210,9 +209,8 @@ export default function StopModal({ stop, onClose, onSave }) {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${
-                        errors.name ? 'border-red-500' : 'border-gray-300'
-                      } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      className={`w-full px-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'
+                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="Bến xe Bến Thành"
                     />
                     {errors.name && (
@@ -230,9 +228,8 @@ export default function StopModal({ stop, onClose, onSave }) {
                       name="latitude"
                       value={formData.latitude}
                       onChange={handleCoordinateChange}
-                      className={`w-full px-3 py-2 border ${
-                        errors.latitude ? 'border-red-500' : 'border-gray-300'
-                      } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      className={`w-full px-3 py-2 border ${errors.latitude ? 'border-red-500' : 'border-gray-300'
+                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="10.8231 (từ -90 đến 90)"
                     />
                     {errors.latitude && (
@@ -250,9 +247,8 @@ export default function StopModal({ stop, onClose, onSave }) {
                       name="longitude"
                       value={formData.longitude}
                       onChange={handleCoordinateChange}
-                      className={`w-full px-3 py-2 border ${
-                        errors.longitude ? 'border-red-500' : 'border-gray-300'
-                      } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      className={`w-full px-3 py-2 border ${errors.longitude ? 'border-red-500' : 'border-gray-300'
+                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="106.6297 (từ -180 đến 180)"
                     />
                     {errors.longitude && (
@@ -274,21 +270,6 @@ export default function StopModal({ stop, onClose, onSave }) {
                       placeholder="1 Phạm Ngũ Lão, Quận 1, TP.HCM"
                     />
                   </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Mô tả
-                    </label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Mô tả ngắn về điểm dừng..."
-                    />
-                  </div>
                 </div>
 
                 {/* Right Column - Map */}
@@ -305,7 +286,7 @@ export default function StopModal({ stop, onClose, onSave }) {
                       {showMap ? 'Ẩn bản đồ' : 'Hiện bản đồ'}
                     </button>
                   </div>
-                  
+
                   {showMap ? (
                     <div className="border border-gray-300 rounded-lg overflow-hidden">
                       <StopMap
@@ -330,17 +311,6 @@ export default function StopModal({ stop, onClose, onSave }) {
                       </button>
                     </div>
                   )}
-
-                  {/* Tips */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Mẹo:</h4>
-                    <ul className="text-sm text-blue-800 space-y-1">
-                      <li>• Nhấp vào bản đồ để chọn vị trí</li>
-                      <li>• Tọa độ sẽ tự động cập nhật</li>
-                      <li>• Có thể nhập tọa độ thủ công</li>
-                      <li>• Kéo/zoom bản đồ để tìm vị trí chính xác</li>
-                    </ul>
-                  </div>
                 </div>
               </div>
             </div>
@@ -350,14 +320,14 @@ export default function StopModal({ stop, onClose, onSave }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                >
                 {stop ? 'Cập nhật' : 'Thêm mới'}
               </button>
             </div>
