@@ -82,10 +82,10 @@ export default function Sidebar({ isOpen, onClose }) {
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
         <div className="flex flex-col flex-grow bg-white border-r border-gray-200 
                             pt-5 pb-4 overflow-y-auto">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <Bus className="h-8 w-8 text-primary-600"></Bus>
-            <span className="ml-2 text-xl font-semibold text-gray-900">
-              Quản lý xe buýt
+          <div className="flex items-center flex-shrink-0 px-4 gap-2">
+            <img src="/bus-logo.svg" alt="Bus Logo" className="h-10 w-10 flex-shrink-0" />
+            <span className="text-lg font-semibold text-gray-900 whitespace-nowrap">
+              Bus Tracking
             </span>
           </div>
 
@@ -144,15 +144,15 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between flex-shrink-0 px-4 py-5 
                                 border-b border-gray-200">
-            <div className="flex items-center">
-              <Bus className="h-8 w-8 text-primary-600"></Bus>
-              <span className="ml-2 text-xl font-semibold text-gray-900">
-                Bus Manager
+            <div className="flex items-center gap-2">
+              <img src="/bus-logo.svg" alt="Bus Logo" className="h-10 w-10 flex-shrink-0" />
+              <span className="text-lg font-semibold text-gray-900">
+                Bus Tracking
               </span>
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-md hover:bg-gray-100"
+              className="p-1 rounded-md hover:bg-gray-100 flex-shrink-0"
             >
               <X className="h-6 w-6"></X>
             </button>

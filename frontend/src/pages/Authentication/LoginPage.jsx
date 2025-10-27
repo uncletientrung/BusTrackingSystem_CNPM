@@ -25,8 +25,7 @@ export default function LoginPage() {
             <div className="login-wrapper">
                 <div className="login-header">
                     <div className="login-icon">
-                        <LogIn  style={{ width: "1.5rem", height: "1.5rem"}}></LogIn>  {/* Hình cái mũi tên vào trong */}
-                       
+                        <img src="/bus-logo.svg" alt="Bus Logo" style={{ width: "3rem", height: "3rem"}} />
                     </div>
                     <h2 className='login-title'>Sign in to your account</h2>
                     <p className="login-subtitle">Bus Tracking System</p>
