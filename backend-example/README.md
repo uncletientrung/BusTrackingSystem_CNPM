@@ -26,10 +26,6 @@ This will:
 - Driver: `driver@bustrack.com` / `password123`
 - Parent: `parent@bustrack.com` / `password123`
 
-Alternatively, you can run the SQL manually:
-
-Alternatively, you can run the SQL manually:
-
 ### 3. Manual Database Setup (Optional)
 
 If you prefer to create the database manually instead of importing `schema.sql`:

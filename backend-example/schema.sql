@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 );
 
 -- Insert default admin user
--- Password: admin123 (hashed with PHP password_hash)
+-- Password: password123 (hashed with PHP password_hash)
 INSERT INTO users (email, password, name, role) VALUES 
 ('admin@bustrack.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Admin', 'admin')
 ON DUPLICATE KEY UPDATE email=email;
