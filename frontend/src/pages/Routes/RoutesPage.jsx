@@ -224,7 +224,7 @@ export default function RoutesPage() {
               <span><RouteIcon /></span>
               <span>Quản lý tuyến đường</span>
             </h1>
-            <p className="text-gray-600 mt-1">Quản lý các tuyến xe buýt và điểm dừng</p>
+            
           </div>
 
           {/* Nút thêm */}

@@ -1,5 +1,5 @@
 import './index.css'
-import { Routes, Route } from "react-router-dom"; // Định nghĩa Router thì mới dùng được <Link> trong Login
+import { Routes, Route, Navigate } from "react-router-dom"; // Định nghĩa Router thì mới dùng được <Link> trong Login
 
 // Authentication
 import LoginPage from './pages/Authentication/LoginPage'
@@ -55,6 +55,8 @@ function App() {
   return (
     <>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+
         <Route path='/' element={<Layout />}>
           {/* Các route con sẽ được render trong <Outlet /> của Layout */}
           <Route path="dashboard" element={<DashboardPage />} />

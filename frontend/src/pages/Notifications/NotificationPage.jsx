@@ -216,7 +216,7 @@ export default function NotificationPage() {
               <span><Bell /></span>
               <span>Quản lý thông báo</span>
             </h1>
-            <p className="text-gray-600 mt-1">Gửi thông báo đến phụ huynh của học sinh</p>
+            
           </div>
 
           {/* Nút xóa khi tích chọn*/}

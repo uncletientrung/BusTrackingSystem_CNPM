@@ -227,9 +227,6 @@ export default function UsersPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Quản lý tất cả người dùng trong hệ thống
-            </p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}

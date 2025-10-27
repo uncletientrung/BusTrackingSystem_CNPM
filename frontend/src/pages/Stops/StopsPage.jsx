@@ -202,9 +202,6 @@ export default function StopsPage() {
           <MapPin className="h-8 w-8 text-primary-600" />
           <h1 className="text-3xl font-bold text-gray-900">Quản lý điểm dừng</h1>
         </div>
-        <p className="text-gray-600">
-          Quản lý các điểm dừng xe buýt trong hệ thống
-        </p>
       </div>
 
       {/* Actions Bar */}

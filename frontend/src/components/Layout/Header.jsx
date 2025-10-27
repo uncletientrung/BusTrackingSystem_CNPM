@@ -16,7 +16,7 @@ export default function Header({onMenuClick}) {
     }
     const handleLogout = () => {
         localStorage.removeItem("isLoggedIn"); // xóa trạng thái đăng nhập
-        navigate("/dashboard");
+        navigate("/login");
     };
    return (
       <>
@@ -35,17 +35,15 @@ export default function Header({onMenuClick}) {
 
                         <div className="ml-4 lg:ml-0">
                             <h1 className="text-2xl font-semibold text-gray-900">
-                                Xin chào, Người dùng
-                            </h1>
-
-                            <p className="text-sm text-gray-500">
                                 {new Date().toLocaleDateString('vi-VN', {
                                     weekday: 'long',
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric'
-                                })}
-                            </p>
+                                })} 
+                            </h1>
+
+                            
                         </div>
                     </div>
 

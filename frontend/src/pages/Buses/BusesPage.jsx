@@ -276,7 +276,6 @@ export default function BusesPage() {
               <span><BusFront /> </span>
               <span>Quản lý xe bus</span>
             </h1>
-            <p className="text-gray-600 mt-1">Quản lý đội xe buýt và thông tin vận hành</p>
           </div>
 
           <button
