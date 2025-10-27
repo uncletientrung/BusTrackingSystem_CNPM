@@ -12,10 +12,27 @@ C:\xampp\htdocs\bus-tracking-api\
 
 ### 2. Create Database
 1. Open phpMyAdmin: `http://localhost/phpmyadmin`
-2. Create a new database named `bus_tracking_system`
-3. Run the SQL script below to create the users table
+2. Click "Import" tab
+3. Select `backend-example/schema.sql` from this repository
+4. Click "Go" to import
 
-### 3. Database Schema
+This will:
+- Create the `bus_tracking_system` database
+- Create all necessary tables
+- Insert test users with default password: `password123`
+
+**Test Users:**
+- Admin: `admin@bustrack.com` / `password123`
+- Driver: `driver@bustrack.com` / `password123`
+- Parent: `parent@bustrack.com` / `password123`
+
+Alternatively, you can run the SQL manually:
+
+Alternatively, you can run the SQL manually:
+
+### 3. Manual Database Setup (Optional)
+
+If you prefer to create the database manually instead of importing `schema.sql`:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS bus_tracking_system;
@@ -35,6 +52,8 @@ CREATE TABLE users (
 INSERT INTO users (email, password, name, role) VALUES 
 ('admin@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin User', 'admin');
 ```
+
+**Note:** The complete database schema with all tables is available in `schema.sql`
 
 ### 4. Update Vite Config
 Update the proxy target in `frontend/vite.config.js` if needed:
