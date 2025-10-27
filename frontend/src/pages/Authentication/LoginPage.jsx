@@ -81,9 +81,6 @@ export default function LoginPage() {
                             <input type="checkbox" className="checkbox" />
                             <span>Remember me</span>
                         </label>
-                        <Link to="/forgot-password" className="forgot-link">
-                            Forgot password?
-                        </Link>
                     </div>
 
                     <button type='submit'
@@ -101,13 +98,6 @@ export default function LoginPage() {
                             </>
                         )}
                     </button>
-
-                    <div className="signup-prompt">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="signup-link">
-                            Sign up
-                        </Link>
-                    </div>
                 </form>
             </div>
         </div>
