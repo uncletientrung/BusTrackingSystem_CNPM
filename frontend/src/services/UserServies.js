@@ -1,7 +1,8 @@
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
+import API_CONFIG from '../config/api.config';
 
-const loginApi= (email, password) =>{
-    return axios.post("/api/login", {email, password})
+const loginApi = (email, password) => {
+    return apiClient.post(API_CONFIG.endpoints.login, { email, password });
 }
 
-export {loginApi};
+export { loginApi };
