@@ -33,7 +33,7 @@ export default function TrackingPage() {
         <div style="font-family: Arial, sans-serif; min-width: 200px;">
           <h3 style="color: #1f2937; margin-bottom: 8px; font-weight: bold;">📍 ${stop.name}</h3>
           <p style="margin: 4px 0; color: ${isConfirmed ? '#059669' : '#d97706'}; font-weight: 600;">
-            ${isConfirmed ? '✅ Xe đã đến điểm này' : '🚌 Xe đang trên đường đến'}
+            ${isConfirmed ? ' Xe đã đến điểm này' : ' Xe đang trên đường đến'}
           </p>
           <p style="margin: 4px 0; color: #4b5563;">
             <strong>Xe buýt:</strong> ${selectedBusData?.busNumber || 'Chưa xác định'}
@@ -51,7 +51,7 @@ export default function TrackingPage() {
     setConfirmedStops(prev => {
       if (!prev.includes(stopId)) {
         const stop = demoStops.find(s => s.id === stopId);
-        alert(`✅ Đã xác nhận đến "${stop.name}"! Đang thông báo phụ huynh...`);
+        alert(` Đã xác nhận đến "${stop.name}"! Đang thông báo phụ huynh...`);
         return [...prev, stopId];
       }
       return prev;
@@ -69,7 +69,7 @@ export default function TrackingPage() {
               <MapPin className="text-blue-600" />
               <span>Theo dõi xe buýt</span>
             </h1>
-            <p className="text-gray-600 text-sm mt-1">Giao diện tài xế - Theo dõi và xác nhận điểm đến</p>
+
           </div>
 
           {/* Ô Select xe hiện tại */}
@@ -98,13 +98,12 @@ export default function TrackingPage() {
             <div className="p-4 border-b border-gray-200">
               {/* Icon và title bản đồ */}
               <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                <MapPin className="text-green-500" />
-                <span>Bản đồ tuyến đường</span>
+                {/* Tuyến xem */}
+                <p className="mt-1">
+                  Tuyến: {selectedBusData?.route} | Xe: {selectedBusData?.busNumber}
+                </p>
               </h3>
-              {/* Tuyến xem */}
-              <p className="text-sm text-gray-600 mt-1">
-                Tuyến: {selectedBusData?.route} | Xe: {selectedBusData?.busNumber}
-              </p>
+
             </div>
             <div className="flex-1 p-0">
               <SimpleMap
@@ -122,11 +121,10 @@ export default function TrackingPage() {
           <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
             {/* Header control */}
             <div className="p-4 bg-blue-600 text-white rounded-t-xl">
-              <h3 className="text-lg font-semibold flex items-center space-x-2">
-                <FlagTriangleRight className="w-5 h-5" />
-                <span>Xác nhận điểm đến</span>
-              </h3>
-              <p className="text-sm opacity-90 mt-1">Nhấn xác nhận khi xe đã đến điểm dừng</p>
+              <h1 className="text-lg font-semibold flex items-center space-x-2">
+                Xác nhận điểm đến
+              </h1>
+
             </div>
 
             {/* Tiến trình điểm đến */}
@@ -156,17 +154,15 @@ export default function TrackingPage() {
                 return (
                   <div
                     key={stop.id}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                      isConfirmed ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'
-                    }`}
+                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${isConfirmed ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
                         {/* Nút thứ tự điểm dừng */}
                         <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                            isConfirmed ? 'bg-green-500' : 'bg-gray-400'
-                          }`}
+                          className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${isConfirmed ? 'bg-green-500' : 'bg-gray-400'
+                            }`}
                         >
                           {index + 1}
                         </div>
@@ -175,20 +171,7 @@ export default function TrackingPage() {
                       </div>
                     </div>
 
-                    {/* Text trạng thái điểm dừng */}
-                    <div className="text-xs text-gray-600 mb-3">
-                      {isConfirmed ? (
-                        <div className="flex items-center space-x-2">
-                          <CircleCheck className="w-4 h-4 text-green-500" />
-                          <span>Đã hoàn thành - Phụ huynh đã được thông báo</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <Hourglass className="w-4 h-4 text-yellow-500" />
-                          <span>Chờ xe đến điểm này</span>
-                        </div>
-                      )}
-                    </div>
+
 
                     {/* Button xác nhận điểm đến */}
                     {!isConfirmed ? (
@@ -220,13 +203,13 @@ export default function TrackingPage() {
               </button>
 
               {/* Nút làm mới */}
-              <button
+              {/* <button
                 onClick={() => window.location.reload()}
                 className="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-md font-medium text-sm flex items-center justify-center space-x-2 transition-colors"
               >
                 <RefreshCcw className="w-4 h-4" />
                 <span>Làm mới</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ export default function LoginPage() {
     const navigate = useNavigate(); // Ngăn chặn reload lại trang khi gửi form
     const handleLogin = (e) => {
         e.preventDefault();
-        if (username === "admin@123" && password === "123456") {
+        if (username === "admin@gmail.com" && password === "123") {
             // Lưu trạng thái đăng nhập (vd: localStorage)
             localStorage.setItem("isLoggedIn", "true");
             navigate("/dashboard");

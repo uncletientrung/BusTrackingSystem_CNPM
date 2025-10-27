@@ -199,12 +199,6 @@ export default function AdminDriverChat() {
                   <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
                     {driver.name.charAt(0)}
                   </div>
-                  {/* Status indicator */}
-                  <Circle
-                    className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white ${
-                      driver.status === 'online' ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'
-                    }`}
-                  />
                 </div>
 
                 {/* Info */}

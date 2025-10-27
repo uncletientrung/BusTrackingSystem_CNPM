@@ -303,9 +303,6 @@ export default function StudentsPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Quản lý học sinh</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Quản lý thông tin và theo dõi học sinh
-            </p>
           </div>
           {/* Nút thêm học sinh */}
           <button

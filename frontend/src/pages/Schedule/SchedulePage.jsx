@@ -162,7 +162,6 @@ export default function SchedulePage() {
               </span>
               <span>Quản lý lịch trình</span>
             </h1>
-            <p className="text-gray-600 mt-1">Lập lịch và theo dõi các chuyến xe buýt</p>
           </div>
 
           {/* Chưa thêm Action */}
