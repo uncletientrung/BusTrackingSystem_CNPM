@@ -1,0 +1,25 @@
+RewriteEngine On
+
+# Enable CORS
+Header always set Access-Control-Allow-Origin "http://localhost:5173"
+Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+Header always set Access-Control-Allow-Credentials "true"
+
+# Handle preflight requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Route API requests to appropriate PHP files
+RewriteRule ^api/login$ api/login.php [L]
+RewriteRule ^api/register$ api/register.php [L]
+RewriteRule ^api/users$ api/users.php [L]
+RewriteRule ^api/buses$ api/buses.php [L]
+RewriteRule ^api/routes$ api/routes.php [L]
+RewriteRule ^api/stops$ api/stops.php [L]
+RewriteRule ^api/students$ api/students.php [L]
+RewriteRule ^api/schedule$ api/schedule.php [L]
+RewriteRule ^api/tracking$ api/tracking.php [L]
+RewriteRule ^api/notifications$ api/notifications.php [L]
+RewriteRule ^api/profile$ api/profile.php [L]
+RewriteRule ^api/chat$ api/chat.php [L]
