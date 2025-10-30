@@ -20,6 +20,10 @@ export default function SchedulePage() {
   });
   const [isStudentSelectorOpen, setIsStudentSelectorOpen] = useState(false); // Modal chọn học sinh
   const [editingScheduleId, setEditingScheduleId] = useState(null); // ID lịch trình đang sửa
+  const [isEditing, setIsEditing] = useState(false); // Trạng thái đang sửa
+  const [editingSchedule, setEditingSchedule] = useState(null); // Dữ liệu lịch trình đang sửa
+  const [isViewingStudents, setIsViewingStudents] = useState(false); // Trạng thái xem số học sinh
+  const [selectedScheduleForStudents, setSelectedScheduleForStudents] = useState(null); // Lịch trình được chọn để xem học sinh
 
   // Giả lập dữ liệu
   const demoRoutes = [
@@ -38,6 +42,16 @@ export default function SchedulePage() {
     { id: 1, name: 'Nguyễn Văn A', license: 'B2-123456', phone: '0901234567' },
     { id: 2, name: 'Trần Văn B', license: 'B2-789012', phone: '0907654321' },
     { id: 3, name: 'Lê Văn C', license: 'B2-345678', phone: '0903456789' }
+  ];
+
+  // Giả lập dữ liệu học sinh theo tuyến
+  const demoStudentsData = [
+    { id: 1, name: 'Nguyễn Văn A', studentCode: 'HS001', class: '10A1', routeId: 1, routeName: 'Bến Thành - Sân Bay' },
+    { id: 2, name: 'Trần Thị B', studentCode: 'HS002', class: '10A2', routeId: 1, routeName: 'Bến Thành - Sân Bay' },
+    { id: 3, name: 'Lê Văn C', studentCode: 'HS003', class: '11A1', routeId: 1, routeName: 'Bến Thành - Sân Bay' },
+    { id: 4, name: 'Phạm Thị D', studentCode: 'HS004', class: '10A1', routeId: 2, routeName: 'Quận 1 - Quận 7' },
+    { id: 5, name: 'Hoàng Văn E', studentCode: 'HS005', class: '11A2', routeId: 2, routeName: 'Quận 1 - Quận 7' },
+    { id: 6, name: 'Vũ Thị F', studentCode: 'HS006', class: '12A1', routeId: 3, routeName: 'Thủ Đức - Quận 3' },
   ];
 
   //     // Giả lập lịch trình
@@ -148,6 +162,63 @@ export default function SchedulePage() {
     });
     setIsCreating(false);
     alert('Đã tạo lịch trình mới thành công!');
+  };
+
+  // Hàm mở modal sửa lịch trình
+  const handleEditSchedule = (schedule) => {
+    const driverId = demoDrivers.find(d => d.name === schedule.driver)?.id || '';
+    setEditingSchedule({
+      id: schedule.id,
+      busNumber: schedule.busNumber,
+      route: schedule.route,
+      departureTime: schedule.departureTime,
+      arrivalTime: schedule.arrivalTime,
+      driverId: driverId.toString(),
+      status: schedule.status,
+      students: schedule.students || []
+    });
+    setIsEditing(true);
+  };
+
+  // Hàm cập nhật lịch trình
+  const handleUpdateSchedule = () => {
+    if (!editingSchedule.busNumber || !editingSchedule.route || !editingSchedule.departureTime) {
+      alert('Vui lòng điền đầy đủ thông tin!');
+      return;
+    }
+
+    const updatedSchedules = lichTrinh.map((schedule) => {
+      if (schedule.id === editingSchedule.id) {
+        return {
+          ...schedule,
+          busNumber: editingSchedule.busNumber,
+          route: editingSchedule.route,
+          departureTime: editingSchedule.departureTime,
+          arrivalTime: editingSchedule.arrivalTime,
+          driver: demoDrivers.find(d => d.id.toString() === editingSchedule.driverId)?.name || 'Chưa phân công',
+          status: editingSchedule.status,
+          capacity: demoBuses.find(b => b.number === editingSchedule.busNumber)?.capacity || 40,
+          students: editingSchedule.students
+        };
+      }
+      return schedule;
+    });
+
+    setLichTrinh(updatedSchedules);
+    setIsEditing(false);
+    setEditingSchedule(null);
+    alert('Cập nhật lịch trình thành công!');
+  };
+
+  // Hàm lấy số học sinh theo tuyến
+  const getStudentCountByRoute = (routeName) => {
+    return demoStudentsData.filter(student => student.routeName === routeName).length;
+  };
+
+  // Hàm xem số học sinh trên tuyến
+  const handleViewStudents = (schedule) => {
+    setSelectedScheduleForStudents(schedule);
+    setIsViewingStudents(true);
   };
 
   return (
@@ -395,10 +466,22 @@ export default function SchedulePage() {
                     {/* Thanh hành động */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button 
+                          onClick={() => handleViewStudents(item)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-3 py-1 text-xs flex items-center space-x-1"
+                          title="Xem số học sinh"
+                        >
+                          <Users className="h-4 w-4" />
+                          <span>Học sinh</span>
+                        </button>
+                        <button 
+                          onClick={() => handleEditSchedule(item)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Sửa lịch trình"
+                        >
                           <SquarePen></SquarePen>
                         </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        <button className="text-red-600 hover:text-red-900" title="Xóa lịch trình">
                           <Trash2></Trash2>
                         </button>
                       </div>
@@ -592,11 +675,294 @@ export default function SchedulePage() {
           </div>
         )}
 
+        {/* Modal sửa lịch trình */}
+        {isEditing && editingSchedule && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Sửa lịch trình</h3>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditingSchedule(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Xe buýt</label>
+                  <select
+                    value={editingSchedule.busNumber}
+                    onChange={(e) => setEditingSchedule({ ...editingSchedule, busNumber: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Chọn xe buýt</option>
+                    {demoBuses.filter(bus => bus.status === 'active').map((bus) => (
+                      <option key={bus.id} value={bus.number}>
+                        {bus.number} (Sức chứa: {bus.capacity})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tuyến đường</label>
+                  <select
+                    value={editingSchedule.route}
+                    onChange={(e) => setEditingSchedule({ ...editingSchedule, route: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Chọn tuyến đường</option>
+                    {demoRoutes.map((route) => (
+                      <option key={route.id} value={route.name}>
+                        {route.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Giờ khởi hành</label>
+                    <input
+                      type="time"
+                      value={editingSchedule.departureTime}
+                      onChange={(e) => setEditingSchedule({ ...editingSchedule, departureTime: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Giờ đến</label>
+                    <input
+                      type="time"
+                      value={editingSchedule.arrivalTime}
+                      onChange={(e) => setEditingSchedule({ ...editingSchedule, arrivalTime: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tài xế</label>
+                  <select
+                    value={editingSchedule.driverId}
+                    onChange={(e) => setEditingSchedule({ ...editingSchedule, driverId: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Chọn tài xế</option>
+                    {demoDrivers.map((driver) => (
+                      <option key={driver.id} value={driver.id}>
+                        {driver.name} - {driver.license}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                  <select
+                    value={editingSchedule.status}
+                    onChange={(e) => setEditingSchedule({ ...editingSchedule, status: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="scheduled">Đã lên lịch</option>
+                    <option value="running">Đang chạy</option>
+                    <option value="completed">Hoàn thành</option>
+                    <option value="delayed">Trễ giờ</option>
+                    <option value="cancelled">Hủy bỏ</option>
+                  </select>
+                </div>
+
+                {/* Danh sách học sinh */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Học sinh trên chuyến
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsStudentSelectorOpen(true)}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Thêm học sinh
+                    </button>
+                  </div>
+
+                  {editingSchedule.students && editingSchedule.students.length > 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-3 space-y-2 max-h-60 overflow-y-auto">
+                      <div className="text-sm text-gray-600 mb-2">
+                        Đã chọn: <strong className="text-blue-600">{editingSchedule.students.length}</strong> học sinh
+                      </div>
+                      {editingSchedule.students.map((student) => (
+                        <div
+                          key={student.id}
+                          className="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:shadow-sm transition-shadow"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <Users className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">{student.name}</div>
+                              <div className="text-sm text-gray-500">
+                                {student.studentCode} • {student.class}
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingSchedule({
+                                ...editingSchedule,
+                                students: editingSchedule.students.filter(s => s.id !== student.id)
+                              });
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                      <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-gray-500">Chưa có học sinh nào</p>
+                      <p className="text-sm text-gray-400 mt-1">Click "Thêm học sinh" để bắt đầu</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditingSchedule(null);
+                  }}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleUpdateSchedule}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                >
+                  <CheckCircle className="h-5 w-5" />
+                  <span>Lưu thay đổi</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal xem số học sinh */}
+        {isViewingStudents && selectedScheduleForStudents && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                  <Users className="h-6 w-6 text-blue-600" />
+                  <span>Thông tin học sinh</span>
+                </h3>
+                <button
+                  onClick={() => {
+                    setIsViewingStudents(false);
+                    setSelectedScheduleForStudents(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Tuyến</p>
+                      <p className="text-lg font-bold text-gray-900">{selectedScheduleForStudents.route}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-700">Số học sinh</p>
+                      <p className="text-3xl font-bold text-blue-600">
+                        {getStudentCountByRoute(selectedScheduleForStudents.route)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Chi tiết:</p>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Xe buýt:</span>
+                      <span className="font-medium text-gray-900">{selectedScheduleForStudents.busNumber}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Giờ khởi hành:</span>
+                      <span className="font-medium text-gray-900">{selectedScheduleForStudents.departureTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Tài xế:</span>
+                      <span className="font-medium text-gray-900">{selectedScheduleForStudents.driver}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hiển thị danh sách học sinh */}
+                <div className="max-h-60 overflow-y-auto">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Danh sách học sinh:</p>
+                  <div className="space-y-2">
+                    {demoStudentsData
+                      .filter(student => student.routeName === selectedScheduleForStudents.route)
+                      .map((student) => (
+                        <div key={student.id} className="bg-white border border-gray-200 rounded-lg p-3 flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Users className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">{student.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {student.studentCode} • {student.class}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  onClick={() => {
+                    setIsViewingStudents(false);
+                    setSelectedScheduleForStudents(null);
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Student Selector Modal */}
         <ScheduleStudentSelector
-          selectedStudents={newSchedule.students}
+          selectedStudents={isEditing ? editingSchedule?.students : newSchedule.students}
           onStudentsChange={(students) => {
-            setNewSchedule({ ...newSchedule, students });
+            if (isEditing) {
+              setEditingSchedule({ ...editingSchedule, students });
+            } else {
+              setNewSchedule({ ...newSchedule, students });
+            }
           }}
           isOpen={isStudentSelectorOpen}
           onClose={() => setIsStudentSelectorOpen(false)}
