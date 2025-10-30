@@ -17,9 +17,9 @@ export default function DashboardPage() {
 
   const getGreeting = () => { // Trạng thái xin chào
     const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 17) return 'Good afternoon'
-    return 'Good evening'
+    if (hour < 12) return 'Chào buổi sáng'
+    if (hour < 17) return 'Chào buổi chiều'
+    return 'Chào buổi tối'
   }
 
 
@@ -44,14 +44,14 @@ export default function DashboardPage() {
               </div>
 
               <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Total Buses</h3>
+                <h3 className="text-sm font-medium text-gray-500">Tổng số xe</h3>
                 <p className="text-2xl font-semibold text-gray-900">{stats.totalBuses}</p>
               </div>
 
             </div>
             <div className="mt-4">
               <span className="text-sm text-gray-600">
-                {stats.activeBuses} active, {stats.totalBuses - stats.activeBuses} inactive
+                {stats.activeBuses} hoạt động, {stats.totalBuses - stats.activeBuses} không hoạt động
               </span>
             </div>
           </div>
@@ -64,12 +64,12 @@ export default function DashboardPage() {
                 <RouteIcon className="h-8 w-8 text-success-600" />
               </div>
               <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Routes</h3>
+                <h3 className="text-sm font-medium text-gray-500">Tuyến đường</h3>
                 <p className="text-2xl font-semibold text-gray-900">{stats.totalRoutes}</p>
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-sm text-gray-600">All routes operational</span>
+              <span className="text-sm text-gray-600">Tất cả tuyến đang hoạt động</span>
             </div>
           </div>
         </div>
@@ -81,12 +81,12 @@ export default function DashboardPage() {
                 <Users className="h-8 w-8 text-purple-600" />
               </div>
               <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-500">Students</h3>
+                <h3 className="text-sm font-medium text-gray-500">Học sinh</h3>
                 <p className="text-2xl font-semibold text-gray-900">{stats.totalStudents}</p>
               </div>
             </div>
             <div className="mt-4">
-              <span className="text-sm text-gray-600">Across all routes</span>
+              <span className="text-sm text-gray-600">Trên tất cả các tuyến</span>
             </div>
           </div>
         </div>

@@ -130,7 +130,7 @@ export default function Sidebar({ isOpen, onClose }) {
               )}
             >
               <User className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-              Profile
+              Hồ sơ
             </Link>
           </div>
         </div>
@@ -198,7 +198,7 @@ export default function Sidebar({ isOpen, onClose }) {
               )}
             >
               <User className="mr-3 flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-              Profile
+              Hồ sơ
             </Link>
           </div>
         </div>

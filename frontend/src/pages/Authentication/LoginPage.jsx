@@ -1,6 +1,7 @@
 import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react' // Thư viện Icon trạng thái đăng nhập, xuất
 import { Link, useNavigate } from 'react-router-dom' // Thư viện Thẻ link 
 import { useState } from 'react'
+import { auth } from '../../hooks/auth'
 import './LoginPage.css'  
 
 export default function LoginPage() {
@@ -8,6 +9,8 @@ export default function LoginPage() {
     const [password, setPassword]=useState("");
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate(); // Ngăn chặn reload lại trang khi gửi form
+    const { setAuth } = auth(); // Lấy hàm setAuth từ auth hook
+    
     const handleLogin = (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -15,8 +18,45 @@ export default function LoginPage() {
         // Simulate API call
         setTimeout(() => {
             if (username === "admin@gmail.com" && password === "123") {
+                // Giả lập đăng nhập admin với tất cả các quyền
+                const adminData = {
+                    user: {
+                        id: 1,
+                        email: "admin@gmail.com",
+                        name: "Administrator",
+                        role: "ADMIN",
+                        permissions: [
+                            "VIEW_DASHBOARD",
+                            "MANAGE_USERS",
+                            "MANAGE_DRIVERS",
+                            "MANAGE_STUDENTS",
+                            "MANAGE_BUSES",
+                            "MANAGE_ROUTES",
+                            "MANAGE_STOPS",
+                            "MANAGE_SCHEDULES",
+                            "VIEW_TRACKING",
+                            "MANAGE_NOTIFICATIONS",
+                            "VIEW_CHAT",
+                            "MANAGE_PROFILE",
+                            "VIEW_REPORTS",
+                            "SYSTEM_SETTINGS"
+                        ],
+                        avatar: null,
+                        phone: "0123456789",
+                        createdAt: new Date().toISOString()
+                    },
+                    accessToken: "mock-admin-access-token-" + Date.now(),
+                    refreshToken: "mock-admin-refresh-token-" + Date.now()
+                };
+                
+                // Lưu thông tin admin vào auth store
+                setAuth(adminData);
+                
                 // Lưu trạng thái đăng nhập (vd: localStorage)
                 localStorage.setItem("isLoggedIn", "true");
+                
+                console.log("✅ Đăng nhập admin thành công với quyền:", adminData.user.permissions);
+                
                 navigate("/dashboard");
             } else {
                 alert("Sai tài khoản hoặc mật khẩu!");
@@ -34,20 +74,20 @@ export default function LoginPage() {
                     <div className="login-logo-wrapper">
                         <img src="/bus-logo.svg" alt="Bus Logo" className="login-logo" />
                     </div>
-                    <h2 className='login-title'>Welcome Back!</h2>
-                    <p className="login-subtitle">Sign in to Bus Tracking System</p>
+                    <h2 className='login-title'>Chào Mừng Trở Lại!</h2>
+                    <p className="login-subtitle">Đăng nhập vào Hệ Thống Theo Dõi Xe Buýt</p>
                 </div>
 
                 <form className="login-form" onSubmit={handleLogin}>
                     <div className="input-group">
                         <label htmlFor="email" className="input-label">
                             <Mail className="label-icon" />
-                            Email Address
+                            Địa chỉ Email
                         </label>
                         <input  id="email"
                                 type="email" 
                                 autoComplete='email' 
-                                placeholder='Enter your email'
+                                    placeholder='Nhập email của bạn'
                                 className="input"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -57,12 +97,12 @@ export default function LoginPage() {
                     <div className='input-group'>
                         <label htmlFor="password" className="input-label">
                             <Lock className="label-icon" />
-                            Password
+                            Mật khẩu
                         </label>
                         <div className="password-input-wrapper">
                             <input id='password' 
                                    type={showPassword ? "text" : "password"} 
-                                   placeholder='Enter your password'
+                                   placeholder='Nhập mật khẩu của bạn'
                                    className="input password-input"
                                    value={password}
                                    onChange={(e) => setPassword(e.target.value)}
@@ -79,7 +119,7 @@ export default function LoginPage() {
                     <div className="form-options">
                         <label className="remember-me">
                             <input type="checkbox" className="checkbox" />
-                            <span>Remember me</span>
+                            <span>Ghi nhớ đăng nhập</span>
                         </label>
                     </div>
 
@@ -89,12 +129,12 @@ export default function LoginPage() {
                         {isLoading ? (
                             <>
                                 <div className="spinner"></div>
-                                Signing in...
+                                Đang đăng nhập...
                             </>
                         ) : (
                             <>
                                 <LogIn className="btn-icon" />
-                                Sign in        
+                                Đăng nhập        
                             </>
                         )}
                     </button>
