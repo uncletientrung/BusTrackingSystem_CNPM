@@ -1,4 +1,5 @@
 import { BusFront, Check, Plus, PlusCircle, RefreshCcw, SquarePen, Trash2, Users, Wrench, X } from "lucide-react";
+import BusListItem from '../../components/common/BusListItem';
 import { useEffect, useState } from "react";
 
 
@@ -95,26 +96,6 @@ export default function BusesPage() {
     ));
     setEditingBus(null);
     alert('Đã cập nhật xe buýt thành công!');
-  };
-
-  const getStatusColor = (status) => { // Lấy màu trạng thái
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'maintenance': return 'bg-yellow-100 text-yellow-800';
-      case 'inactive': return 'bg-red-100 text-red-800';
-      case 'repair': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status) => { // Chuyển đổi text trạng thái
-    switch (status) {
-      case 'active': return 'Hoạt động';
-      case 'maintenance': return 'Bảo trì';
-      case 'inactive': return 'Ngưng hoạt động';
-      case 'repair': return 'Sửa chữa';
-      default: return status;
-    }
   };
 
   // Giả lập dữ liệu
@@ -417,67 +398,16 @@ export default function BusesPage() {
           </div>
         </div>
 
-        {/* Danh sách xe hiển thị sau lọc*/}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredBuses.map((bus) => (
-            <div key={bus.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    {/* Mã xe và trạng thái*/}
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{bus.number}</h3>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(bus.status)}`}>
-                        {getStatusText(bus.status)}
-                      </span>
-                    </div>
-                    {/* Biển số */}
-                    <p className="text-sm text-gray-600 mb-1">Biển số: {bus.licensePlate}</p>
-                    <p className="text-sm text-gray-600">Năm sản xuất: {bus.year}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2 mb-4">
-                  {/* Sức chứa */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Sức chứa:</span>
-                    <span className="font-medium">{bus.capacity} chỗ</span>
-                  </div>
-                  {/* Tuyến */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tuyến:</span>
-                    <span className="font-medium">{bus.route || 'Chưa phân công'}</span>
-                  </div>
-                  {/* Quãng đường */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Quãng đường:</span>
-                    <span className="font-medium">{bus.mileage}</span>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  {/* Nút sửa */}
-                  <button
-                    onClick={() => setEditingBus(bus)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm 
-                                                   font-medium transition-colors flex items-center justify-center space-x-2"
-                  >
-                    <span><SquarePen /></span>
-                    <span>Sửa</span>
-                  </button>
-
-                  {/* Nút xóa */}
-                  <button
-                    onClick={() => handleDeleteBus(bus.id)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm 
-                                                font-medium transition-colors flex items-center justify-center space-x-2"
-                  >
-                    <span><Trash2></Trash2></span>
-                    <span>Xóa</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Danh sách xe hiển thị sau lọc (list view) */}
+        <div className="space-y-3">
+          {filteredBuses.map((bus, index) => (
+            <BusListItem 
+              key={bus.id} 
+              bus={bus} 
+              index={index}
+              onEdit={() => setEditingBus(bus)} 
+              onDelete={() => handleDeleteBus(bus.id)} 
+            />
           ))}
         </div>
 

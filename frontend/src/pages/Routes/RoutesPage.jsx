@@ -1,5 +1,6 @@
 import { BusFront, Check, PlusCircle, RefreshCcw, RouteIcon, Search, SquarePen, Trash2, Wrench, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import RouteListItem from "../../components/common/RouteListItem";
 import StopSelector from "../../components/Routes/StopSelector";
 import { calculateRouteDistance, estimateTravelTime } from "../../utils/distanceCalculator";
 
@@ -17,8 +18,7 @@ export default function RoutesPage() {
     distance: '',
     estimatedTime: '',
     stops: [],
-    status: 'active',
-    fare: ''
+    status: 'active'
   });
   const [availableStops, setAvailableStops] = useState([]); // Danh sách điểm dừng có sẵn
 
@@ -39,7 +39,6 @@ export default function RoutesPage() {
           { id: 4, name: 'Sân bay Tân Sơn Nhất', order: 4, lat: 10.8187, lng: 106.6519 }
         ],
         status: 'active',
-        fare: '15,000 VND',
         busCount: 3,
         dailyTrips: 12,
         createdAt: '2024-01-15',
@@ -58,7 +57,6 @@ export default function RoutesPage() {
           { id: 7, name: 'TTTM Crescent Mall', order: 3, lat: 10.7292, lng: 106.7197 }
         ],
         status: 'active',
-        fare: '18,000 VND',
         busCount: 2,
         dailyTrips: 8,
         createdAt: '2024-02-10',
@@ -77,7 +75,6 @@ export default function RoutesPage() {
           { id: 10, name: 'Bệnh viện Chợ Rẫy', order: 3, lat: 10.7554, lng: 106.6665 }
         ],
         status: 'maintenance',
-        fare: '20,000 VND',
         busCount: 1,
         dailyTrips: 6,
         createdAt: '2024-03-05',
@@ -96,7 +93,6 @@ export default function RoutesPage() {
           { id: 13, name: 'Vincom Bình Thạnh', order: 3, lat: 10.8012, lng: 106.7109 }
         ],
         status: 'inactive',
-        fare: '12,000 VND',
         busCount: 0,
         dailyTrips: 0,
         createdAt: '2024-01-20',
@@ -167,8 +163,7 @@ export default function RoutesPage() {
       distance: '',
       estimatedTime: '',
       stops: [],
-      status: 'active',
-      fare: ''
+      status: 'active'
     });
     setIsCreating(false);
     alert('Đã tạo tuyến mới thành công!');
@@ -192,24 +187,6 @@ export default function RoutesPage() {
     if (confirm('Bạn có chắc muốn xóa tuyến này?')) {
       setRoutes(routes.filter(route => route.id !== id));
       alert('Đã xóa tuyến thành công!');
-    }
-  };
-
-  const getStatusColor = (status) => { // Màu trạng thái
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'maintenance': return 'bg-yellow-100 text-yellow-800';
-      case 'inactive': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status) => { // Text trạng thái
-    switch (status) {
-      case 'active': return 'Hoạt động';
-      case 'maintenance': return 'Bảo trì';
-      case 'inactive': return 'Ngưng hoạt động';
-      default: return status;
     }
   };
 
@@ -347,76 +324,16 @@ export default function RoutesPage() {
           </div>
         </div>
 
-        {/* Danh dánh tuyến */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredRoutes.map((route) => (
-            <div key={route.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <div className="p-6">
-                {/* Tên tuyến và mã tuyến */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{route.name}</h3>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(route.status)}`}>
-                        {getStatusText(route.status)}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">Mã: {route.code}</p>
-                    <p className="text-sm text-gray-700">{route.description}</p>
-                  </div>
-                </div>
-
-                {/* Nội dung Route */}
-                <div className="space-y-3 mb-4">
-                  {/* Khoảng cách */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Khoảng cách:</span>
-                    <span className="font-medium">{route.distance}</span>
-                  </div>
-
-                  {/* Thời gian dự kiến */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Thời gian dự kiến:</span>
-                    <span className="font-medium">{route.estimatedTime}</span>
-                  </div>
-
-                  {/* Số điểm dừng */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Số điểm dừng:</span>
-                    <span className="font-medium">{route.stops.length} điểm</span>
-                  </div>
-
-                  {/* Số xe hoạt động trên tuyến */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Số xe hoạt động:</span>
-                    <span className="font-medium">{route.busCount} xe</span>
-                  </div>
-                </div>
-
-                {/* Nút sửa và xóa */}
-                <div className="flex space-x-2">
-                  {/* Nút sửa */}
-                  <button
-                    onClick={() => setEditingRoute(route)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm 
-                                                   font-medium transition-colors flex items-center justify-center space-x-2"
-                  >
-                    <span> <SquarePen /></span>
-                    <span>Sửa</span>
-                  </button>
-
-                  {/* Nút xóa */}
-                  <button
-                    onClick={() => handleDeleteRoute(route.id)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm 
-                                                font-medium transition-colors flex items-center justify-center space-x-2"
-                  >
-                    <span> <Trash2 /></span>
-                    <span>Xóa</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Danh sách tuyến (list view) */}
+        <div className="space-y-3">
+          {filteredRoutes.map((route, index) => (
+            <RouteListItem 
+              key={route.id} 
+              route={route} 
+              index={index}
+              onEdit={() => setEditingRoute(route)} 
+              onDelete={() => handleDeleteRoute(route.id)} 
+            />
           ))}
         </div>
 
