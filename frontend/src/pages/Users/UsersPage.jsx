@@ -1,11 +1,12 @@
 import { CirclePlus, Edit, Eye, Filter, KeyRound, Mail, MapPin, Phone, Plus, PlusCircle, Search, Trash2, User, UserCheck, Users, UserX, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { UserAPI } from "../../api/apiServices"
+import { AccountAPI, UserAPI } from "../../api/apiServices"
 
 export default function UsersPage() {
   const navigate = useNavigate() // Dùng để chuyển hướng trang (hook)
   const [users, setUsers] = useState([]) // Danh sách user
+  const [accounts, setAccounts] = useState([]) // Danh sách account
   const [filteredUsers, setFilteredUsers] = useState([]) // Danh sách user sau lọc
   const [searchTerm, setSearchTerm] = useState('') // Ký tự tìm kiếm
   const [selectedRole, setSelectedRole] = useState('all') // Bộ lọc role
@@ -27,9 +28,9 @@ export default function UsersPage() {
     address: ''
   })
 
-
   // Tải dữ liệu từ API
   useEffect(() => {
+
     UserAPI.getAllUsers()
       .then((listUser) => {
         setUsers(listUser)
@@ -37,8 +38,15 @@ export default function UsersPage() {
       }).catch((error) => {
         console.error('Lỗi khi tải dữ liệu từ Page của User:', error);
       });
-
+    AccountAPI.getAllAccount()
+      .then(listAccount => setAccounts(listAccount))
+      .catch(err => console.error(err));
   }, [])
+
+  const AccountById = (mand) => {
+    return AccountAPI.getAccountById(mand)
+  }
+
 
   useEffect(() => { // Khởi tạo tìm kiếm mỗi lần render
     let filtered = users
@@ -101,18 +109,18 @@ export default function UsersPage() {
 
   const getRoleName = (role) => { // Hàm lấy tên Role
     const roleMap = {
-      admin: 'Quản trị viên',
-      driver: 'Tài xế',
-      parent: 'Phụ huynh'
+      1: 'Quản trị viên',
+      2: 'Tài xế',
+      3: 'Phụ huynh'
     }
     return roleMap[role] || role
   }
 
   const getRoleColor = (role) => { // Lấy màu Role
     const colorMap = {
-      admin: 'bg-red-100 text-red-800',
-      driver: 'bg-green-100 text-green-800',
-      parent: 'bg-yellow-100 text-yellow-800'
+      1: 'bg-red-100 text-red-800',
+      2: 'bg-green-100 text-green-800',
+      3: 'bg-yellow-100 text-yellow-800'
     }
     return colorMap[role] || 'bg-gray-100 text-gray-800'
   }
@@ -144,7 +152,7 @@ export default function UsersPage() {
     },
     {
       name: 'Tài xế',
-      value: users.filter(u => u.trangthai === 1).length,
+      value: accounts.filter(u => u.manq === 2).length,
       icon: Users,
       color: 'bg-purple-500'
     }
@@ -264,93 +272,97 @@ export default function UsersPage() {
 
               {/* Thêm dữ liệu vào Body */}
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.mand} className="hover:bg-gray-50">
-                    {/* Dữ liệu cột Info người dùng */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{user.hoten}</div>
-                        <div className="text-sm text-gray-500 flex items-center mt-1">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {user.diachi}
+                {filteredUsers.map(user => {
+                  const account = accounts.find(acc => acc.matk === user.mand);
+                  console.log(account);
+                  return (
+                    <tr key={user.mand} className="hover:bg-gray-50">
+                      {/* Dữ liệu cột Info người dùng */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{user.hoten}</div>
+                          <div className="text-sm text-gray-500 flex items-center mt-1">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {user.diachi}
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Dữ liệu thông tin liên hệ */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 flex items-center">
-                        <Mail className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.email}
-                      </div>
-                      <div className="text-sm text-gray-500 flex items-center mt-1">
-                        <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.sdt}
-                      </div>
-                    </td>
+                      {/* Dữ liệu thông tin liên hệ */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 flex items-center">
+                          <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                          {user.email}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center mt-1">
+                          <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                          {user.sdt}
+                        </div>
+                      </td>
 
-                    {/* Dữ liệu tài khoản */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 flex items-center">
-                        <User className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.hoten}
-                      </div>
-                      <div className="text-sm text-gray-500 flex items-center mt-1">
-                        <KeyRound className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.hoten}
-                      </div>
-                    </td>
+                      {/* Dữ liệu tài khoản */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 flex items-center">
+                          <User className="h-4 w-4 mr-2 text-gray-400" />
+                          {account ? account.tendangnhap : ''} {/* Render chưa kịp*/}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center mt-1">
+                          <KeyRound className="h-4 w-4 mr-2 text-gray-400" />
+                          {account ? account.matkhau : ''} {/* Render chưa kịp*/}
+                        </div>
+                      </td>
 
-                    {/* Dữ liệu vai trò */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
-                        {getRoleName(user.hoten)}
-                      </span>
-                    </td>
+                      {/* Dữ liệu vai trò */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(account.manq)}`}>
+                          {getRoleName(account.manq)}
+                        </span>
+                      </td>
 
-                    {/* Dữ liệu trạng thái */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.trangthai)}`}>
-                        {user.trangthai === 1 ? 'Hoạt động' : 'Tạm khóa'}
-                      </span>
-                    </td>
+                      {/* Dữ liệu trạng thái */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.trangthai)}`}>
+                          {user.trangthai === 1 ? 'Hoạt động' : 'Tạm khóa'}
+                        </span>
+                      </td>
 
-                    {/* Các thao tác */}
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end space-x-2">
-                        {/* Nút xem chi tiết */}
-                        <button
-                          onClick={() => navigate(`/users/${user.id}`)}
-                          className="text-gray-600 hover:text-gray-900"
-                          title="Xem chi tiết"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
+                      {/* Các thao tác */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-2">
+                          {/* Nút xem chi tiết */}
+                          <button
+                            onClick={() => navigate(`/users/${user.id}`)}
+                            className="text-gray-600 hover:text-gray-900"
+                            title="Xem chi tiết"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
 
-                        {/* Nút sửa */}
-                        <button
-                          onClick={() => {
-                            setEditingUser(user)
-                            setShowEditModal(true)
-                          }}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Chỉnh sửa"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
+                          {/* Nút sửa */}
+                          <button
+                            onClick={() => {
+                              setEditingUser(user)
+                              setShowEditModal(true)
+                            }}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Chỉnh sửa"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
 
-                        {/* Nút xóa */}
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Xóa"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {/* Nút xóa */}
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Xóa"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

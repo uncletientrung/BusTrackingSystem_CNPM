@@ -9,3 +9,8 @@ export const StopAPI={
     getAllStops: () => apiClient.fetchAll('Stop'),
     getStopById: (madd) => apiClient.fetchById('Stop', madd)
 }
+
+export const AccountAPI={
+    getAllAccount: () => apiClient.fetchAll('Account'),
+    getAccountById: (matk) => apiClient.fetchById('Account', matk)
+}
