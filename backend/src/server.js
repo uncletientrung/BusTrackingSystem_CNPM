@@ -2,6 +2,7 @@ const express = require('express'); // framework giúp tạo web server(dùng đ
 const cors = require('cors');
 const { connectDB } = require('./config/connectDB');
 const StopRoutes = require('./Routes/StopRoutes');
+const UserRoutes = require('./Routes/UserRoutes');
 
 const app = express(); // là đối tượng Express chính, đại diện cho server.
 const PORT = 5000;
@@ -9,6 +10,7 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 app.use('/api/Stop', StopRoutes);
+app.use('/api/User', UserRoutes);
 
 const startServer = async () => {
     await connectDB();
@@ -19,13 +21,4 @@ const startServer = async () => {
 
 startServer();
 
-
-// test connect
-// app.get('/', (req, res) => {
-//     res.send('Kết nối thành công')
-// })
-
-// app.listen(PORT, () => {
-//     console.log(`Đang chạy ở Port: ${PORT}`)
-// })
 

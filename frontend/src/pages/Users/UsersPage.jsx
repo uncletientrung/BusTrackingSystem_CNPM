@@ -1,6 +1,7 @@
 import { CirclePlus, Edit, Eye, Filter, KeyRound, Mail, MapPin, Phone, Plus, PlusCircle, Search, Trash2, User, UserCheck, Users, UserX, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { UserAPI } from "../../api/apiServices"
 
 export default function UsersPage() {
   const navigate = useNavigate() // Dùng để chuyển hướng trang (hook)
@@ -26,88 +27,17 @@ export default function UsersPage() {
     address: ''
   })
 
-  // Demo data
-  const demoUsers = [
-    {
-      id: 1,
-      name: 'Nguyễn Văn Admin',
-      email: 'admin@busmanager.com',
-      phone: '0901234567',
-      username: '0901234567',
-      password: '123012',
-      sex: 'Nam',
-      birthday: '11-11-2011',
-      role: 'admin',
-      status: 'active',
-      address: '123 Đường ABC, Quận 1, TP.HCM',
-      createdAt: '2024-01-15',
-      lastLogin: '2024-10-04'
-    },
-    {
-      id: 2,
-      name: 'Trần Thị Dispatch',
-      email: 'dispatch@busmanager.com',
-      phone: '0902345678',
-      username: '0902345678',
-      password: '123012',
-      sex: 'Nam',
-      birthday: '11-11-2011',
-      role: 'dispatch',
-      status: 'active',
-      address: '456 Đường DEF, Quận 2, TP.HCM',
-      createdAt: '2024-02-01',
-      lastLogin: '2024-10-03'
-    },
-    {
-      id: 3,
-      name: 'Lê Văn Tài Xế',
-      email: 'driver1@busmanager.com',
-      phone: '0902345678',
-      username: '0902345678',
-      password: '123012',
-      sex: 'Nam',
-      birthday: '11-11-2011',
-      role: 'driver',
-      status: 'active',
-      address: '789 Đường GHI, Quận 3, TP.HCM',
-      createdAt: '2024-02-15',
-      lastLogin: '2024-10-04'
-    },
-    {
-      id: 4,
-      name: 'Phạm Thị Phụ Huynh',
-      email: 'parent1@gmail.com',
-      phone: '0904567890',
-      username: '0902345678',
-      password: '123012',
-      sex: 'Nam',
-      birthday: '11-11-2011',
-      role: 'parent',
-      status: 'active',
-      address: '321 Đường JKL, Quận 4, TP.HCM',
-      createdAt: '2024-03-01',
-      lastLogin: '2024-10-02'
-    },
-    {
-      id: 5,
-      name: 'Hoàng Văn Driver 2',
-      email: 'driver2@busmanager.com',
-      phone: '0905678901',
-      username: '0902345678',
-      password: '123012',
-      sex: 'Nam',
-      birthday: '11-11-2011',
-      role: 'driver',
-      status: 'inactive',
-      address: '654 Đường MNO, Quận 5, TP.HCM',
-      createdAt: '2024-03-15',
-      lastLogin: '2024-09-30'
-    }
-  ]
 
-  useEffect(() => { // Nạp giả lập dữ liệu
-    setUsers(demoUsers)
-    setFilteredUsers(demoUsers)
+  // Tải dữ liệu từ API
+  useEffect(() => {
+    UserAPI.getAllUsers()
+      .then((listUser) => {
+        setUsers(listUser)
+        setFilteredUsers(listUser)
+      }).catch((error) => {
+        console.error('Lỗi khi tải dữ liệu từ Page của User:', error);
+      });
+
   }, [])
 
   useEffect(() => { // Khởi tạo tìm kiếm mỗi lần render
@@ -188,7 +118,7 @@ export default function UsersPage() {
   }
 
   const getStatusColor = (status) => { // Lấy màu trạng thái
-    return status === 'active'
+    return status === 1
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
   }
@@ -202,19 +132,19 @@ export default function UsersPage() {
     },
     {
       name: 'Đang hoạt động',
-      value: users.filter(u => u.status === 'active').length,
+      value: users.filter(u => u.trangthai === 1).length,
       icon: UserCheck,
       color: 'bg-green-500'
     },
     {
       name: 'Tạm khóa',
-      value: users.filter(u => u.status === 'inactive').length,
+      value: users.filter(u => u.trangthai === 0).length,
       icon: UserX,
       color: 'bg-red-500'
     },
     {
       name: 'Tài xế',
-      value: users.filter(u => u.role === 'driver').length,
+      value: users.filter(u => u.trangthai === 1).length,
       icon: Users,
       color: 'bg-purple-500'
     }
@@ -335,14 +265,14 @@ export default function UsersPage() {
               {/* Thêm dữ liệu vào Body */}
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.mand} className="hover:bg-gray-50">
                     {/* Dữ liệu cột Info người dùng */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        <div className="text-sm font-medium text-gray-900">{user.hoten}</div>
                         <div className="text-sm text-gray-500 flex items-center mt-1">
                           <MapPin className="h-3 w-3 mr-1" />
-                          {user.address}
+                          {user.diachi}
                         </div>
                       </div>
                     </td>
@@ -355,7 +285,7 @@ export default function UsersPage() {
                       </div>
                       <div className="text-sm text-gray-500 flex items-center mt-1">
                         <Phone className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.phone}
+                        {user.sdt}
                       </div>
                     </td>
 
@@ -363,25 +293,25 @@ export default function UsersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 flex items-center">
                         <User className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.username}
+                        {user.hoten}
                       </div>
                       <div className="text-sm text-gray-500 flex items-center mt-1">
                         <KeyRound className="h-4 w-4 mr-2 text-gray-400" />
-                        {user.password}
+                        {user.hoten}
                       </div>
                     </td>
 
                     {/* Dữ liệu vai trò */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
-                        {getRoleName(user.role)}
+                        {getRoleName(user.hoten)}
                       </span>
                     </td>
 
                     {/* Dữ liệu trạng thái */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status)}`}>
-                        {user.status === 'active' ? 'Hoạt động' : 'Tạm khóa'}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.trangthai)}`}>
+                        {user.trangthai === 1 ? 'Hoạt động' : 'Tạm khóa'}
                       </span>
                     </td>
 

@@ -1,7 +1,7 @@
 import { MapPin, PlusCircle, Search, SquarePen, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import StopModal from "./StopModal";
-import { getAll } from "../../api/StopAPI";
+import { StopAPI } from "../../api/apiServices";
 
 export default function StopsPage() {
   const [stops, setStops] = useState([]);
@@ -14,9 +14,8 @@ export default function StopsPage() {
 
   // Gọi API tải dữ liệu
   useEffect(() => {
-    getAll()
+    StopAPI.getAllStops()
       .then((listStop) => {
-        console.log('Dữ liệu từ API:', listStop);
         setStops(listStop);
         setFilteredStops(listStop);
       })
@@ -251,11 +250,10 @@ export default function StopsPage() {
                   <button
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}
-                    className={`px-3 py-1 rounded-lg ${
-                      currentPage === index + 1
+                    className={`px-3 py-1 rounded-lg ${currentPage === index + 1
                         ? 'bg-primary-600 text-white'
                         : 'border border-gray-300 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {index + 1}
                   </button>
