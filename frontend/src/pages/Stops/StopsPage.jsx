@@ -1,6 +1,7 @@
 import { MapPin, PlusCircle, Search, SquarePen, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import StopModal from "./StopModal";
+import { getAll } from "../../api/StopAPI";
 
 export default function StopsPage() {
   const [stops, setStops] = useState([]);
@@ -11,140 +12,25 @@ export default function StopsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const stopsPerPage = 10;
 
-  // Demo data
+  // Gọi API tải dữ liệu
   useEffect(() => {
-    const demoStops = [
-      {
-        id: 1,
-        code: 'ST-001',
-        name: 'Bến xe Bến Thành',
-        latitude: 10.8231,
-        longitude: 106.6297,
-        address: '1 Phạm Ngũ Lão, Quận 1, TP.HCM',
-        description: 'Bến xe trung tâm TP.HCM',
-        createdAt: '2024-01-15'
-      },
-      {
-        id: 2,
-        code: 'ST-002',
-        name: 'Chợ Tân Định',
-        latitude: 10.7890,
-        longitude: 106.6850,
-        address: '120 Hai Bà Trưng, Quận 1, TP.HCM',
-        description: 'Khu vực chợ Tân Định',
-        createdAt: '2024-01-16'
-      },
-      {
-        id: 3,
-        code: 'ST-003',
-        name: 'Công viên Tao Đàn',
-        latitude: 10.7769,
-        longitude: 106.6909,
-        address: 'Trương Định, Quận 1, TP.HCM',
-        description: 'Công viên trung tâm',
-        createdAt: '2024-01-17'
-      },
-      {
-        id: 4,
-        code: 'ST-004',
-        name: 'Sân bay Tân Sơn Nhất',
-        latitude: 10.8187,
-        longitude: 106.6519,
-        address: 'Trường Sơn, Tân Bình, TP.HCM',
-        description: 'Sân bay quốc tế',
-        createdAt: '2024-01-18'
-      },
-      {
-        id: 5,
-        code: 'ST-005',
-        name: 'Nhà thờ Đức Bà',
-        latitude: 10.7798,
-        longitude: 106.6990,
-        address: '01 Công xã Paris, Quận 1, TP.HCM',
-        description: 'Di tích lịch sử',
-        createdAt: '2024-01-19'
-      },
-      {
-        id: 6,
-        code: 'ST-006',
-        name: 'Cầu Sài Gòn',
-        latitude: 10.7624,
-        longitude: 106.6832,
-        address: 'Võ Văn Kiệt, Quận 1, TP.HCM',
-        description: 'Cầu nối Quận 1 và Quận 4',
-        createdAt: '2024-01-20'
-      },
-      {
-        id: 7,
-        code: 'ST-007',
-        name: 'TTTM Crescent Mall',
-        latitude: 10.7292,
-        longitude: 106.7197,
-        address: '101 Tôn Dật Tiên, Quận 7, TP.HCM',
-        description: 'Trung tâm thương mại Quận 7',
-        createdAt: '2024-01-21'
-      },
-      {
-        id: 8,
-        code: 'ST-008',
-        name: 'ĐH Quốc gia TP.HCM',
-        latitude: 10.8700,
-        longitude: 106.8030,
-        address: 'Linh Trung, Thủ Đức, TP.HCM',
-        description: 'Khu đô thị đại học',
-        createdAt: '2024-01-22'
-      },
-      {
-        id: 9,
-        code: 'ST-009',
-        name: 'Chợ Thủ Đức',
-        latitude: 10.8506,
-        longitude: 106.7717,
-        address: 'Võ Văn Ngân, Thủ Đức, TP.HCM',
-        description: 'Chợ trung tâm Thủ Đức',
-        createdAt: '2024-01-23'
-      },
-      {
-        id: 10,
-        code: 'ST-010',
-        name: 'Bệnh viện Chợ Rẫy',
-        latitude: 10.7554,
-        longitude: 106.6665,
-        address: '201B Nguyễn Chí Thanh, Quận 5, TP.HCM',
-        description: 'Bệnh viện đa khoa lớn nhất TP.HCM',
-        createdAt: '2024-01-24'
-      },
-      {
-        id: 11,
-        code: 'ST-011',
-        name: 'Chợ Gò Vấp',
-        latitude: 10.8142,
-        longitude: 106.6438,
-        address: 'Quang Trung, Gò Vấp, TP.HCM',
-        description: 'Chợ trung tâm Gò Vấp',
-        createdAt: '2024-01-25'
-      },
-      {
-        id: 12,
-        code: 'ST-012',
-        name: 'Đầm Sen',
-        latitude: 10.7889,
-        longitude: 106.6542,
-        address: 'Hòa Bình, Quận 11, TP.HCM',
-        description: 'Công viên giải trí',
-        createdAt: '2024-01-26'
-      }
-    ];
-    setStops(demoStops);
-    setFilteredStops(demoStops);
+    getAll()
+      .then((listStop) => {
+        console.log('Dữ liệu từ API:', listStop);
+        setStops(listStop);
+        setFilteredStops(listStop);
+      })
+      .catch((error) => {
+        console.error('Lỗi khi tải dữ liệu điểm dừng:', error);
+      });
   }, []);
 
   // Filter stops based on search term
   useEffect(() => {
-    const filtered = stops.filter(stop =>
-      stop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stop.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stop.address?.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = stops.filter((stop) =>
+      stop.tendiemdung?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stop.madd?.toString().includes(searchTerm) ||
+      stop.diachi?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredStops(filtered);
     setCurrentPage(1);
@@ -166,24 +52,25 @@ export default function StopsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteStop = (stopId) => {
+  const handleDeleteStop = (madd) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa điểm dừng này?')) {
-      setStops(stops.filter(stop => stop.id !== stopId));
+      setStops(stops.filter((stop) => stop.madd !== madd));
+      setFilteredStops(filteredStops.filter((stop) => stop.madd !== madd));
     }
   };
 
   const handleSaveStop = (stopData) => {
     if (editingStop) {
-      // Update existing stop
-      setStops(stops.map(stop =>
-        stop.id === editingStop.id ? { ...stopData, id: editingStop.id } : stop
+      // Cập nhật
+      setStops(stops.map((stop) =>
+        stop.madd === editingStop.madd ? { ...stop, ...stopData } : stop
       ));
     } else {
-      // Add new stop
+      // Thêm mới
+      const newId = Math.max(...stops.map((s) => s.madd), 0) + 1;
       const newStop = {
         ...stopData,
-        id: Math.max(...stops.map(s => s.id), 0) + 1,
-        createdAt: new Date().toISOString().split('T')[0]
+        madd: newId,
       };
       setStops([...stops, newStop]);
     }
@@ -232,10 +119,9 @@ export default function StopsPage() {
           {/* Add Button */}
           <button
             onClick={handleAddStop}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 
-                    rounded-lg font-semibold transition-colors flex items-center space-x-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
           >
-            <span> <PlusCircle /></span>
+            <PlusCircle className="h-6 w-6" />
             <span>Thêm điểm dừng</span>
           </button>
         </div>
@@ -275,32 +161,38 @@ export default function StopsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentStops.length > 0 ? (
                 currentStops.map((stop) => (
-                  <tr key={stop.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={stop.madd} className="hover:bg-gray-50 transition-colors">
+                    {/* Mã điểm dừng */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-primary-100 rounded-lg">
                           <MapPin className="h-5 w-5 text-primary-600" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{stop.code}</div>
+                          <div className="text-sm font-medium text-gray-900">STOP-{stop.madd}</div>
                         </div>
                       </div>
                     </td>
+
+                    {/* Tên */}
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">{stop.name}</div>
-                      {stop.description && (
-                        <div className="text-sm text-gray-500">{stop.description}</div>
-                      )}
+                      <div className="text-sm font-medium text-gray-900">{stop.tendiemdung}</div>
                     </td>
+
+                    {/* Địa chỉ */}
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{stop.address || 'N/A'}</div>
+                      <div className="text-sm text-gray-900">{stop.diachi || 'N/A'}</div>
                     </td>
+
+                    {/* Tọa độ */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        <div>Lat: {stop.latitude.toFixed(4)}</div>
-                        <div className="text-gray-500">Lng: {stop.longitude.toFixed(4)}</div>
+                        <div>Lat: {stop.vido ? parseFloat(stop.vido).toFixed(6) : 'N/A'}</div>
+                        <div className="text-gray-500">Lng: {stop.kinhdo ? parseFloat(stop.kinhdo).toFixed(6) : 'N/A'}</div>
                       </div>
                     </td>
+
+                    {/* Hành động */}
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -310,7 +202,7 @@ export default function StopsPage() {
                           <SquarePen className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteStop(stop.id)}
+                          onClick={() => handleDeleteStop(stop.madd)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -359,10 +251,11 @@ export default function StopsPage() {
                   <button
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}
-                    className={`px-3 py-1 rounded-lg ${currentPage === index + 1
-                      ? 'bg-primary-600 text-white'
-                      : 'border border-gray-300 hover:bg-gray-50'
-                      }`}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === index + 1
+                        ? 'bg-primary-600 text-white'
+                        : 'border border-gray-300 hover:bg-gray-50'
+                    }`}
                   >
                     {index + 1}
                   </button>
@@ -390,4 +283,4 @@ export default function StopsPage() {
       )}
     </div>
   );
-}
+} 
