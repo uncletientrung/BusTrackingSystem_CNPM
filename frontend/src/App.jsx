@@ -47,11 +47,12 @@ import ChatPage from './pages/Chat/ChatPage';
 import NotFoundPage from './pages/Error/NotFoundPage';
 import DriverPage from './pages/Driver/DriverPage';
 
+//Components
+import PrivateRoute from './components/Auth/PrivateRoute';
+import UnauthorizedPage from './pages/Error/UnauthorizedPage';
 
 
 function App() {
-
-
   return (
     <>
       <Routes>
@@ -60,29 +61,74 @@ function App() {
         <Route path='/' element={<Layout />}>
           {/* Các route con sẽ được render trong <Outlet /> của Layout */}
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path='buses' element={<BusesPage />} />
-          <Route path='routes' element={<RoutesPage />} />
-          <Route path='stops' element={<StopsPage />} />
-          <Route
-            path='students'
-            element={<StudentsPage />}
 
-          />
+          <Route path='buses' element={
+            <PrivateRoute allowedRoles={["admin"]}>
+              <BusesPage />
+            </PrivateRoute>
+          } />
+
+          <Route path='routes' element={
+            <PrivateRoute allowedRoles={["admin"]}>
+              <RoutesPage />
+            </PrivateRoute>
+          } />
+
+          <Route path='stops' element={
+            <PrivateRoute allowedRoles={["admin"]}>
+              <StopsPage />
+            </PrivateRoute>
+          } />
+
+          <Route path='students' element={
+            <PrivateRoute allowedRoles={["admin", "parent"]}>
+              <StudentsPage />
+            </PrivateRoute>
+          } />
+
           <Route
             path='students/:id'
-            element={<StudentDetailPage />}
-          />
+            element={
+              <PrivateRoute allowedRoles={["admin"]}>
+                <StudentDetailPage />
+              </PrivateRoute>
+            } />
+
           <Route path='tracking' element={<TrackingPage />} />
-          <Route path='schedule' element={<SchedulePage />} />
-          <Route path='chat' element={<ChatPage />} />
-          <Route path='users'
-            element={<UsersPage />}
-          />
+
+          <Route path='schedule' element={
+            <PrivateRoute allowedRoles={["admin"]}>
+              <SchedulePage />
+            </PrivateRoute>
+          } />
+
+          <Route path='chat' element={
+            <PrivateRoute allowedRoles={["admin", "driver"]}>
+              <ChatPage />
+            </PrivateRoute>
+          } />
+
+          <Route path='users' element={
+            <PrivateRoute allowedRoles={["admin"]}>
+              <UsersPage />
+            </PrivateRoute>
+          } />
+
           <Route path='users/:id'
-            element={<UserDetailPage />}
-          />
+            element={
+              <PrivateRoute allowedRoles={["admin"]}>
+                <UserDetailPage />
+              </PrivateRoute>
+            } />
+
           <Route path='notifications' element={<NotificationPage />} />
-          <Route path='driver' element={<DriverPage />} />
+
+          <Route path='driver' element={
+            <PrivateRoute allowedRoles={["driver"]}>
+              <DriverPage />
+            </PrivateRoute>
+          } />
+
           <Route path='profile' element={<ProfilePage />} />
 
 
@@ -90,10 +136,12 @@ function App() {
 
         {/* Các route không dùng Layout */}
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
         {/* Route bắt tất cả đường dẫn không tồn tại */}
         <Route path="*" element={<NotFoundPage />} />
+
+        {/* Route truy cập trang không quyền */}
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
       </Routes>
 
 

@@ -15,7 +15,8 @@ export default function Header({onMenuClick}) {
         return colors[role] || 'bg-gray-100 text-gray-800'
     }
     const handleLogout = () => {
-        localStorage.removeItem("isLoggedIn"); // xóa trạng thái đăng nhập
+        sessionStorage.removeItem("isLoggedIn"); // xóa trạng thái đăng nhập
+        sessionStorage.removeItem('currentUser');
         navigate("/login");
     };
    return (

@@ -43,11 +43,6 @@ export default function UsersPage() {
       .catch(err => console.error(err));
   }, [])
 
-  const AccountById = (mand) => {
-    return AccountAPI.getAccountById(mand)
-  }
-
-
   useEffect(() => { // Khởi tạo tìm kiếm mỗi lần render
     let filtered = users
 
@@ -274,7 +269,6 @@ export default function UsersPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map(user => {
                   const account = accounts.find(acc => acc.matk === user.mand);
-                  console.log(account);
                   return (
                     <tr key={user.mand} className="hover:bg-gray-50">
                       {/* Dữ liệu cột Info người dùng */}
@@ -314,8 +308,8 @@ export default function UsersPage() {
 
                       {/* Dữ liệu vai trò */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(account.manq)}`}>
-                          {getRoleName(account.manq)}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(account ? account.manq : 1)}`}>
+                          {getRoleName(account ? account.manq : 1)}
                         </span>
                       </td>
 

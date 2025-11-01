@@ -1,82 +1,32 @@
 import { Bell, BriefcaseBusiness, Bus, Calendar, GraduationCap, LayoutDashboard, MapPin, MapPinned, MessageCircle, Route, User, Users, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { clsx } from 'clsx' // Dùng để nối chuỗi lại giống Stringbuilder
+import { getRoleFromMaNq } from "../../utils/AccountRole";
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation(); // Dùng dể lấy URL hiện tại
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+  const userRole = currentUser ? getRoleFromMaNq(currentUser.manq) : null;
+
 
   const navigationList = [
-    {
-      name: 'Trang chủ',
-      href: '/dashboard',
-      icon: LayoutDashboard,
-      roles: ['admin', 'driver', 'parent']
-    },
-    {
-      name: 'Quản lý xe buýt',
-      href: '/buses',
-      icon: Bus,
-      roles: ['admin']
-    },
-    {
-      name: 'Tuyến đường',
-      href: '/routes',
-      icon: Route,
-      roles: ['admin']
-    },
-    {
-      name: 'Điểm dừng',
-      href: '/stops',
-      icon: MapPinned,
-      roles: ['admin']
-    },
-    {
-      name: 'Học sinh',
-      href: '/students',
-      icon: GraduationCap,
-      roles: ['admin', 'parent']
-    },
-    {
-      name: 'Theo dõi GPS',
-      href: '/tracking',
-      icon: MapPin,
-      roles: ['admin', 'driver', 'parent']
-    },
-    {
-      name: 'Lịch trình',
-      href: '/schedule',
-      icon: Calendar,
-      roles: ['admin', 'driver', 'parent']
-    },
-    {
-      name: 'Tin nhắn',
-      href: '/chat',
-      icon: MessageCircle,
-      roles: ['admin']
-    },
-    {
-      name: 'Người dùng',
-      href: '/users',
-      icon: Users,
-      roles: ['admin']
-    },
-    {
-      name: 'Thông báo',
-      href: '/notifications',
-      icon: Bell,
-      roles: ['admin', 'parent']
-    },
-    {
-      name: 'Công việc của tôi',
-      href: '/driver',
-      icon: BriefcaseBusiness,
-      roles: ['admin', 'parent']
-    }
-  ]
+    { name: 'Trang chủ', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'driver', 'parent'] },
+    { name: 'Quản lý xe buýt', href: '/buses', icon: Bus, roles: ['admin'] },
+    { name: 'Tuyến đường', href: '/routes', icon: Route, roles: ['admin'] },
+    { name: 'Điểm dừng', href: '/stops', icon: MapPinned, roles: ['admin'] },
+    { name: 'Học sinh', href: '/students', icon: GraduationCap, roles: ['admin', 'parent'] },
+    { name: 'Theo dõi GPS', href: '/tracking', icon: MapPin, roles: ['admin', 'driver', 'parent'] },
+    { name: 'Lịch trình', href: '/schedule', icon: Calendar, roles: ['admin'] },
+    { name: 'Tin nhắn', href: '/chat', icon: MessageCircle, roles: ['admin', 'driver'] },
+    { name: 'Người dùng', href: '/users', icon: Users, roles: ['admin'] },
+    { name: 'Thông báo', href: '/notifications', icon: Bell, roles: ['admin', 'parent', 'driver'] },
+    { name: 'Công việc của tôi', href: '/driver', icon: BriefcaseBusiness, roles: ['driver'] },
+  ];
 
   // Lọc các Page dựa trên quyền (Chưa làm)
-  let filteredNavigation = [];
-  filteredNavigation = navigationList;
+  const filteredNavigation = userRole
+    ? navigationList.filter(item => item.roles.includes(userRole))
+    : [];
   return (
     <>
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
