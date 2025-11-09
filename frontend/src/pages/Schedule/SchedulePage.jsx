@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react"
 import { AlertTriangle, BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Hourglass, RefreshCcw, SquarePen, Trash2, UserPlus, Users, X } from "lucide-react"
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector"
+import { ScheduleAPI } from "../../api/apiServices";
 
 
 export default function SchedulePage() {
+  const [schedules, setSchedules] = useState([]);
+  const [filteredSchedules, setFilteredSchedules] = useState([]) // Danh sách học sinh sau lọc
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   //    // Lấy ngày giờ của Date, chuyển thành ISO là "2025-10-10T16:53:02.123Z", cắt từ T thành 2 item, lấy yyyy/MM/dd
   const [selectedRoute, setSelectedRoute] = useState('all');
@@ -19,7 +22,6 @@ export default function SchedulePage() {
     students: []    // Danh sách học sinh
   });
   const [isStudentSelectorOpen, setIsStudentSelectorOpen] = useState(false); // Modal chọn học sinh
-  const [editingScheduleId, setEditingScheduleId] = useState(null); // ID lịch trình đang sửa
   const [isEditing, setIsEditing] = useState(false); // Trạng thái đang sửa
   const [editingSchedule, setEditingSchedule] = useState(null); // Dữ liệu lịch trình đang sửa
   const [isViewingStudents, setIsViewingStudents] = useState(false); // Trạng thái xem số học sinh
@@ -54,64 +56,30 @@ export default function SchedulePage() {
     { id: 6, name: 'Vũ Thị F', studentCode: 'HS006', class: '12A1', routeId: 3, routeName: 'Thủ Đức - Quận 3' },
   ];
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const listSchedule = await ScheduleAPI.getAllSchedule();
+        setSchedules(listSchedule);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu Schedule:', error);
+      }
+    })();
+  }, []);
+
   //     // Giả lập lịch trình
   useEffect(() => {
-    const demoSchedules = [
-      {
-        id: 1,
-        busNumber: 'BUS-001',
-        route: 'Bến Thành - Sân Bay',
-        departureTime: '06:00',
-        arrivalTime: '07:30',
-        driver: 'Nguyễn Văn A',
-        status: 'running',
-        passengers: 25, // Hành khách
-        capacity: 40, // Sức chứa
-        date: selectedDate
-      },
-      {
-        id: 2,
-        busNumber: 'BUS-002',
-        route: 'Quận 1 - Quận 7',
-        departureTime: '07:00',
-        arrivalTime: '08:45',
-        driver: 'Trần Văn B',
-        status: 'scheduled',
-        passengers: 0,
-        capacity: 35,
-        date: selectedDate
-      },
-      {
-        id: 3,
-        busNumber: 'BUS-001',
-        route: 'Bến Thành - Sân Bay',
-        departureTime: '08:30',
-        arrivalTime: '10:00',
-        driver: 'Nguyễn Văn A',
-        status: 'completed',
-        passengers: 38,
-        capacity: 40,
-        date: selectedDate
-      },
-      {
-        id: 4,
-        busNumber: 'BUS-003',
-        route: 'Thủ Đức - Quận 3',
-        departureTime: '09:15',
-        arrivalTime: '11:00',
-        driver: 'Lê Văn C',
-        status: 'delayed',
-        passengers: 20,
-        capacity: 45,
-        date: selectedDate
-      }
-    ];
+    let filtered = schedules;
+    // if (selectedDate) {
+    //   filtered = filtered.filter(s => s.date === selectedDate);
+    // }
 
-    const filtered = selectedRoute === 'all' // Bộ lọc
-      ? demoSchedules
-      : demoSchedules.filter(s => s.route.includes(selectedRoute));
-    setLichTrinh(filtered);
-  }, [selectedDate, selectedRoute]);
+    // if (selectedRoute !== 'all') {
+    //   filtered = filtered.filter(s => s.route === selectedRoute);
+    // }
+    setFilteredSchedules(filtered);
+
+  }, [selectedDate, selectedRoute, schedules]);
 
   const getStatusColor = (status) => { // Màu trạng thái
     switch (status) {
@@ -264,7 +232,7 @@ export default function SchedulePage() {
 
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Tổng chuyến</p>
-                <p className="text-2xl font-bold text-gray-900">{lichTrinh.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{filteredSchedules.length}</p>
               </div>
             </div>
           </div>
@@ -373,13 +341,6 @@ export default function SchedulePage() {
 
         {/* Danh sách lịch trình */}
         <div className="bg-white rounded-lg shadow-md">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800">Danh sách lịch trình</h3>
-            <p className="text-sm text-gray-600">
-              Ngày: {new Date(selectedDate).toLocaleDateString('vi-VN')}
-            </p>
-          </div>
-
           <div className="overflow-x-auto"> {/* Tạo row và col của Table */}
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -466,7 +427,7 @@ export default function SchedulePage() {
                     {/* Thanh hành động */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button 
+                        <button
                           onClick={() => handleViewStudents(item)}
                           className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-3 py-1 text-xs flex items-center space-x-1"
                           title="Xem số học sinh"
@@ -474,7 +435,7 @@ export default function SchedulePage() {
                           <Users className="h-4 w-4" />
                           <span>Học sinh</span>
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleEditSchedule(item)}
                           className="text-blue-600 hover:text-blue-900"
                           title="Sửa lịch trình"

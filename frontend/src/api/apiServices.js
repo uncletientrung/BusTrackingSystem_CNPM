@@ -26,3 +26,7 @@ export const BusAPI = {
 export const RouteAPI = {
     getAllRoute: () => apiClient.fetchAll('Route'),
 }
+
+export const ScheduleAPI = {
+    getAllSchedule: () => apiClient.fetchAll('Schedule')
+}
