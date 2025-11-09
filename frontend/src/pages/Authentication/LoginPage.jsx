@@ -36,7 +36,6 @@ export default function LoginPage() {
         navigate("/dashboard");
       } else {
         alert("Sai tài khoản hoặc mật khẩu!");
-        setIsLoading(false);
       }
     }, 800);
 

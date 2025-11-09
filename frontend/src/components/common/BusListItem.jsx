@@ -2,35 +2,6 @@ import { BusFront, SquarePen, Trash2 } from 'lucide-react';
 import React from 'react';
 
 export default function BusListItem({ bus, onEdit, onDelete, index = 0 }) {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'maintenance': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'inactive': return 'bg-red-100 text-red-800 border-red-200';
-      case 'repair': return 'bg-orange-100 text-orange-800 border-orange-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'active': return '🟢';
-      case 'maintenance': return '🟡';
-      case 'inactive': return '🔴';
-      case 'repair': return '🟠';
-      default: return '⚪';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'active': return 'Hoạt động';
-      case 'maintenance': return 'Bảo trì';
-      case 'inactive': return 'Ngưng hoạt động';
-      case 'repair': return 'Sửa chữa';
-      default: return status;
-    }
-  };
 
   return (
     <div
@@ -62,10 +33,6 @@ export default function BusListItem({ bus, onEdit, onDelete, index = 0 }) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <div className="flex items-center gap-3 flex-wrap">
               <h4 className="text-xl font-bold text-gray-900">{bus.number}</h4>
-              <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(bus.status)}`}>
-                <span>{getStatusIcon(bus.status)}</span>
-                <span>{getStatusText(bus.status)}</span>
-              </span>
             </div>
             {/* Action icons on the right (small) */}
             <div className="flex items-center gap-2">

@@ -401,12 +401,12 @@ export default function BusesPage() {
         {/* Danh sách xe hiển thị sau lọc (list view) */}
         <div className="space-y-3">
           {filteredBuses.map((bus, index) => (
-            <BusListItem 
-              key={bus.id} 
-              bus={bus} 
+            <BusListItem
+              key={bus.id}
+              bus={bus}
               index={index}
-              onEdit={() => setEditingBus(bus)} 
-              onDelete={() => handleDeleteBus(bus.id)} 
+              onEdit={() => setEditingBus(bus)}
+              onDelete={() => handleDeleteBus(bus.id)}
             />
           ))}
         </div>

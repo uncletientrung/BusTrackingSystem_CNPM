@@ -1,6 +1,7 @@
 import { Check, CheckCircle, CirclePlus, Clock, Edit, Eye, Filter, GraduationCap, Phone, Plus, PlusCircle, Route, Search, Trash2, Users2, X, XCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { StudentAPI } from "../../api/apiServices"
 
 export default function StudentsPage() {
   const navigate = useNavigate() // Dùng để chuyển hướng trang (hook)
@@ -28,150 +29,6 @@ export default function StudentsPage() {
     status: 'active'
   })
 
-  // Giả lập dữ liệu
-  const demoStudents = [
-    {
-      id: 1,
-      name: 'Nguyễn Văn An',
-      studentId: 'HS001',
-      grade: '1',
-      parentName: 'Nguyễn Thị Bình',
-      parentPhone: '0901234567',
-      parentEmail: 'parent1@gmail.com',
-      address: '123 Đường ABC, Quận 1, TP.HCM',
-      route: 'Tuyến A',
-      routeId: 'route-1',
-      pickupPoint: 'Điểm đón A1 - Chợ Bến Thành',
-      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
-      pickupTime: '07:00',
-      dropoffTime: '16:30',
-      status: 'active',
-      avatar: null,
-      sex: 'Nam',
-      birthday: '2024-01-15',
-      emergencyContact: '0987654321',
-      medicalNotes: 'Không có',
-      createdAt: '2024-01-15',
-      attendance: {
-        present: 45,
-        absent: 3,
-        late: 2
-      }
-    },
-    {
-      id: 2,
-      name: 'Trần Thị Bảo',
-      studentId: 'HS002',
-      grade: '2',
-      parentName: 'Trần Văn Cường',
-      parentPhone: '0902345678',
-      parentEmail: 'parent2@gmail.com',
-      address: '456 Đường DEF, Quận 2, TP.HCM',
-      route: 'Tuyến B',
-      routeId: 'route-2',
-      pickupPoint: 'Điểm đón B2 - Trường THCS Nam Sài Gòn',
-      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
-      pickupTime: '07:15',
-      dropoffTime: '16:45',
-      status: 'active',
-      avatar: null,
-      sex: 'Nam',
-      birthday: '2024-01-15',
-      emergencyContact: '0987654322',
-      medicalNotes: 'Dị ứng với đậu phộng',
-      createdAt: '2024-02-01',
-      attendance: {
-        present: 42,
-        absent: 5,
-        late: 3
-      }
-    },
-    {
-      id: 3,
-      name: 'Lê Văn Cao',
-      studentId: 'HS003',
-      grade: '3',
-      parentName: 'Lê Thị Dung',
-      parentPhone: '0903456789',
-      parentEmail: 'parent3@gmail.com',
-      address: '789 Đường GHI, Quận 3, TP.HCM',
-      route: 'Tuyến A',
-      routeId: 'route-1',
-      pickupPoint: 'Điểm đón A3 - Công viên Tao Đàn',
-      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
-      pickupTime: '07:30',
-      dropoffTime: '17:00',
-      status: 'inactive',
-      avatar: null,
-      sex: 'Nam',
-      birthday: '2024-01-15',
-      emergencyContact: '0987654323',
-      medicalNotes: 'Không có',
-      createdAt: '2024-02-15',
-      attendance: {
-        present: 38,
-        absent: 8,
-        late: 4
-      }
-    },
-    {
-      id: 4,
-      name: 'Phạm Thị Diễm',
-      studentId: 'HS004',
-      grade: '1',
-      parentName: 'Phạm Văn Em',
-      parentPhone: '0904567890',
-      parentEmail: 'parent4@gmail.com',
-      address: '321 Đường JKL, Quận 4, TP.HCM',
-      route: 'Tuyến C',
-      routeId: 'route-3',
-      pickupPoint: 'Điểm đón C1 - Chợ Tân Định',
-      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
-      pickupTime: '06:45',
-      dropoffTime: '16:15',
-      status: 'active',
-      sex: 'Nam',
-      birthday: '2024-01-15',
-      avatar: null,
-      emergencyContact: '0987654324',
-      medicalNotes: 'Cần thuốc hen suyễn',
-      createdAt: '2024-03-01',
-      attendance: {
-        present: 40,
-        absent: 6,
-        late: 4
-      }
-    },
-    {
-      id: 5,
-      name: 'Hoàng Văn Phong',
-      studentId: 'HS005',
-      grade: '4',
-      parentName: 'Hoàng Thị Giang',
-      parentPhone: '0905678901',
-      parentEmail: 'parent5@gmail.com',
-      address: '654 Đường MNO, Quận 5, TP.HCM',
-      route: 'Tuyến B',
-      routeId: 'route-2',
-      pickupPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
-      dropdownPoint: 'Điểm đón B4 - Bệnh viện Nhi Đồng 1',
-      pickupTime: '07:00',
-      dropoffTime: '16:30',
-      status: 'active',
-      sex: 'Nam',
-      birthday: '2024-01-15',
-      avatar: null,
-      emergencyContact: '0987654325',
-      medicalNotes: 'Không có',
-      createdAt: '2024-03-15',
-      attendance: {
-        present: 44,
-        absent: 4,
-        late: 2
-      }
-    }
-  ]
-
   const routes = [
     { id: 'route-1', name: 'Tuyến A' },
     { id: 'route-2', name: 'Tuyến B' },
@@ -180,38 +37,41 @@ export default function StudentsPage() {
 
   useEffect(() => {
     // Filter students based on user role
-    let filteredByRole = demoStudents
+    StudentAPI.getAllStudent().then((listStudent) => {
+      setStudents(listStudent)
+      setFilteredStudents(listStudent)
+    }).catch((error) => {
+      console.error('Lỗi khi tải dữ liệu học sinh:', error);
+    });
     // if (user?.role === 'parent') {
     //    // In real app, this would filter by parent's children
     //    filteredByRole = demoStudents.filter(student =>
     //       student.parentEmail === user.email
     //    )
     // }
-    setStudents(filteredByRole)
-    setFilteredStudents(filteredByRole)
   }, [])
 
   useEffect(() => { // Lọc dữ liệu dựa trên tìm kiếm
     let filtered = students
     if (searchTerm) { // Tìm dựa trên search
       filtered = filtered.filter(student =>
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.parentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.parentPhone.includes(searchTerm)
+        student.hoten.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.mahs.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.sdt.includes(searchTerm)
       )
     }
+
     // Tìm dựa trên lớp
-    if (selectedGrade !== 'all') {
-      filtered = filtered.filter(student => student.grade === selectedGrade)
+    if (selectedGrade != 'all') {
+      filtered = filtered.filter(student => student.lop === selectedGrade)
     }
     // Tìm dựa trên tuyến
-    if (selectedRoute !== 'all') {
-      filtered = filtered.filter(student => student.routeId === selectedRoute)
-    }
+    // if (selectedRoute != 'all') {
+    //   filtered = filtered.filter(student => student.diemdung === selectedRoute)
+    // }
     // Tìm dựa trên trạng thái
-    if (selectedStatus !== 'all') {
-      filtered = filtered.filter(student => student.status === selectedStatus)
+    if (selectedStatus != 'all') {
+      filtered = filtered.filter(student => student.trangthai === selectedStatus)
     }
 
     setFilteredStudents(filtered)
@@ -283,13 +143,13 @@ export default function StudentsPage() {
     },
     {
       name: 'Đang học',
-      value: students.filter(s => s.status === 'active').length,
+      value: students.filter(std => std.trangthai == 1).length,
       icon: Check,
       color: 'bg-green-500'
     },
     {
       name: 'Tạm nghỉ',
-      value: students.filter(s => s.status === 'inactive').length,
+      value: students.filter(s => s.trangthai == 0).length,
       icon: XCircle,
       color: 'bg-red-500'
     }
@@ -362,6 +222,13 @@ export default function StudentsPage() {
               <option value="3">Lớp 3</option>
               <option value="4">Lớp 4</option>
               <option value="5">Lớp 5</option>
+              <option value="6">Lớp 6</option>
+              <option value="7">Lớp 7</option>
+              <option value="8">Lớp 8</option>
+              <option value="9">Lớp 9</option>
+              <option value="10">Lớp 10</option>
+              <option value="11">Lớp 11</option>
+              <option value="12">Lớp 12</option>
             </select>
 
             {/* Bộ lọc tuyến */}
@@ -423,7 +290,7 @@ export default function StudentsPage() {
               {/* Body của Table */}
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredStudents.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
+                  <tr key={student.mahs} className="hover:bg-gray-50">
                     {/* Nội dung cột học sinh */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -433,18 +300,18 @@ export default function StudentsPage() {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                          <div className="text-sm text-gray-500">MSHS: {student.studentId} • Lớp {student.grade}</div>
+                          <div className="text-sm font-medium text-gray-900">{student.hoten}</div>
+                          <div className="text-sm text-gray-500">MSHS: {student.mahs} • Lớp {student.lop}</div>
                         </div>
                       </div>
                     </td>
 
                     {/* Nội dung cột phụ huy */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{student.parentName}</div>
+                      <div className="text-sm text-gray-900">{student.maph}</div>
                       <div className="text-sm text-gray-500 flex items-center">
                         <Phone className="h-3 w-3 mr-1" />
-                        {student.parentPhone}
+                        {student.sdt}
                       </div>
                     </td>
 
@@ -452,18 +319,18 @@ export default function StudentsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 flex items-center">
                         <Route className="h-4 w-4 mr-2 text-gray-400" />
-                        {student.route}
+                        {student.diemdon}
                       </div>
                       <div className="text-sm text-gray-500 flex items-center">
                         <Clock className="h-3 w-3 mr-1" />
-                        {student.pickupTime} - {student.dropoffTime}
+                        {student.diemdon} - {student.diemdon}
                       </div>
                     </td>
 
                     {/* Nội dung cột trạng thái */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(student.status)}`}>
-                        {student.status === 'active' ? 'Đang học' : 'Tạm nghỉ'}
+                        {student.trangthai === 1 ? 'Đang học' : 'Tạm nghỉ'}
                       </span>
                     </td>
 
@@ -472,7 +339,7 @@ export default function StudentsPage() {
                       <div className="flex items-center justify-center space-x-2">
                         {/* Nút xem chi tiết */}
                         <button
-                          onClick={() => navigate(`/students/${student.id}`)}
+                          onClick={() => navigate(`/students/${student.mahs}`)}
                           className="text-gray-600 hover:text-gray-900"
                           title="Xem chi tiết"
                         >
@@ -481,12 +348,12 @@ export default function StudentsPage() {
 
                         {/* Nút đổi status */}
                         <button
-                          onClick={() => toggleStudentStatus(student.id)}
-                          className={`${student.status === 'active' ? 'text-red-600 hover:text-red-900'
+                          onClick={() => toggleStudentStatus(student.mahs)}
+                          className={`${student.trangthai === 0 ? 'text-red-600 hover:text-red-900'
                             : 'text-green-600 hover:text-green-900'}`}
-                          title={student.status === 'active' ? 'Tạm nghỉ' : 'Kích hoạt'}
+                          title={student.status === 0 ? 'Tạm nghỉ' : 'Kích hoạt'}
                         >
-                          {student.status === 'active' ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                          {student.status === 0 ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                         </button>
 
                         {/* Nút sửa học sinh */}
