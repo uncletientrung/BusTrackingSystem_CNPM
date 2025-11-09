@@ -1,7 +1,7 @@
-import { Check, CheckCircle, CirclePlus, Clock, Edit, Eye, Filter, GraduationCap, Phone, Plus, PlusCircle, Route, Search, Trash2, Users2, X, XCircle } from "lucide-react"
+import { Check, CheckCircle, CirclePlus, Clock, Edit, Eye, Filter, GraduationCap, Phone, Plus, PlusCircle, Route, Search, Trash2, Users, Users2, X, XCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { StudentAPI } from "../../api/apiServices"
+import { StudentAPI, StopAPI, UserAPI } from "../../api/apiServices"
 
 export default function StudentsPage() {
   const navigate = useNavigate() // Dùng để chuyển hướng trang (hook)
@@ -9,8 +9,9 @@ export default function StudentsPage() {
   const [filteredStudents, setFilteredStudents] = useState([]) // Danh sách học sinh sau lọc
   const [searchTerm, setSearchTerm] = useState('') // Ký tự tìm
   const [selectedGrade, setSelectedGrade] = useState('all')
-  const [selectedRoute, setSelectedRoute] = useState('all')
-  const [selectedStatus, setSelectedStatus] = useState('all')
+  const [selectedPickUp, setSelectedPickUp] = useState(-1);
+  const [selectedDropOff, setselectedDropOff] = useState(-1);
+  const [selectedStatus, setSelectedStatus] = useState(-1)
   const [showCreateModal, setShowCreateModal] = useState(false) // Trạng thái thêm student
   const [showEditModal, setShowEditModal] = useState(false) // Trạng thái sửa student
   const [editingStudent, setEditingStudent] = useState(null) // Đối tượng sửa
@@ -29,11 +30,9 @@ export default function StudentsPage() {
     status: 'active'
   })
 
-  const routes = [
-    { id: 'route-1', name: 'Tuyến A' },
-    { id: 'route-2', name: 'Tuyến B' },
-    { id: 'route-3', name: 'Tuyến C' }
-  ]
+  const [stops, setStops] = useState([]);
+  const [users, setUsers] = useState([]);
+
 
   useEffect(() => {
     // Filter students based on user role
@@ -49,14 +48,32 @@ export default function StudentsPage() {
     //       student.parentEmail === user.email
     //    )
     // }
-  }, [])
+
+    // Lấy hết điểm dừng (Cách viết 1)
+    StopAPI.getAllStops().then(listStop => setStops(listStop))
+      .catch((error) => {
+        console.error('Lỗi khi tải dữ liệu điểm dừng ở học sinh:', error);
+      });
+
+    // Lấy hết User (Cách viết 2)
+    (async () => {
+      try {
+        const listUser = await UserAPI.getAllUsers();
+        setUsers(listUser);
+        console.log(listUser);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu user ở học sinh:', error);
+      }
+    })();
+
+  }, []);
 
   useEffect(() => { // Lọc dữ liệu dựa trên tìm kiếm
     let filtered = students
     if (searchTerm) { // Tìm dựa trên search
       filtered = filtered.filter(student =>
         student.hoten.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.mahs.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.mahs.toString().includes(searchTerm.toLowerCase()) ||
         student.sdt.includes(searchTerm)
       )
     }
@@ -65,17 +82,21 @@ export default function StudentsPage() {
     if (selectedGrade != 'all') {
       filtered = filtered.filter(student => student.lop === selectedGrade)
     }
-    // Tìm dựa trên tuyến
-    // if (selectedRoute != 'all') {
-    //   filtered = filtered.filter(student => student.diemdung === selectedRoute)
-    // }
+    // Tìm dựa trên điểm đón
+    if (selectedPickUp != -1) {
+      filtered = filtered.filter(student => student.diemdon === selectedPickUp)
+    }
+    // Tìm dựa trên điểm trả
+    if (selectedDropOff != -1) {
+      filtered = filtered.filter(student => student.diemdung === selectedDropOff)
+    }
     // Tìm dựa trên trạng thái
-    if (selectedStatus != 'all') {
+    if (selectedStatus != -1) {
       filtered = filtered.filter(student => student.trangthai === selectedStatus)
     }
 
     setFilteredStudents(filtered)
-  }, [students, searchTerm, selectedGrade, selectedRoute, selectedStatus])
+  }, [students, searchTerm, selectedGrade, selectedPickUp, selectedDropOff, selectedStatus])
 
   const handleCreateStudent = () => { // Hàm xử lý thêm student
     const student = {
@@ -104,10 +125,10 @@ export default function StudentsPage() {
       status: 'active'
     })
   }
-  const toggleStudentStatus = (id) => {
+  const toggleStudentStatus = (mahs) => {
     setStudents(students.map(student =>
-      student.id === id
-        ? { ...student, status: student.status === 'active' ? 'inactive' : 'active' }
+      student.mahs === mahs
+        ? { ...student, trangthai: student.trangthai === 1 ? 0 : 1 }
         : student
     ))
   }
@@ -128,7 +149,7 @@ export default function StudentsPage() {
 
 
   const getStatusColor = (status) => { // Màu trạng thái 
-    return status === 'active'
+    return status === 1
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
   }
@@ -231,34 +252,47 @@ export default function StudentsPage() {
               <option value="12">Lớp 12</option>
             </select>
 
-            {/* Bộ lọc tuyến */}
+            {/* Bộ lọc điểm đón */}
             <select
-              value={selectedRoute}
-              onChange={(e) => setSelectedRoute(e.target.value)}
+              value={selectedPickUp.toString()}
+              onChange={(e) => setSelectedPickUp(parseInt(e.target.value))}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">Tất cả tuyến</option>
-              {routes.map(route => (
-                <option key={route.id} value={route.id}>{route.name}</option>
+              <option value="-1">Tất cả điểm đón</option>
+              {stops.map(stop => (
+                <option key={stop.madd} value={stop.madd.toString()}>{stop.tendiemdung}</option>
+              ))}
+            </select>
+
+            {/* Bộ lọc điểm trả */}
+            <select
+              value={selectedDropOff.toString()}
+              onChange={(e) => setselectedDropOff(parseInt(e.target.value))}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="-1">Tất cả điểm trả</option>
+              {stops.map(stop => (
+                <option key={stop.madd} value={stop.madd.toString()}>{stop.tendiemdung}</option>
               ))}
             </select>
 
             {/* Bộ lọc trạng thái */}
             <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              value={selectedStatus.toString()}
+              onChange={(e) => setSelectedStatus(parseInt(e.target.value))}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="active">Đang học</option>
-              <option value="inactive">Tạm nghỉ</option>
+              <option value="-1">Tất cả trạng thái</option>
+              <option value="1">Đang học</option>
+              <option value="0">Tạm nghỉ</option>
             </select>
 
+
             {/* Text số kết quả tìm thấy */}
-            <div className="flex items-center text-sm text-gray-600">
+            {/* <div className="flex items-center text-sm text-gray-600">
               <Filter className="h-4 w-4 mr-2" />
               Tìm thấy {filteredStudents.length} kết quả
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -276,7 +310,7 @@ export default function StudentsPage() {
                     Phụ huynh
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tuyến đường
+                    Điểm đón/ trả
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Trạng thái
@@ -308,28 +342,31 @@ export default function StudentsPage() {
 
                     {/* Nội dung cột phụ huy */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{student.maph}</div>
+                      <div className="text-sm text-gray-900">
+                        {users.find(user => user.mand == student.maph)?.hoten || "Chưa có"}
+                      </div>
                       <div className="text-sm text-gray-500 flex items-center">
                         <Phone className="h-3 w-3 mr-1" />
-                        {student.sdt}
+                        {users.find(user => user.mand == student.maph)?.sdt || "Chưa có"}
                       </div>
                     </td>
 
-                    {/* Nội dung cột tuyến */}
+                    {/* Nội dung điểm đón /trả */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 flex items-center">
-                        <Route className="h-4 w-4 mr-2 text-gray-400" />
-                        {student.diemdon}
+                        <Route className="h-4 w-4 mr-2 text-gray-900" />
+                        Điểm đón: {stops.find(stop => stop.madd === student.diemdon)?.tendiemdung || "Chưa có"}
+
                       </div>
-                      <div className="text-sm text-gray-500 flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {student.diemdon} - {student.diemdon}
+                      <div className="text-sm text-gray-900 flex items-center">
+                        <Route className="h-4 w-4 mr-2 text-gray-900" />
+                        Điểm trả: {stops.find(stop => stop.madd === student.diemdung)?.tendiemdung || "Chưa có"}
                       </div>
                     </td>
 
                     {/* Nội dung cột trạng thái */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(student.status)}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(student.trangthai)}`}>
                         {student.trangthai === 1 ? 'Đang học' : 'Tạm nghỉ'}
                       </span>
                     </td>
@@ -351,9 +388,9 @@ export default function StudentsPage() {
                           onClick={() => toggleStudentStatus(student.mahs)}
                           className={`${student.trangthai === 0 ? 'text-red-600 hover:text-red-900'
                             : 'text-green-600 hover:text-green-900'}`}
-                          title={student.status === 0 ? 'Tạm nghỉ' : 'Kích hoạt'}
+                          title={student.trangthai === 0 ? 'Tạm nghỉ' : 'Kích hoạt'}
                         >
-                          {student.status === 0 ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                          {student.trangthai === 0 ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                         </button>
 
                         {/* Nút sửa học sinh */}
@@ -479,20 +516,6 @@ export default function StudentsPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
-                  {/* Ô chọn tuyến đường */}
-                  <select
-                    value={newStudent.route}
-                    onChange={(e) => setNewStudent({ ...newStudent, route: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Chọn tuyến đường</option>
-                    {routes.map(route => (
-                      <option key={route.id} value={route.name}>{route.name}</option>
-                    ))}
-                  </select>
-
-                  {/* Ô ẩn */}
-                  <p></p>
 
                   {/* Ô điểm đón */}
                   <input
@@ -632,22 +655,6 @@ export default function StudentsPage() {
                     onChange={(e) => setEditingStudent({ ...editingStudent, parentPhone: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-
-
-                  {/* Ô chọn tuyến đường */}
-                  <select
-                    value={editingStudent.route}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, route: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Chọn tuyến đường</option>
-                    {routes.map(route => (
-                      <option key={route.id} value={route.name}>{route.name}</option>
-                    ))}
-                  </select>
-
-                  {/* Ô ẩn */}
-                  <p></p>
 
                   {/* Ô điểm đón */}
                   <input
