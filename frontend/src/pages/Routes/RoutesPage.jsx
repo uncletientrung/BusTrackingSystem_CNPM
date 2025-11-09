@@ -1,107 +1,31 @@
-import { BusFront, Check, PlusCircle, RefreshCcw, RouteIcon, Search, SquarePen, Trash2, Wrench, X } from "lucide-react";
+import { Eye, RouteIcon, PlusCircle, Search, SquarePen, Trash2, X, BusFront, Clock, MapPin, EthernetPort, RulerDimensionLine } from "lucide-react";
 import { useEffect, useState } from "react";
-import RouteListItem from "../../components/common/RouteListItem";
 import StopSelector from "../../components/Routes/StopSelector";
 import { calculateRouteDistance, estimateTravelTime } from "../../utils/distanceCalculator";
+import { RouteAPI } from "../../api/apiServices";
 
 export default function RoutesPage() {
-  const [routes, setRoutes] = useState([]);
-  const [filteredRoutes, setFilteredRoutes] = useState([]); // Danh sách router sau lọc
+  const [routes, setRoutes] = useState([]); // Danh sách tuyến
+  const [filteredRoutes, setFilteredRoutes] = useState([]); // Danh sách tuyến sau lọc
   const [searchTerm, setSearchTerm] = useState(''); // Text Search
-  const [statusFilter, setStatusFilter] = useState('all'); // Trạng thái lọc
-  const [isCreating, setIsCreating] = useState(false); // Trạng thái tạo
-  const [editingRoute, setEditingRoute] = useState(null); // Đối tượng sửa
-  const [newRoute, setNewRoute] = useState({ // Giả lập dữ liệu ban đầu lúc tạo
-    name: '',
-    code: '',
-    description: '',
-    distance: '',
-    estimatedTime: '',
-    stops: [],
-    status: 'active'
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false); // Trạng thái modal
+  const [editingRoute, setEditingRoute] = useState(null); // Tuyến đang sửa
+  const [currentPage, setCurrentPage] = useState(1); // Phân trang
+  const routesPerPage = 10; // Số tuyến mỗi trang
   const [availableStops, setAvailableStops] = useState([]); // Danh sách điểm dừng có sẵn
 
-  // Demo routes data
+  // Giả lập dữ liệu ban đầu (giữ nguyên như cũ)
   useEffect(() => {
-    const demoRoutes = [
-      {
-        id: 1,
-        name: 'Bến Thành - Sân Bay',
-        code: 'BT-SB-01',
-        description: 'Tuyến từ bến xe Bến Thành đến sân bay Tân Sơn Nhất',
-        distance: '15.2 km',
-        estimatedTime: '45 phút',
-        stops: [
-          { id: 1, name: 'Bến xe Bến Thành', order: 1, lat: 10.8231, lng: 106.6297 },
-          { id: 2, name: 'Chợ Tân Định', order: 2, lat: 10.7890, lng: 106.6850 },
-          { id: 3, name: 'Công viên Tao Đàn', order: 3, lat: 10.7769, lng: 106.6909 },
-          { id: 4, name: 'Sân bay Tân Sơn Nhất', order: 4, lat: 10.8187, lng: 106.6519 }
-        ],
-        status: 'active',
-        busCount: 3,
-        dailyTrips: 12,
-        createdAt: '2024-01-15',
-        lastUpdated: '2024-10-01'
-      },
-      {
-        id: 2,
-        name: 'Quận 1 - Quận 7',
-        code: 'Q1-Q7-02',
-        description: 'Tuyến kết nối trung tâm Quận 1 với Quận 7',
-        distance: '18.5 km',
-        estimatedTime: '60 phút',
-        stops: [
-          { id: 5, name: 'Nhà thờ Đức Bà', order: 1, lat: 10.7798, lng: 106.6990 },
-          { id: 6, name: 'Cầu Sài Gòn', order: 2, lat: 10.7624, lng: 106.6832 },
-          { id: 7, name: 'TTTM Crescent Mall', order: 3, lat: 10.7292, lng: 106.7197 }
-        ],
-        status: 'active',
-        busCount: 2,
-        dailyTrips: 8,
-        createdAt: '2024-02-10',
-        lastUpdated: '2024-09-28'
-      },
-      {
-        id: 3,
-        name: 'Thủ Đức - Quận 3',
-        code: 'TD-Q3-03',
-        description: 'Tuyến từ Thủ Đức về trung tâm Quận 3',
-        distance: '22.8 km',
-        estimatedTime: '75 phút',
-        stops: [
-          { id: 8, name: 'ĐH Quốc gia TP.HCM', order: 1, lat: 10.8700, lng: 106.8030 },
-          { id: 9, name: 'Chợ Thủ Đức', order: 2, lat: 10.8506, lng: 106.7717 },
-          { id: 10, name: 'Bệnh viện Chợ Rẫy', order: 3, lat: 10.7554, lng: 106.6665 }
-        ],
-        status: 'maintenance',
-        busCount: 1,
-        dailyTrips: 6,
-        createdAt: '2024-03-05',
-        lastUpdated: '2024-10-02'
-      },
-      {
-        id: 4,
-        name: 'Gò Vấp - Bình Thạnh',
-        code: 'GV-BT-04',
-        description: 'Tuyến nối liền Gò Vấp và Bình Thạnh',
-        distance: '12.3 km',
-        estimatedTime: '40 phút',
-        stops: [
-          { id: 11, name: 'Chợ Gò Vấp', order: 1, lat: 10.8142, lng: 106.6438 },
-          { id: 12, name: 'Đầm Sen', order: 2, lat: 10.7889, lng: 106.6542 },
-          { id: 13, name: 'Vincom Bình Thạnh', order: 3, lat: 10.8012, lng: 106.7109 }
-        ],
-        status: 'inactive',
-        busCount: 0,
-        dailyTrips: 0,
-        createdAt: '2024-01-20',
-        lastUpdated: '2024-08-15'
+    (async () => {
+      try {
+        const listRoute = await RouteAPI.getAllRoute();
+        setRoutes(listRoute);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu Route: ', error);
       }
-    ];
-    setRoutes(demoRoutes);
+    })();
 
-    // Demo available stops data
+    // Danh sách điểm dừng có sẵn
     const demoStops = [
       { id: 1, code: 'ST-001', name: 'Bến xe Bến Thành', latitude: 10.8231, longitude: 106.6297, address: '1 Phạm Ngũ Lão, Quận 1, TP.HCM' },
       { id: 2, code: 'ST-002', name: 'Chợ Tân Định', latitude: 10.7890, longitude: 106.6850, address: '120 Hai Bà Trưng, Quận 1, TP.HCM' },
@@ -115,430 +39,513 @@ export default function RoutesPage() {
       { id: 10, code: 'ST-010', name: 'Bệnh viện Chợ Rẫy', latitude: 10.7554, longitude: 106.6665, address: '201B Nguyễn Chí Thanh, Quận 5, TP.HCM' },
       { id: 11, code: 'ST-011', name: 'Chợ Gò Vấp', latitude: 10.8142, longitude: 106.6438, address: 'Quang Trung, Gò Vấp, TP.HCM' },
       { id: 12, code: 'ST-012', name: 'Đầm Sen', latitude: 10.7889, longitude: 106.6542, address: 'Hòa Bình, Quận 11, TP.HCM' },
-      { id: 13, code: 'ST-013', name: 'Vincom Bình Thạnh', latitude: 10.8012, longitude: 106.7109, address: 'Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM' },
     ];
     setAvailableStops(demoStops);
   }, []);
 
-  // Tìm kiếm và lọc dữ liệu
+  // Lọc theo search
   useEffect(() => {
-    let filtered = routes;
-
-    if (searchTerm) {
-      filtered = filtered.filter(route =>
-        route.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        route.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        route.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(route => route.status === statusFilter);
-    }
-
+    const filtered = routes.filter((route) =>
+      route.tentuyen.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      route.matd.toString().includes(searchTerm.toLowerCase()) ||
+      route.mota.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     setFilteredRoutes(filtered);
-  }, [routes, searchTerm, statusFilter]);
+    setCurrentPage(1);
+  }, [searchTerm, routes]);
 
-  const handleCreateRoute = () => {
-    if (!newRoute.name || !newRoute.code) {
-      alert('Vui lòng điền tên tuyến và mã tuyến!');
-      return;
-    }
+  // Phân trang
+  const indexOfLastRoute = currentPage * routesPerPage;
+  const indexOfFirstRoute = indexOfLastRoute - routesPerPage;
+  const currentRoutes = filteredRoutes.slice(indexOfFirstRoute, indexOfLastRoute);
+  const totalPages = Math.ceil(filteredRoutes.length / routesPerPage);
 
-    const route = {
-      id: Math.max(...routes.map(r => r.id)) + 1,
-      ...newRoute,
-      stops: [],
-      busCount: 0,
-      dailyTrips: 0,
-      createdAt: new Date().toISOString().split('T')[0],
-      lastUpdated: new Date().toISOString().split('T')[0]
-    };
-
-    setRoutes([...routes, route]);
-    setNewRoute({
-      name: '',
-      code: '',
-      description: '',
-      distance: '',
-      estimatedTime: '',
-      stops: [],
-      status: 'active'
-    });
-    setIsCreating(false);
-    alert('Đã tạo tuyến mới thành công!');
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
-  const handleUpdateRoute = () => { // Handle khi sửa tuyến
-    if (!editingRoute.name || !editingRoute.code) {
-      alert('Vui lòng điền tên tuyến và mã tuyến!');
-      return;
-    }
-    setRoutes(routes.map(route =>
-      route.id === editingRoute.id
-        ? { ...editingRoute, lastUpdated: new Date().toISOString().split('T')[0] }
-        : route
-    ));
+  // Mở modal thêm
+  const handleAddRoute = () => {
     setEditingRoute(null);
-    alert('Đã cập nhật tuyến thành công!');
+    setIsModalOpen(true);
   };
 
-  const handleDeleteRoute = (id) => { // Handle khi xóa dữ liệu
-    if (confirm('Bạn có chắc muốn xóa tuyến này?')) {
-      setRoutes(routes.filter(route => route.id !== id));
-      alert('Đã xóa tuyến thành công!');
+  // Mở modal sửa
+  const handleEditRoute = (route) => {
+    setEditingRoute(route);
+    setIsModalOpen(true);
+  };
+
+  // Xóa tuyến
+  const handleDeleteRoute = (id) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa tuyến này?')) {
+      setRoutes(routes.filter((r) => r.id !== id));
     }
+  };
+
+  // Xem chi tiết (chỉ đọc)
+  const handleViewRoute = (route) => {
+    setEditingRoute({ ...route, __readOnly: true }); // Đánh dấu chỉ đọc
+    setIsModalOpen(true);
+  };
+
+  // Lưu tuyến (thêm hoặc sửa)
+  const handleSaveRoute = (routeData) => {
+    if (editingRoute) {
+      // Cập nhật
+      setRoutes(routes.map((r) =>
+        r.id === editingRoute.id
+          ? { ...r, ...routeData, lastUpdated: new Date().toISOString().split('T')[0] }
+          : r
+      ));
+    } else {
+      // Thêm mới
+      const newId = Math.max(...routes.map((r) => r.id), 0) + 1;
+      const newRoute = {
+        ...routeData,
+        id: newId,
+        busCount: 0,
+        dailyTrips: 0,
+        createdAt: new Date().toISOString().split('T')[0],
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+      setRoutes([...routes, newRoute]);
+    }
+    setIsModalOpen(false);
   };
 
   return (
-    <>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          {/* Text header */}
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-              <span><RouteIcon /></span>
-              <span>Quản lý tuyến đường</span>
-            </h1>
-            
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-2">
+          <RouteIcon className="h-8 w-8 text-primary-600" />
+          <h1 className="text-3xl font-bold text-gray-900">Quản lý tuyến đường</h1>
+        </div>
+      </div>
+
+      {/* Actions Bar */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          {/* Search */}
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm theo tên, mã tuyến hoặc mô tả..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Nút thêm */}
+          {/* Add Button */}
           <button
-            onClick={() => setIsCreating(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 
-                    rounded-lg font-semibold transition-colors flex items-center space-x-2"
+            onClick={handleAddRoute}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
           >
-            <span> <PlusCircle /></span>
+            <PlusCircle className="h-6 w-6" />
             <span>Thêm tuyến mới</span>
           </button>
         </div>
 
-        {/* Thống kê nhanh */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Thống kê Tuyến */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <span className="text-2xl"><RouteIcon /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Tổng tuyến</p>
-                <p className="text-2xl font-bold text-gray-900">{routes.length}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Thống kê đang hoạt động */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <span className="text-2xl"><Check /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Đang hoạt động</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {routes.filter(r => r.status === 'active').length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Thống kê bảo trì */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <span className="text-2xl"><Wrench /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Đang bảo trì</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {routes.filter(r => r.status === 'maintenance').length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Thống kê tổng xe đang hoạt động */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-full">
-                <span className="text-2xl"><BusFront /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Tổng xe hoạt động</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {routes.reduce((sum, route) => sum + route.busCount, 0)}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Stats nhỏ */}
+        <div className="mt-4 flex gap-4 text-sm text-gray-600">
+          <span>Tổng số: <strong className="text-gray-900">{routes.length}</strong> tuyến</span>
+          {searchTerm && (
+            <span>Kết quả tìm kiếm: <strong className="text-gray-900">{filteredRoutes.length}</strong> tuyến</span>
+          )}
         </div>
+      </div>
 
-        {/* Ô Tìm kiếm và bộ lọc */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Ô tìm kiếm */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Nhập tên tuyến, mã tuyến hoặc mô tả..."
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+      {/* Table */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Mã tuyến
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tên tuyến
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Thông tin mô tả
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Trạng thái
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Hành động
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {currentRoutes.length > 0 ? (
+                currentRoutes.map((route) => (
+                  <tr key={route.matd} className="hover:bg-gray-50 transition-colors">
+                    {/* Mã tuyến */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-primary-100 rounded-lg">
+                          <RouteIcon className="h-5 w-5 text-primary-600" />
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">TD-{route.matd}</div>
+                        </div>
+                      </div>
+                    </td>
 
-            {/* Ô chọn trạng thái */}
-            <div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="active">Đang hoạt động</option>
-                <option value="maintenance">Đang bảo trì</option>
-                <option value="inactive">Ngưng hoạt động</option>
-              </select>
-            </div>
+                    {/* Tên tuyến */}
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">{route.tentuyen}</div>
+                    </td>
 
-            {/* Nút làm mới */}
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('all');
-                }}
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg 
-                                        font-semibold transition-colors flex items-center justify-center space-x-2"
-              >
-                <span>
-                  <RefreshCcw className="h-5 w-5 text-white" />
-                </span>
-                <span>Làm mới</span>
-              </button>
-            </div>
-          </div>
-        </div>
+                    {/* Thông tin */}
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 flex items-center">
+                        <EthernetPort className="h-4 w-4 mr-1 text-gray-400" />
+                        {route.mota}
+                      </div>
+                      <div className="text-sm text-gray-900 flex items-center">
+                        <RulerDimensionLine className="h-4 w-4 mr-1 text-gray-400" />
+                        Quãng đường:{" " + route.tongquangduong} km
+                      </div>
+                    </td>
 
-        {/* Danh sách tuyến (list view) */}
-        <div className="space-y-3">
-          {filteredRoutes.map((route, index) => (
-            <RouteListItem 
-              key={route.id} 
-              route={route} 
-              index={index}
-              onEdit={() => setEditingRoute(route)} 
-              onDelete={() => handleDeleteRoute(route.id)} 
-            />
-          ))}
-        </div>
-
-        {/* Nếu không tìm thấy tuyến nào */}
-        {filteredRoutes.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg mt-4">
-              Không tìm thấy tuyến nào
-            </p>
-          </div>
-        )}
-
-        {/* Dialog tạo Route */}
-        {(isCreating || editingRoute) && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
-              {/* Title và nút X */}
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {editingRoute ? 'Sửa tuyến đường' : 'Tạo tuyến mới'}
-                </h3>
-                <button
-                  onClick={() => {
-                    setIsCreating(false);
-                    setEditingRoute(null);
-                  }}
-                  className="absolute top-2 right-2 mt-2 mr-2 text-gray-400 hover:text-gray-600"
-                >
-                  <X></X>
-                </button>
-              </div>
-
-              {/* Body của Dialog */}
-              <div className="space-y-4">
-                {/* Mã tuyến */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mã tuyến *</label>
-                  <input
-                    type="text"
-                    value={editingRoute ? editingRoute.code : newRoute.code}
-                    onChange={(e) => {
-                      if (editingRoute) {
-                        setEditingRoute({ ...editingRoute, code: e.target.value });
-                      } else {
-                        setNewRoute({ ...newRoute, code: e.target.value });
-                      }
-                    }}
-                    disabled={editingRoute}
-                    placeholder="VD: BT-SB-01"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Tên tuyến */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tên tuyến *</label>
-                  <input
-                    type="text"
-                    value={editingRoute ? editingRoute.name : newRoute.name}
-                    onChange={(e) => {
-                      if (editingRoute) {
-                        setEditingRoute({ ...editingRoute, name: e.target.value });
-                      } else {
-                        setNewRoute({ ...newRoute, name: e.target.value });
-                      }
-                    }}
-                    placeholder="VD: Bến Thành - Sân Bay"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 
-                              focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Mô tả */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                  <textarea
-                    value={editingRoute ? editingRoute.description : newRoute.description}
-                    onChange={(e) => {
-                      if (editingRoute) {
-                        setEditingRoute({ ...editingRoute, description: e.target.value });
-                      } else {
-                        setNewRoute({ ...newRoute, description: e.target.value });
-                      }
-                    }}
-                    placeholder="Mô tả chi tiết về tuyến đường..."
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Nội dung chi tiết */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Khoảng cách - Tự động tính */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Khoảng cách
-                      <span className="ml-2 text-xs text-blue-600 font-normal">
-                        (Tự động tính)
+                    {/* Trạng thái */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${route.trangthai === 1 ? 'bg-green-100 text-green-800' :
+                        route.trangthai === 2 ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                        {route.trangthai === 1 ? 'Hoạt động' :
+                          route.trangthai === 2 ? 'Bảo trì' : 'Ngưng'}
                       </span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editingRoute ? editingRoute.distance : newRoute.distance}
-                      readOnly
-                      placeholder="Thêm điểm dừng để tính tự động"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
-                    />
-                  </div>
+                    </td>
 
-                  {/* Thời gian dự kiến - Tự động tính */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Thời gian dự kiến
-                      <span className="ml-2 text-xs text-blue-600 font-normal">
-                        (Tự động tính)
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      value={editingRoute ? editingRoute.estimatedTime : newRoute.estimatedTime}
-                      readOnly
-                      placeholder="Tự động tính dựa trên khoảng cách"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
-                    />
-                  </div>
-                </div>
+                    {/* Hành động */}
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Xem */}
+                        <button
+                          onClick={() => handleViewRoute(route)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="Xem chi tiết"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
 
-                {/* Nội dung chi tiết *2 */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Trạng thái */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-                    <select
-                      value={editingRoute ? editingRoute.status : newRoute.status}
-                      onChange={(e) => {
-                        if (editingRoute) {
-                          setEditingRoute({ ...editingRoute, status: e.target.value });
-                        } else {
-                          setNewRoute({ ...newRoute, status: e.target.value });
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="active">Hoạt động</option>
-                      <option value="maintenance">Bảo trì</option>
-                      <option value="inactive">Ngưng hoạt động</option>
-                    </select>
-                  </div>
-                </div>
+                        {/* Sửa */}
+                        <button
+                          onClick={() => handleEditRoute(route)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <SquarePen className="h-4 w-4" />
+                        </button>
 
-                {/* Stop Selector - Chọn từ danh sách điểm dừng có sẵn */}
-                <div className="mt-6">
-                  <StopSelector
-                    selectedStops={editingRoute ? editingRoute.stops : newRoute.stops}
-                    onStopsChange={(stops) => {
-                      // Auto calculate distance and time
-                      const distance = calculateRouteDistance(stops);
-                      const distanceNum = parseFloat(distance);
-                      const time = estimateTravelTime(distanceNum);
+                        {/* Xóa */}
+                        <button
+                          onClick={() => handleDeleteRoute(route.id)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                    <RouteIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium">Không tìm thấy tuyến nào</p>
+                    <p className="mt-1">
+                      {searchTerm
+                        ? 'Thử tìm kiếm với từ khóa khác'
+                        : 'Bắt đầu bằng cách thêm tuyến mới'}
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                      if (editingRoute) {
-                        setEditingRoute({
-                          ...editingRoute,
-                          stops,
-                          distance,
-                          estimatedTime: time
-                        });
-                      } else {
-                        setNewRoute({
-                          ...newRoute,
-                          stops,
-                          distance,
-                          estimatedTime: time
-                        });
-                      }
-                    }}
-                    availableStops={availableStops}
-                  />
-                </div>
+        {/* Phân trang */}
+        {totalPages > 1 && (
+          <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Hiển thị <span className="font-medium">{indexOfFirstRoute + 1}</span> đến{' '}
+                <span className="font-medium">
+                  {Math.min(indexOfLastRoute, filteredRoutes.length)}
+                </span>{' '}
+                trong tổng số <span className="font-medium">{filteredRoutes.length}</span> tuyến
               </div>
-
-              <div className="flex space-x-3 mt-6">
-                {/* Nút đóng */}
+              <div className="flex gap-2">
                 <button
-                  onClick={() => {
-                    setIsCreating(false);
-                    setEditingRoute(null);
-                  }}
-                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  Hủy
+                  Trước
                 </button>
-
-                {/* Nút tạo */}
+                {[...Array(totalPages)].map((_, index) => (
+                  <button
+                    key={index + 1}
+                    onClick={() => handlePageChange(index + 1)}
+                    className={`px-3 py-1 rounded-lg ${currentPage === index + 1
+                      ? 'bg-primary-600 text-white'
+                      : 'border border-gray-300 hover:bg-gray-50'
+                      }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
                 <button
-                  onClick={editingRoute ? handleUpdateRoute : handleCreateRoute}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  {editingRoute ? 'Cập nhật' : 'Tạo tuyến'}
+                  Sau
                 </button>
               </div>
             </div>
           </div>
         )}
       </div>
-    </>
-  )
-};
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+            {/* Form */}
+            <RouteForm
+              route={editingRoute}
+              availableStops={availableStops}
+              onSave={handleSaveRoute}
+              onCancel={() => setIsModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RouteForm({ route, availableStops, onSave, onCancel }) {
+  const isReadOnly = route?.__readOnly === true; // Kiểm tra chế độ XEM
+  const [formData, setFormData] = useState({
+    name: route ? route.name : '',
+    code: route?.code || '',
+    description: route?.description || '',
+    stops: route?.stops || [],
+    status: route?.status || 'active',
+    distance: route?.distance || '',
+    estimatedTime: route?.estimatedTime || ''
+  });
+
+  const [errors, setErrors] = useState({});
+
+  // Chỉ validate khi KHÔNG phải chế độ xem
+  const validate = () => {
+    if (isReadOnly) return true;
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = 'Tên tuyến không được để trống';
+    if (!formData.code.trim()) newErrors.code = 'Mã tuyến không được để trống';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleStopsChange = (stops) => {
+    if (isReadOnly) return;
+    const distance = calculateRouteDistance(stops);
+    const time = estimateTravelTime(parseFloat(distance));
+    setFormData(prev => ({
+      ...prev,
+      stops,
+      distance,
+      estimatedTime: time
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (validate()) {
+      onSave(formData);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header Modal */}
+      <div className="flex items-center justify-between mb-6 border-b pb-4">
+        <div className="flex items-center gap-3">
+          <RouteIcon className="h-7 w-7 text-primary-600" />
+          <h2 className="text-xl font-semibold text-gray-900">
+            {isReadOnly
+              ? 'Xem chi tiết tuyến đường'
+              : route
+                ? 'Chỉnh sửa tuyến đường'
+                : 'Thêm tuyến đường mới'}
+          </h2>
+        </div>
+        <button
+          onClick={onCancel}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-6 w-6" />
+        </button>
+      </div>
+
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Mã tuyến */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Mã tuyến {isReadOnly ? '' : '*'}
+          </label>
+          <input
+            type="text"
+            value={formData.code}
+            onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, code: e.target.value }))}
+            disabled={isReadOnly || !!route}
+            placeholder="VD: BT-SB-01"
+            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.code ? 'border-red-300' : 'border-gray-300'
+              } ${isReadOnly || route ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+            readOnly={isReadOnly}
+          />
+          {errors.code && !isReadOnly && <p className="mt-1 text-xs text-red-600">{errors.code}</p>}
+        </div>
+
+        {/* Tên tuyến */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tên tuyến {isReadOnly ? '' : '*'}
+          </label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, name: e.target.value }))}
+            disabled={isReadOnly}
+            placeholder="VD: Bến Thành - Sân Bay"
+            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.name ? 'border-red-300' : 'border-gray-300'
+              } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+            readOnly={isReadOnly}
+          />
+          {errors.name && !isReadOnly && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+        </div>
+      </div>
+
+      {/* Mô tả */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+        <textarea
+          value={formData.description}
+          onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, description: e.target.value }))}
+          rows={3}
+          disabled={isReadOnly}
+          placeholder="Mô tả chi tiết về tuyến đường..."
+          className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors resize-none ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''
+            }`}
+          readOnly={isReadOnly}
+        />
+      </div>
+
+      {/* Khoảng cách */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Khoảng cách <span className="text-xs text-blue-600">(Tự động)</span>
+          </label>
+          <input
+            type="text"
+            value={formData.distance || 'Chưa có điểm dừng'}
+            readOnly
+            disabled
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+          />
+        </div>
+
+        {/* Trạng thái */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+          {isReadOnly ? (
+            <div className="px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-700">
+              {formData.status === 'active' ? 'Hoạt động' :
+                formData.status === 'maintenance' ? 'Bảo trì' : 'Ngưng hoạt động'}
+            </div>
+          ) : (
+            <select
+              value={formData.status}
+              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="active">Hoạt động</option>
+              <option value="maintenance">Bảo trì</option>
+              <option value="inactive">Ngưng hoạt động</option>
+            </select>
+          )}
+        </div>
+      </div>
+      {/* Danh sách điểm dừng */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Điểm dừng ({formData.stops.length})
+        </label>
+        {isReadOnly ? (
+          <div className="space-y-2 max-h-48 overflow-y-auto p-3 bg-gray-50 border border-gray-300 rounded-lg">
+            {formData.stops.length > 0 ? (
+              formData.stops.map((stop, idx) => (
+                <div key={stop.id} className="flex items-center gap-2 text-sm text-gray-700">
+                  <span className="font-medium text-primary-600">{idx + 1}.</span>
+                  <MapPin className="h-4 w-4 text-gray-500" />
+                  <span>{stop.name}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 italic">Chưa có điểm dừng</p>
+            )}
+          </div>
+        ) : (
+          <StopSelector
+            selectedStops={formData.stops}
+            onStopsChange={handleStopsChange}
+            availableStops={availableStops}
+          />
+        )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex gap-3 pt-4 border-t">
+        <button
+          onClick={onCancel}
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2.5 px-4 rounded-lg font-medium transition-colors"
+        >
+          {isReadOnly ? 'Đóng' : 'Hủy'}
+        </button>
+
+        {/* ẨN NÚT LƯU KHI XEM */}
+        {!isReadOnly && (
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition-colors"
+          >
+            {route ? 'Cập nhật' : 'Tạo tuyến'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
