@@ -18,3 +18,7 @@ export const AccountAPI = {
 export const StudentAPI = {
     getAllStudent: () => apiClient.fetchAll('Student'),
 }
+
+export const BusAPI = {
+    getAllBus: () => apiClient.fetchAll('Bus'),
+}

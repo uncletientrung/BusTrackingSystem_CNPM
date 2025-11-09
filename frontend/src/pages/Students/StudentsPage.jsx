@@ -60,7 +60,6 @@ export default function StudentsPage() {
       try {
         const listUser = await UserAPI.getAllUsers();
         setUsers(listUser);
-        console.log(listUser);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu user ở học sinh:', error);
       }
