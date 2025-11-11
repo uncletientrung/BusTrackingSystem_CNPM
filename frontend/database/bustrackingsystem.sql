@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 01, 2025 lúc 07:59 PM
+-- Thời gian đã tạo: Th10 11, 2025 lúc 04:48 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -33,6 +33,25 @@ CREATE TABLE `ctlichtrinh` (
   `trangthai` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `ctlichtrinh`
+--
+
+INSERT INTO `ctlichtrinh` (`malt`, `mahs`, `trangthai`) VALUES
+(1, 1, 1),
+(1, 2, 1),
+(1, 3, 0),
+(2, 2, 1),
+(2, 4, 1),
+(2, 5, 1),
+(3, 1, 1),
+(3, 3, 1),
+(3, 5, 0),
+(4, 1, 0),
+(4, 2, 1),
+(5, 4, 1),
+(5, 5, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -54,9 +73,26 @@ CREATE TABLE `ctquyen` (
 CREATE TABLE `cttuyenduong` (
   `matd` int(50) NOT NULL,
   `madd` int(50) NOT NULL,
-  `thutu` int(11) NOT NULL,
-  `quangduong` double NOT NULL
+  `thutu` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `cttuyenduong`
+--
+
+INSERT INTO `cttuyenduong` (`matd`, `madd`, `thutu`) VALUES
+(1, 1, 1),
+(1, 2, 2),
+(1, 3, 3),
+(1, 5, 4),
+(2, 4, 1),
+(2, 11, 2),
+(2, 9, 3),
+(2, 8, 4),
+(3, 11, 1),
+(3, 10, 2),
+(3, 12, 3),
+(3, 7, 4);
 
 -- --------------------------------------------------------
 
@@ -118,8 +154,26 @@ CREATE TABLE `hocsinh` (
   `maph` int(50) NOT NULL,
   `diemdon` int(50) NOT NULL,
   `diemdung` int(50) NOT NULL,
-  `trangthai` tinyint(4) NOT NULL
+  `trangthai` tinyint(4) NOT NULL COMMENT '1 là đi học, 0 là nghỉ'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `hocsinh`
+--
+
+INSERT INTO `hocsinh` (`mahs`, `hoten`, `ngaysinh`, `gioitinh`, `lop`, `diachi`, `sdt`, `maph`, `diemdon`, `diemdung`, `trangthai`) VALUES
+(1, 'Nguyễn Tiến Trung', '2005-11-08', 1, '1', '99 An Dương Vương, Phường 16, Quận 8', '0923456789', 1, 1, 1, 1),
+(2, 'Lê Đình Luyện', '2005-01-30', 0, '11', '31 Bạch Đằng, Q.10, TP.HCM', '0934567890	', 2, 8, 8, 1),
+(3, 'Nguyễn Văn An', '2005-03-15', 1, '10', '123 Trần Hưng Đạo, Q.1, TP.HCM', '0901234567', 1, 5, 8, 1),
+(4, 'Trần Thị Bích', '2005-07-22', 0, '10', '456 Lê Lợi, Q.3, TP.HCM', '0912345678', 2, 6, 9, 1),
+(5, 'Lê Hoàng Nam', '2005-11-08', 1, '10', '789 Nguyễn Huệ, Q.1, TP.HCM', '0923456789', 3, 7, 10, 0),
+(6, 'Phạm Minh Châu', '2005-01-30', 0, '11', '321 Cách Mạng Tháng 8, Q.10, TP.HCM', '0934567890', 4, 8, 10, 1),
+(7, 'Hoàng Đức Bình', '2004-09-14', 1, '11', '654 Phan Đình Phùng, Q.Phú Nhuận, TP.HCM', '0945678901', 5, 9, 10, 1),
+(8, 'Vũ Thị Diễm My', '2004-12-25', 0, '11', '987 Nguyễn Trãi, Q.5, TP.HCM', '0956789012', 6, 10, 10, 0),
+(9, 'Đặng Quốc Huy', '2004-04-18', 1, '12', '147 Lý Thường Kiệt, Q.11, TP.HCM', '0967890123', 7, 10, 10, 1),
+(10, 'Bùi Ngọc Trâm', '2004-06-09', 0, '12', '258 Võ Văn Tần, Q.3, TP.HCM', '0978901234', 8, 10, 10, 1),
+(11, 'Ngô Thanh Tùng', '2003-08-11', 1, '12', '369 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM', '0989012345', 9, 10, 10, 0),
+(12, 'Dương Mai Linh', '2003-02-28', 0, '12', '741 Hai Bà Trưng, Q.1, TP.HCM', '0990123456', 10, 10, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -137,6 +191,17 @@ CREATE TABLE `lichtrinh` (
   `tonghocsinh` int(11) NOT NULL,
   `trangthai` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `lichtrinh`
+--
+
+INSERT INTO `lichtrinh` (`malt`, `matx`, `matd`, `maxe`, `thoigianbatdau`, `thoigianketthuc`, `tonghocsinh`, `trangthai`) VALUES
+(1, 9, 1, 1, '2025-11-09 23:30:00', '2025-11-10 00:15:00', 3, -1),
+(2, 4, 2, 2, '2025-11-10 00:00:00', '2025-11-10 00:50:00', 3, 0),
+(3, 9, 3, 3, '2025-11-11 09:30:00', '2025-11-11 10:20:00', 3, 2),
+(4, 4, 1, 2, '2025-11-10 23:30:00', '2025-11-11 00:15:00', 2, 3),
+(5, 9, 2, 3, '2025-11-11 00:00:00', '2025-11-11 00:50:00', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -168,7 +233,8 @@ INSERT INTO `nguoidung` (`mand`, `hoten`, `ngaysinh`, `sdt`, `email`, `diachi`, 
 (6, 'Hoàng Văn Em', '1997-06-25', '0977889900', 'hoangvanem@gmail.com', '654 Hải Thượng Lãn Ông, Hà Nội', 1, 0),
 (7, 'Nguyễn Thị F', '1993-09-18', '0911223344', 'nguyenthif@gmail.com', '87 Phạm Văn Đồng, Cầu Giấy, Hà Nội', 1, 1),
 (8, 'Lê Thị Giang', '1996-12-05', '0922334455', 'lethigiang@gmail.com', '147 Võ Văn Kiệt, Quận 1, TP.HCM', 1, 1),
-(9, 'Test', '2025-11-05', '0352447642', 'thihachcf@gmail.com', '11', 1, 0);
+(9, 'Test', '2025-11-05', '0352447642', 'thihachcf@gmail.com', '11', 1, 0),
+(10, 'Test tài xế', '2002-02-28', '0944455566', 'driver@gmail.com', '99 AnDuongVuong', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -201,7 +267,7 @@ CREATE TABLE `taikhoan` (
 --
 
 INSERT INTO `taikhoan` (`matk`, `tendangnhap`, `matkhau`, `manq`, `trangthai`) VALUES
-(1, 'admin@gmail.com', '1234', 1, 1),
+(1, 'admin', '123', 1, 1),
 (2, 'nguyenvanan@gmail.com', '0912345678111', 3, 1),
 (3, 'tranthibich@gmail.com', '1221r1a', 3, 1),
 (4, 'levancuong@gmail.com', '0901122334', 2, 1),
@@ -209,7 +275,8 @@ INSERT INTO `taikhoan` (`matk`, `tendangnhap`, `matkhau`, `manq`, `trangthai`) V
 (6, 'hoangvanem@gmail.com', '0977889900\r\n', 3, 1),
 (7, 'nguyenthif@gmail.com', '0911223344\r\n', 3, 1),
 (8, 'lethigiang@gmail.com', '0922334455', 2, 1),
-(9, 'test', '123', 2, 1);
+(9, 'driver', '123', 2, 1),
+(10, 'parent', '123', 3, 1);
 
 -- --------------------------------------------------------
 
@@ -238,13 +305,24 @@ CREATE TABLE `thongbao` (
   `matb` int(50) NOT NULL,
   `matx` int(50) NOT NULL,
   `maph` int(50) NOT NULL,
-  `thoigiantao` date NOT NULL,
+  `thoigiantao` datetime NOT NULL DEFAULT current_timestamp(),
+  `thoigiangui` datetime DEFAULT NULL,
   `tieude` varchar(255) NOT NULL,
   `noidung` varchar(255) NOT NULL,
   `loaithongbao` varchar(255) NOT NULL,
   `mucdouutien` varchar(255) NOT NULL,
   `trangthai` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `thongbao`
+--
+
+INSERT INTO `thongbao` (`matb`, `matx`, `maph`, `thoigiantao`, `thoigiangui`, `tieude`, `noidung`, `loaithongbao`, `mucdouutien`, `trangthai`) VALUES
+(1, 4, 2, '2025-11-11 09:00:00', '2025-11-11 09:15:00', 'Hoàn thành chuyến đi an toàn', 'Con bạn đã được trả an toàn tại điểm Trường THCS ABC lúc 7:45 AM. Cảm ơn quý phụ huynh đã tin tưởng dịch vụ.', 'Lịch trình', 'Bình thường', 1),
+(2, 4, 6, '2025-11-11 10:30:00', NULL, 'Xe buýt BUS-002 bị trễ 15 phút', 'Xe buýt BUS-002 đang bị trễ 15 phút do tắc đường. Dự kiến đến điểm đón lúc 7:45 AM.', 'Khẩn cấp', 'Cao', 2),
+(3, 8, 3, '2025-11-11 11:00:00', NULL, 'Xe buýt BUS-001 đã đến điểm Bến Thành', 'Con bạn đã được đón tại điểm Bến xe Bến Thành lúc 7:15 AM. Xe đang trên đường đến trường.', 'Thông tin', 'Bình thường', 2),
+(4, 8, 6, '2025-11-11 12:15:00', NULL, 'Thông báo thay đổi lịch trình', 'Do sửa chữa đường, tuyến Quận 1 - Quận 7 sẽ thay đổi lộ trình từ ngày mai. Thời gian đón trả không đổi.', 'Thông tin', 'Bình thường', 1);
 
 -- --------------------------------------------------------
 
@@ -270,9 +348,19 @@ CREATE TABLE `tracking` (
 CREATE TABLE `tuyenduong` (
   `tentuyen` varchar(255) NOT NULL,
   `mota` varchar(255) NOT NULL,
-  `tongquanduong` double NOT NULL,
+  `tongquangduong` double NOT NULL,
+  `trangthai` tinyint(4) NOT NULL,
   `matd` int(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `tuyenduong`
+--
+
+INSERT INTO `tuyenduong` (`tentuyen`, `mota`, `tongquangduong`, `trangthai`, `matd`) VALUES
+('Quận 1 City Tour', 'Bến xe Tiến Trung - Chợ Tân Đình - Công viên Tao Đàn - Nhà thờ Đức Bà', 6.5, 1, 1),
+('Sân Bay - Thủ Đức', 'Sân bay Tân Sơn Nhất - Chợ Gò Vấp - Chợ Thủ Đức - ĐH Quốc gia TP.HCM', 18.2, 1, 2),
+('Gò Vấp - Quận 7', 'Chợ Gò Vấp - Bệnh viện Chợ Rẫy - Đầm Sen - Crescent Mall (Quận 7)', 14.3, 0, 3);
 
 -- --------------------------------------------------------
 
@@ -286,9 +374,26 @@ CREATE TABLE `xe` (
   `hangxe` varchar(255) NOT NULL,
   `soghe` int(11) NOT NULL,
   `vantoctrungbinh` double NOT NULL,
-  `trangthai` tinyint(4) NOT NULL,
+  `trangthai` tinyint(4) NOT NULL COMMENT '0 là ngưng HĐ, 1 là HĐ, 2 là bảo trì, 3 là sửa chửa',
   `namsanxuat` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `xe`
+--
+
+INSERT INTO `xe` (`maxe`, `bienso`, `hangxe`, `soghe`, `vantoctrungbinh`, `trangthai`, `namsanxuat`) VALUES
+(1, '29A1-12345', 'Toyota', 40, 45.5, 1, 2020),
+(2, '30A2-67890', 'Honda', 50, 40.2, 1, 2021),
+(3, '31A3-11111', 'Ford', 40, 35.7, 2, 2019),
+(4, '32A4-22222', 'Hyundai', 50, 38.3, 1, 2022),
+(5, '33A5-33333', 'Mercedes', 40, 30.8, 1, 2023),
+(6, '29B1-44444', 'BMW', 50, 45.6, 3, 2021),
+(7, '30B2-55555', 'Audi', 36, 45.9, 1, 2020),
+(8, '31B3-66666', 'Kia', 50, 42.4, 1, 2018),
+(9, '32B4-77777', 'Mazda', 45, 42.1, 0, 2022),
+(10, '33B5-88888', 'VinFast', 50, 38.9, 1, 2023),
+(11, '29C1-99999', 'Chevrolet', 46, 47.3, 1, 2021);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -386,19 +491,19 @@ ALTER TABLE `diemdung`
 -- AUTO_INCREMENT cho bảng `hocsinh`
 --
 ALTER TABLE `hocsinh`
-  MODIFY `mahs` int(50) NOT NULL AUTO_INCREMENT;
+  MODIFY `mahs` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT cho bảng `lichtrinh`
 --
 ALTER TABLE `lichtrinh`
-  MODIFY `malt` int(50) NOT NULL AUTO_INCREMENT;
+  MODIFY `malt` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `nguoidung`
 --
 ALTER TABLE `nguoidung`
-  MODIFY `mand` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `mand` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT cho bảng `nhomquyen`
@@ -410,7 +515,7 @@ ALTER TABLE `nhomquyen`
 -- AUTO_INCREMENT cho bảng `taikhoan`
 --
 ALTER TABLE `taikhoan`
-  MODIFY `matk` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `matk` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT cho bảng `taixe`
@@ -422,7 +527,7 @@ ALTER TABLE `taixe`
 -- AUTO_INCREMENT cho bảng `thongbao`
 --
 ALTER TABLE `thongbao`
-  MODIFY `matb` int(50) NOT NULL AUTO_INCREMENT;
+  MODIFY `matb` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `tracking`
@@ -434,13 +539,13 @@ ALTER TABLE `tracking`
 -- AUTO_INCREMENT cho bảng `tuyenduong`
 --
 ALTER TABLE `tuyenduong`
-  MODIFY `matd` int(50) NOT NULL AUTO_INCREMENT;
+  MODIFY `matd` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `xe`
 --
 ALTER TABLE `xe`
-  MODIFY `maxe` int(50) NOT NULL AUTO_INCREMENT;
+  MODIFY `maxe` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
