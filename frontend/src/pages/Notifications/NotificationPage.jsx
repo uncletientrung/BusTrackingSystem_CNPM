@@ -1,8 +1,10 @@
 import { AlarmClock, Bell, BellElectric, BusFront, CalendarDays, Check, ClipboardClock, ClockAlert, Construction, House, Info, Megaphone, MessageCircleWarning, Plus, PlusCircle, RefreshCcw, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { NotificationAPI } from "../../api/apiServices";
 
 export default function NotificationPage() {
-  const [notifications, setNotifications] = useState([]); // Tất cả thông báo khi lọc
+  const [notifications, setNotifications] = useState([]); // Tất cả thông báo 
+  const [filteredNotification, setFilteredNotification] = useState([]) // Danh sách học sinh sau lọc
   const [filter, setFilter] = useState('all'); // Kiểu lọc thông báo
   const [selectedNotifications, setSelectedNotifications] = useState([]); // Thông báo được chọn
   const [isCreating, setIsCreating] = useState(false); // Trạng thái tạo 
@@ -15,82 +17,32 @@ export default function NotificationPage() {
     scheduledTime: ''
   });
 
-  // Demo notifications data
   useEffect(() => {
-    const demoNotifications = [
-      {
-        id: 1,
-        title: 'Xe buýt BUS-001 đã đến điểm Bến Thành',
-        message: 'Con bạn đã được đón tại điểm Bến xe Bến Thành lúc 7:15 AM. Xe đang trên đường đến trường.',
-        type: 'pickup',
-        priority: 'high',
-        recipients: ['Nguyễn Thị A', 'Trần Văn B'],
-        createdAt: '2024-10-04T07:15:00',
-        status: 'sent',
-        readBy: 1,
-        totalRecipients: 2,
-        channel: ['sms', 'app']
-      },
-      {
-        id: 2,
-        title: 'Thông báo thay đổi lịch trình',
-        message: 'Do sửa chữa đường, tuyến Quận 1 - Quận 7 sẽ thay đổi lộ trình từ ngày mai. Thời gian đón trả không đổi.',
-        type: 'schedule',
-        priority: 'normal',
-        recipients: 'all',
-        createdAt: '2024-10-04T06:30:00',
-        status: 'sent',
-        readBy: 15,
-        totalRecipients: 25,
-        channel: ['sms', 'app', 'email']
-      },
-      {
-        id: 3,
-        title: 'Xe buýt BUS-002 bị trễ 15 phút',
-        message: 'Xe buýt BUS-002 tuyến Thủ Đức - Quận 3 đang bị trễ 15 phút do tắc đường. Dự kiến đến điểm đón lúc 7:45 AM.',
-        type: 'delay',
-        priority: 'high',
-        recipients: ['Lê Thị C', 'Phạm Văn D', 'Hoàng Thị E'],
-        createdAt: '2024-10-04T07:30:00',
-        status: 'sent',
-        readBy: 2,
-        totalRecipients: 3,
-        channel: ['app', 'sms']
-      },
-      {
-        id: 4,
-        title: 'Bảo trì xe buýt định kỳ',
-        message: 'Xe buýt BUS-003 sẽ được bảo trì định kỳ vào Chủ nhật tuần sau. Các chuyến đi sẽ được thay thế bằng xe khác.',
-        type: 'maintenance',
-        priority: 'normal',
-        recipients: 'all',
-        createdAt: '2024-10-03T18:00:00',
-        status: 'scheduled',
-        readBy: 0,
-        totalRecipients: 30,
-        scheduledTime: '2024-10-05T08:00:00',
-        channel: ['email', 'app']
-      },
-      {
-        id: 5,
-        title: 'Hoàn thành chuyến đi an toàn',
-        message: 'Con bạn đã được trả an toàn tại điểm Trường THCS ABC lúc 7:45 AM. Cảm ơn quý phụ huynh đã tin tưởng dịch vụ.',
-        type: 'dropoff',
-        priority: 'normal',
-        recipients: ['Nguyễn Thị A'],
-        createdAt: '2024-10-04T07:45:00',
-        status: 'sent',
-        readBy: 1,
-        totalRecipients: 1,
-        channel: ['app', 'sms']
+    (async () => {
+      try {
+        const listThongbao = await NotificationAPI.getAllNotification();
+        console.log('API data:', listThongbao);
+        setNotifications(listThongbao);
+
+      } catch (err) {
+        console.error('Lỗi khi tải dữ liệu ở Notification:', err);
       }
-    ];
-    const filtered = filter === 'all' // Lọc dữ liệu dữa trên kiểu
-      ? demoNotifications
-      : demoNotifications.filter(n => n.type === filter);
-    // Sắp xếp dựa trên ngày tạo (return  >0 thì b đứng trước)
-    setNotifications(filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-  }, [filter]);
+    })();
+  }, []);
+
+  // Hiển thị theo filter
+  useEffect(() => {
+    let filtered = notifications;
+    // Lọc dữ liệu dữa trên kiểu
+    if (filter !== 'all') {
+      filtered = filtered.filter(tb => tb.loaithongbao == filter);
+    }
+
+    // // Sắp xếp dựa trên ngày tạo (return  >0 thì b đứng trước)
+    // // setNotifications(filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+
+    setFilteredNotification(filtered);
+  }, [notifications, filter]);
 
   const handleSelectNotification = (id) => { // Hàm xử lý tích chọn/ bỏ tích
     setSelectedNotifications(prev =>
@@ -169,35 +121,33 @@ export default function NotificationPage() {
   };
 
   const getNotificationColor = (type, priority) => { // Lấy màu nền thông báo
-    if (priority === 'high') return 'border-l-red-500 bg-red-50';
+    if (priority === 'Cao') return 'border-l-red-500 bg-red-50';
 
     switch (type) {
-      case 'pickup': return 'border-l-blue-500 bg-blue-50';
-      case 'dropoff': return 'border-l-green-500 bg-green-50';
-      case 'delay': return 'border-l-yellow-500 bg-yellow-50';
-      case 'schedule': return 'border-l-purple-500 bg-purple-50';
-      case 'maintenance': return 'border-l-orange-500 bg-orange-50';
-      case 'emergency': return 'border-l-red-500 bg-red-50';
+      case 'Đón học sinh': return 'border-l-blue-500 bg-blue-50';
+      case 'Trả học sinh': return 'border-l-green-500 bg-green-50';
+      case 'Trễ giờ': return 'border-l-yellow-500 bg-yellow-50';
+      case 'Lịch trình': return 'border-l-purple-500 bg-purple-50';
+      case 'Bảo trì': return 'border-l-orange-500 bg-orange-50';
+      case 'Khẩn cấp': return 'border-l-red-500 bg-red-50';
       default: return 'border-l-gray-500 bg-gray-50';
     }
   };
 
-  const getStatusColor = (status) => { // Lấy màu trạng thái
-    switch (status) {
-      case 'sent': return 'bg-green-100 text-green-800';
-      case 'scheduled': return 'bg-yellow-100 text-yellow-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      case 'draft': return 'bg-gray-100 text-gray-800';
+  const getStatusColor = (trangthai) => { // Lấy màu trạng thái
+    switch (trangthai) {
+      case 2: return 'bg-green-100 text-green-800'; // Đã gửi
+      case 1: return 'bg-yellow-100 text-yellow-800'; // Đã lên lịch
+      case 0: return 'bg-red-100 text-red-800'; // Thất bại
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status) => { // Text trạng thái
     switch (status) {
-      case 'sent': return 'Đã gửi';
-      case 'scheduled': return 'Đã lên lịch';
-      case 'failed': return 'Gửi thất bại';
-      case 'draft': return 'Nháp';
+      case 2: return 'Đã gửi';
+      case 1: return 'Đã lên lịch';
+      case 0: return 'Gửi thất bại';
       default: return status;
     }
   };
@@ -216,7 +166,7 @@ export default function NotificationPage() {
               <span><Bell /></span>
               <span>Quản lý thông báo</span>
             </h1>
-            
+
           </div>
 
           {/* Nút xóa khi tích chọn*/}
@@ -253,7 +203,7 @@ export default function NotificationPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Tổng thông báo</p>
-                <p className="text-2xl font-bold text-gray-900">{notifications.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{filteredNotification.length}</p>
               </div>
             </div>
           </div>
@@ -267,7 +217,7 @@ export default function NotificationPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Đã gửi</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {notifications.filter(n => n.status === 'sent').length}
+                  {filteredNotification.filter(tb => tb.trangthai === 2).length}
                 </p>
               </div>
             </div>
@@ -282,7 +232,7 @@ export default function NotificationPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Đã lên lịch</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {notifications.filter(n => n.status === 'scheduled').length}
+                  {filteredNotification.filter(tb => tb.trangthai === 1).length}
                 </p>
               </div>
             </div>
@@ -301,13 +251,13 @@ export default function NotificationPage() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">Tất cả</option>
-                <option value="pickup">Đón học sinh</option>
-                <option value="dropoff">Trả học sinh</option>
-                <option value="delay">Trễ giờ</option>
-                <option value="schedule">Lịch trình</option>
-                <option value="maintenance">Bảo trì</option>
-                <option value="emergency">Khẩn cấp</option>
-                <option value="info">Thông tin</option>
+                <option value="Đón học sinh">Đón học sinh</option>
+                <option value="Trả học sinh">Trả học sinh</option>
+                <option value="Trễ giờ">Trễ giờ</option>
+                <option value="Lịch trình">Lịch trình</option>
+                <option value="Bảo trì">Bảo trì</option>
+                <option value="Khẩn cấp">Khẩn cấp</option>
+                <option value="Thông tin">Thông tin</option>
               </select>
             </div>
 
@@ -352,10 +302,11 @@ export default function NotificationPage() {
 
           {/* Các thông báo */}
           <div className="divide-y divide-gray-200">
-            {notifications.map((notification) => (
+            {filteredNotification.map((notification) => (
               <div
-                key={notification.id}
-                className={`p-6 border-l-4 ${getNotificationColor(notification.type, notification.priority)} hover:bg-gray-50 transition-colors`}
+                key={notification.matb}
+                className={`p-6 border-l-4 ${getNotificationColor(notification.loaithongbao, notification.mucdouutien)}
+                   hover:bg-gray-50 transition-colors`}
               >
                 <div className="flex items-start space-x-4">
                   {/* Ô tích thông báo */}
@@ -537,7 +488,7 @@ export default function NotificationPage() {
                 >
                   Hủy
                 </button>
-                
+
                 <button
                   onClick={handleCreateNotification}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"

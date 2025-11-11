@@ -30,3 +30,7 @@ export const RouteAPI = {
 export const ScheduleAPI = {
     getAllSchedule: () => apiClient.fetchAll('Schedule')
 }
+
+export const NotificationAPI = {
+    getAllNotification: () => apiClient.fetchAll('Notification')
+}
