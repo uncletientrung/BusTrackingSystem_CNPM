@@ -1,6 +1,7 @@
 import { AlarmClock, Bell, BellElectric, BusFront, CalendarDays, Check, ClipboardClock, ClockAlert, Construction, House, Info, Megaphone, MessageCircleWarning, Plus, PlusCircle, RefreshCcw, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NotificationAPI } from "../../api/apiServices";
+import toLocalString from "../../utils/DateFormated";
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState([]); // Tất cả thông báo 
@@ -101,22 +102,22 @@ export default function NotificationPage() {
 
   const getNotificationIcon = (type) => { // Lấy icon màu của thông báo
     switch (type) {
-      case 'pickup':
-        return <BusFront className="text-blue-500" />;        // Đón
-      case 'dropoff':
-        return <House className="text-green-500" />;          // Trả
-      case 'delay':
-        return <ClockAlert className="text-yellow-500" />;    // Trễ
-      case 'schedule':
-        return <ClipboardClock className="text-indigo-500" />;// Lịch trình
-      case 'maintenance':
-        return <Construction className="text-orange-500" />;  // Bảo trì
-      case 'emergency':
-        return <BellElectric className="text-red-600" />;     // Khẩn cấp
-      case 'info':
-        return <Info className="text-gray-500" />;            // Thông báo chung
+      case 'Đón học sinh':
+        return <BusFront className="text-blue-500" />;        
+      case 'Trả học sinh':
+        return <House className="text-green-500" />;          
+      case 'Trễ giờ':
+        return <ClockAlert className="text-yellow-500" />;    
+      case 'Lịch trình':
+        return <ClipboardClock className="text-indigo-500" />;
+      case 'Bảo trì':
+        return <Construction className="text-orange-500" />; 
+      case 'Khẩn cấp':
+        return <BellElectric className="text-red-600" />;     
+      case 'Thông tin':
+        return <Info className="text-gray-500" />;            
       default:
-        return <Megaphone className="text-purple-500" />;     // Khác
+        return <Megaphone className="text-purple-500" />;     
     }
   };
 
@@ -312,13 +313,13 @@ export default function NotificationPage() {
                   {/* Ô tích thông báo */}
                   <input
                     type="checkbox"
-                    checked={selectedNotifications.includes(notification.id)}
-                    onChange={() => handleSelectNotification(notification.id)}
+                    checked={selectedNotifications.includes(notification.matb)}
+                    onChange={() => handleSelectNotification(notification.matb)}
                     className="mt-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   {/* Icon thông báo */}
                   <div className="text-3xl">
-                    {getNotificationIcon(notification.type)}
+                    {getNotificationIcon(notification.loaithongbao)}
                   </div>
 
                   {/* Nội dung thông báo */}
@@ -327,17 +328,17 @@ export default function NotificationPage() {
                       {/* Title và nội dung thông báo */}
                       <div className="flex-1">
                         <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                          {notification.title}
+                          {notification.tieude}
                         </h4>
                         <p className="text-gray-700 mb-3 leading-relaxed">
-                          {notification.message}
+                          {notification.noidung}
                         </p>
                       </div>
 
                       {/* Trạng thái thông báo */}
                       <div className="ml-4 text-right">
-                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(notification.status)}`}>
-                          {getStatusText(notification.status)}
+                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(notification.trangthai)}`}>
+                          {getStatusText(notification.trangthai)}
                         </span>
                       </div>
                     </div>
@@ -346,18 +347,18 @@ export default function NotificationPage() {
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <div className="flex items-center space-x-2">
                         <span><CalendarDays /> </span>
-                        <span>{formatTime(notification.createdAt)}</span>
-                        {notification.scheduledTime && (
+                        <span>{toLocalString(notification.thoigiantao)}</span>
+                        {notification.thoigiangui && (
                           <>
                             <span><AlarmClock /> </span>
-                            <span>Lên lịch: {formatTime(notification.scheduledTime)}</span>
+                            <span>Lên lịch: {formatTime(notification.thoigiangui)}</span>
                           </>
                         )}
                       </div>
                     </div>
 
                     {/* Thông báo mức độ ưu tiên */}
-                    {notification.priority === 'high' && (
+                    {notification.mucdouutien === 'Cao' && (
                       <div className="flex items-center space-x-2 mt-2">
                         <span className="inline-flex items-center px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
                           <MessageCircleWarning />
@@ -372,7 +373,7 @@ export default function NotificationPage() {
           </div>
 
           {/* Xử lý khi không có thông báo nào */}
-          {notifications.length === 0 && (
+          {filteredNotification.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg mt-4">Không có thông báo nào</p>
             </div>

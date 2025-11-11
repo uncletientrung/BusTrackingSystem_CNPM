@@ -20,6 +20,11 @@ const Notification = sequelize.define('Notification', {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
+    thoigiangui: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: null,
+    },
     tieude: {
         type: DataTypes.STRING,
         allowNull: false,

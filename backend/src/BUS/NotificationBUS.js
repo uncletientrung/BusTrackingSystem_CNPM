@@ -10,6 +10,7 @@ const NotificationBUS = {
                 noti.matx,
                 noti.maph,
                 noti.thoigiantao,
+                noti.thoigiangui,
                 noti.tieude,
                 noti.noidung,
                 noti.loaithongbao,
