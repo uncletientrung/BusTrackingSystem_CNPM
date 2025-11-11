@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
-import { AlertTriangle, BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Hourglass, RefreshCcw, SquarePen, Trash2, UserPlus, Users, X } from "lucide-react"
+import { AlertTriangle, BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Eye, Hourglass, RefreshCcw, SquarePen, Trash2, UserPlus, Users, X } from "lucide-react"
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector"
-import { ScheduleAPI } from "../../api/apiServices";
+import { BusAPI, RouteAPI, ScheduleAPI, UserAPI } from "../../api/apiServices";
+import toLocalString from "../../utils/DateFormated";
 
 
 export default function SchedulePage() {
@@ -9,7 +10,7 @@ export default function SchedulePage() {
   const [filteredSchedules, setFilteredSchedules] = useState([]) // Danh sách học sinh sau lọc
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   //    // Lấy ngày giờ của Date, chuyển thành ISO là "2025-10-10T16:53:02.123Z", cắt từ T thành 2 item, lấy yyyy/MM/dd
-  const [selectedRoute, setSelectedRoute] = useState('all');
+  const [selectedRoute, setSelectedRoute] = useState(-1); // -1 là tất cả
   const [lichTrinh, setLichTrinh] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [newSchedule, setNewSchedule] = useState({
@@ -26,6 +27,10 @@ export default function SchedulePage() {
   const [editingSchedule, setEditingSchedule] = useState(null); // Dữ liệu lịch trình đang sửa
   const [isViewingStudents, setIsViewingStudents] = useState(false); // Trạng thái xem số học sinh
   const [selectedScheduleForStudents, setSelectedScheduleForStudents] = useState(null); // Lịch trình được chọn để xem học sinh
+  const [users, setUsers] = useState([]);  // Danh sách người dùng
+  const [routes, setRoutes] = useState([]); // Danh sách tuyến đường
+  const [buses, setBuses] = useState([]); // Danh sách xe buýt 
+
 
   // Giả lập dữ liệu
   const demoRoutes = [
@@ -59,10 +64,17 @@ export default function SchedulePage() {
   useEffect(() => {
     (async () => {
       try {
-        const listSchedule = await ScheduleAPI.getAllSchedule();
+        const [listSchedule, listUser, listRoute, listBus] = await Promise.all([ScheduleAPI.getAllSchedule(),
+        UserAPI.getAllUsers(),
+        RouteAPI.getAllRoute(),
+        BusAPI.getAllBus()
+        ]);
         setSchedules(listSchedule);
+        setUsers(listUser);
+        setRoutes(listRoute);
+        setBuses(listBus);
       } catch (error) {
-        console.error('Lỗi khi tải dữ liệu Schedule:', error);
+        console.error('Lỗi khi tải dữ liệu:', error);
       }
     })();
   }, []);
@@ -70,36 +82,49 @@ export default function SchedulePage() {
   //     // Giả lập lịch trình
   useEffect(() => {
     let filtered = schedules;
-    // if (selectedDate) {
-    //   filtered = filtered.filter(s => s.date === selectedDate);
-    // }
+    if (selectedDate) {
+      const ngayduocchon = new Date(selectedDate);
+      const selectedDay = ngayduocchon.getDate();
+      const selectedMonth = ngayduocchon.getMonth();
+      const selectedYear = ngayduocchon.getFullYear();
 
-    // if (selectedRoute !== 'all') {
-    //   filtered = filtered.filter(s => s.route === selectedRoute);
-    // }
+      filtered = filtered.filter(s => {
+        if (!s.thoigianbatdau) return console.log("khong co");
+        const start = new Date(s.thoigianbatdau);
+        return (
+          start.getDate() === selectedDay &&
+          start.getMonth() === selectedMonth &&
+          start.getFullYear() === selectedYear
+        );
+      });
+    }
+
+    if (selectedRoute != -1) {
+      filtered = filtered.filter(s => s.matd == selectedRoute);
+    }
     setFilteredSchedules(filtered);
 
   }, [selectedDate, selectedRoute, schedules]);
 
-  const getStatusColor = (status) => { // Màu trạng thái
-    switch (status) {
-      case 'running': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'scheduled': return 'bg-yellow-100 text-yellow-800';
-      case 'delayed': return 'bg-red-100 text-red-800';
-      case 'cancelled': return 'bg-gray-100 text-gray-800';
+  const getStatusColor = (trangthai) => { // Màu trạng thái
+    switch (trangthai) {
+      case 3: return 'bg-green-100 text-green-800'; // Đã hoàn thành
+      case 2: return 'bg-blue-100 text-blue-800'; // Đang chạy
+      case 1: return 'bg-yellow-100 text-yellow-800'; // Đã lê lịch
+      case 0: return 'bg-red-100 text-red-800'; // Hủy
+      case -1: return 'bg-gray-100 text-gray-800'; // Trễ giờ
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusText = (status) => { // Chuyển đổi text trạng thái
-    switch (status) {
-      case 'running': return 'Đang chạy';
-      case 'completed': return 'Hoàn thành';
-      case 'scheduled': return 'Đã lên lịch';
-      case 'delayed': return 'Trễ giờ';
-      case 'cancelled': return 'Hủy bỏ';
-      default: return status;
+  const getStatusText = (trangthai) => { // Chuyển đổi text trạng thái
+    switch (trangthai) {
+      case 3: return 'Hoàn thành'; // 3
+      case 2: return 'Đang chạy'; // 2
+      case 1: return 'Đã lên lịch'; // 1
+      case 0: return 'Hủy bỏ'; // 0
+      case -1: return 'Trễ giờ'; // -1
+      default: return trangthai;
     }
   };
 
@@ -249,7 +274,7 @@ export default function SchedulePage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Hoàn thành</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {lichTrinh.filter(s => s.status === 'completed').length}
+                  {filteredSchedules.filter(s => s.trangthai === 3).length}
                 </p>
               </div>
             </div>
@@ -267,7 +292,7 @@ export default function SchedulePage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Đang chạy</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {lichTrinh.filter(s => s.status === 'running').length}
+                  {filteredSchedules.filter(s => s.trangthai === 2).length}
                 </p>
               </div>
             </div>
@@ -284,7 +309,7 @@ export default function SchedulePage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Trễ giờ</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {lichTrinh.filter(s => s.status === 'delayed').length}
+                  {filteredSchedules.filter(s => s.trangthai === -1).length}
                 </p>
               </div>
             </div>
@@ -314,10 +339,10 @@ export default function SchedulePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2
                                                 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="all">Tất cả tuyến</option>
-                {demoRoutes.map((route) => (
-                  <option key={route.id} value={route.code}>
-                    {route.name}
+                <option value={parseInt("-1")}>Tất cả tuyến</option>
+                {routes.map(route => (
+                  <option key={route.matd} value={parseInt(route.matd)}>
+                    {route.tentuyen}
                   </option>
                 ))}
               </select>
@@ -374,86 +399,95 @@ export default function SchedulePage() {
 
               {/* Thêm dữ liệu vào table */}
               <tbody className="bg-white divide-y divide-gray-200">
-                {lichTrinh.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 font-bold text-sm">
-                            <BusFront></BusFront>
-                          </span>
-                        </div>
+                {filteredSchedules.map((item) => {
+                  const bus = buses.find(bus => bus.maxe === item.maxe) || "Không tìm thấy";
+                  const route = routes.find(route => route.matd === item.matd) || "Không tìm thấy";
+                  const user = users.find(user => user.mand === item.matx) || "Không tìm thấy";
 
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {item.busNumber}
+                  return (
+                    <tr key={item.malt} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-bold text-sm">
+                              <BusFront></BusFront>
+                            </span>
+                          </div>
+
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
+                              {bus.bienso}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.route}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.departureTime}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.arrivalTime}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.driver}</div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {item.passengers}/{item.capacity}
-                      </div>
-
-                      {/* Thanh Progress */}
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${(item.passengers / item.capacity) * 100}%` }}
-                        >
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {route.tentuyen}
                         </div>
-                      </div>
-                    </td>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{toLocalString(item.thoigianbatdau)}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{toLocalString(item.thoigianketthuc)}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {user.hoten}
+                        </div>
+                      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap"> {/* Màu trạng thái */}
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
-                        {getStatusText(item.status)}
-                      </span>
-                    </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {item.tonghocsinh}/{bus.soghe || 999}
+                        </div>
 
-                    {/* Thanh hành động */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleViewStudents(item)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-3 py-1 text-xs flex items-center space-x-1"
-                          title="Xem số học sinh"
-                        >
-                          <Users className="h-4 w-4" />
-                          <span>Học sinh</span>
-                        </button>
-                        <button
-                          onClick={() => handleEditSchedule(item)}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Sửa lịch trình"
-                        >
-                          <SquarePen></SquarePen>
-                        </button>
-                        <button className="text-red-600 hover:text-red-900" title="Xóa lịch trình">
-                          <Trash2></Trash2>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                        {/* Thanh Progress */}
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-blue-600 h-2 rounded-full"
+                            style={{ width: `${(item.tonghocsinh / bus.soghe || 999) * 100}%` }}
+                          >
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap"> {/* Màu trạng thái */}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.trangthai)}`}>
+                          {getStatusText(item.trangthai)}
+                        </span>
+                      </td>
+
+                      {/* Thanh hành động */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleViewStudents(item)}
+                            className="text-gray-600 hover:text-gray-900"
+                            title="Xem số học sinh"
+                          >
+                            <Eye className="h-4 w-4"></Eye>
+                          </button>
+                          <button
+                            onClick={() => handleEditSchedule(item)}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Sửa lịch trình"
+                          >
+                            <SquarePen className="h-4 w-4"></SquarePen>
+                          </button>
+                          <button className="text-red-600 hover:text-red-900" title="Xóa lịch trình">
+                            <Trash2 className="h-4 w-4"></Trash2>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
 
             {/* Thông báo không có lịch trình */}
-            {lichTrinh.length == 0 && (
+            {schedules.length == 0 && (
               <div className="text-center py-12">
                 <div className="flex justify-center items-center">
                   <CalendarCheck className="h-10 w-10 text-black-500 " />
