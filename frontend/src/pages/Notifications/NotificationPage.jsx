@@ -48,16 +48,16 @@ export default function NotificationPage() {
   const handleSelectNotification = (id) => { // Hàm xử lý tích chọn/ bỏ tích
     setSelectedNotifications(prev =>
       prev.includes(id) // Kiểm tra đã có trong mảng chưa
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
+        ? prev.filter(item => item !== id) // Bỏ
+        : [...prev, id] // Thêm
     );
   };
 
   const handleSelectAll = () => { // hàm xử lý tích chọn/ bỏ tích tất cả 
     setSelectedNotifications(
-      selectedNotifications.length === notifications.length
+      selectedNotifications.length === filteredNotification.length
         ? []
-        : notifications.map(n => n.id)
+        : filteredNotification.map(noti => noti.matb)
     );
   };
 
