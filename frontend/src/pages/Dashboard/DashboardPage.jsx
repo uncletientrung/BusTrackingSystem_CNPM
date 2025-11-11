@@ -1,15 +1,33 @@
 import { Bus, CheckCircle, Clock, MapPin, RouteIcon, Users, TrendingUp, AlertTriangle } from "lucide-react"
 import { getRoleFromMaNq } from "../../utils/AccountRole"
+import { BusAPI, NotificationAPI, RouteAPI, ScheduleAPI, StudentAPI } from "../../api/apiServices";
+import { useEffect, useState } from "react";
+import toLocalString from "../../utils/DateFormated";
 
 export default function DashboardPage() {
-  const stats = { // Giả lập thống kê
-    totalBuses: 24,
-    activeBuses: 18,
-    totalRoutes: 12,
-    totalStudents: 450,
-    onTimePerformance: 85,
-    alerts: 3
-  }
+  const [buses, setBuses] = useState([]);
+  const [routes, setRoutes] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [schedules, setSchedules] = useState([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const [listBus, listRoute, listStudent, listThongbao, listSchedule] = await Promise.all([
+          BusAPI.getAllBus(),
+          RouteAPI.getAllRoute(), StudentAPI.getAllStudent(), NotificationAPI.getAllNotification(),
+          ScheduleAPI.getAllSchedule()]);
+        setBuses(listBus);
+        setRoutes(listRoute);
+        setStudents(listStudent);
+        setNotifications(listThongbao);
+        setSchedules(listSchedule);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu Dashboard:', error);
+      }
+    })();
+  }, [])
+
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
   const getGreeting = () => { // Trạng thái xin chào
@@ -46,13 +64,13 @@ export default function DashboardPage() {
 
                     <div className="ml-4">
                       <h3 className="text-sm font-medium text-gray-500">Tổng số xe</h3>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.totalBuses}</p>
+                      <p className="text-2xl font-semibold text-gray-900">{buses.length}</p>
                     </div>
 
                   </div>
                   <div className="mt-4">
                     <span className="text-sm text-gray-600">
-                      {stats.activeBuses} hoạt động, {stats.totalBuses - stats.activeBuses} không hoạt động
+                      {buses.filter(bus => bus.trangthai === 1).length} hoạt động, {buses.filter(bus => bus.trangthai !== 1).length} không hoạt động
                     </span>
                   </div>
                 </div>
@@ -66,11 +84,13 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <h3 className="text-sm font-medium text-gray-500">Tuyến đường</h3>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.totalRoutes}</p>
+                      <p className="text-2xl font-semibold text-gray-900">{routes.length}</p>
                     </div>
                   </div>
                   <div className="mt-4">
-                    <span className="text-sm text-gray-600">Tất cả tuyến đang hoạt động</span>
+                    <span className="text-sm text-gray-600">
+                      {routes.filter(route => route.trangthai === 1).length} hoạt động, {routes.filter(route => route.trangthai !== 1).length} ngưng hoạt động
+                    </span>
                   </div>
                 </div>
               </div>
@@ -83,11 +103,12 @@ export default function DashboardPage() {
                     </div>
                     <div className="ml-4">
                       <h3 className="text-sm font-medium text-gray-500">Học sinh</h3>
-                      <p className="text-2xl font-semibold text-gray-900">{stats.totalStudents}</p>
+                      <p className="text-2xl font-semibold text-gray-900">{students.length}</p>
                     </div>
                   </div>
                   <div className="mt-4">
-                    <span className="text-sm text-gray-600">Trên tất cả các tuyến</span>
+                    {students.filter(std => std.trangthai === 1).length} đang đi học, {students.filter(std => std.trangthai !== 1).length} tạm nghỉ
+
                   </div>
                 </div>
               </div>
@@ -102,12 +123,14 @@ export default function DashboardPage() {
               <div className="card-body">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-3 bg-orange-50 rounded-lg">
-                    <p className="text-lg font-semibold text-orange-600">5 xe</p>
+                    <p className="text-lg font-semibold text-orange-600">{buses.length} xe</p>
                     <p className="text-sm text-orange-700">Đang hoạt động</p>
                   </div>
 
                   <div className="p-3 bg-red-50 rounded-lg">
-                    <p className="text-lg font-semibold text-red-600">2 cảnh báo</p>
+                    <p className="text-lg font-semibold text-red-600">
+                      {notifications.filter(noti => noti.mucdouutien === "Cao").length} thông báo
+                    </p>
                     <p className="text-sm text-red-700">Cần xử lý</p>
                   </div>
                 </div>
@@ -130,24 +153,45 @@ export default function DashboardPage() {
 
             <div className="card-body">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-blue-900">Ca sáng - Tuyến A</p>
-                    <p className="text-sm text-blue-700">06:30 - 08:30 | Xe 29A-12345</p>
-                  </div>
+                {schedules.filter(schedule => schedule.matx === currentUser.matk)
+                  .sort((a, b) => new Date(a.thoigianbatdau) - new Date(b.thoigianbatdau))
+                  .map(schedule => {
+                    if (schedule.matx !== currentUser.matk) return null;
+                    const date = new Date(schedule.thoigianbatdau);
+                    const route = routes.find(route => route.matd == schedule.matd).tentuyen;
+                    const bus = buses.find(bus => bus.maxe == schedule.maxe).bienso;
+                    const isMorning = date.getHours() < 12;
+                    const today = new Date();
+                    const isToday =
+                      date.getDate() === today.getDate() &&
+                      date.getMonth() === today.getMonth() &&
+                      date.getFullYear() === today.getFullYear();
+                    if (!isToday) return null;
 
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">Sắp tới</span>
-                </div>
+                    return (
+                      <div key={schedule.thoigianbatdau}>
+                        <div className={`flex items-center justify-between p-3 rounded-lg ${isMorning ? "bg-blue-50" : "bg-gray-50"}`}>
 
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className={`font-medium ${isMorning ? "text-blue-900" : "text-gray-900"}`}>
+                              {isMorning ? "Ca sáng" : "Ca chiều"} - {route}
+                            </p>
 
-                  <div>
-                    <p className="font-medium text-gray-900">Ca chiều - Tuyến A</p>
-                    <p className="text-sm text-gray-600">16:00 - 18:00 | Xe 29A-12345</p>
-                  </div>
-                  <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded text-sm">Đã lên lịch</span>
+                            <p className={`text-sm ${isMorning ? "text-blue-700" : "text-gray-600"}`}>
+                              {toLocalString(schedule.thoigianbatdau).split(' ')[0]} -
+                              {" " + toLocalString(schedule.thoigianketthuc).split(' ')[0]} | Xe: {bus}
+                            </p>
+                          </div>
 
-                </div>
+                          <span className={`px-2 py-1 rounded text-sm ${isMorning ? "bg-blue-100 text-blue-800" : "bg-gray-200 text-gray-700"}`}>
+                            Đã lên lịch
+                          </span>
+
+                        </div>
+                      </div>
+                    );
+                  })}
+
               </div>
               <div className="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
                 <p className="text-sm text-yellow-700">
@@ -163,7 +207,7 @@ export default function DashboardPage() {
         {getRoleFromMaNq(currentUser.manq) == "parent" && (
           <div className="card"> {/* Panel Theo dõi con em */}
             <div className="card-header">
-              <h3 className="text-lg font-medium text-gray-900">Theo dõi con em</h3>
+              <h3 className="text-lg font-medium text-gray-900">Thông tin cơ bản con em trong hệ thống</h3>
             </div>
 
             <div className="card-body">
@@ -191,13 +235,6 @@ export default function DashboardPage() {
                   </div>
                   <span className="text-sm text-blue-600">Đang di chuyển</span>
                 </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-400">
-                <p className="text-sm text-blue-700">
-                  Bạn sẽ nhận được thông báo khi con em được đón/trả tại điểm dừng.
-                  Có thể theo dõi vị trí xe buýt real-time.
-                </p>
               </div>
             </div>
           </div>
