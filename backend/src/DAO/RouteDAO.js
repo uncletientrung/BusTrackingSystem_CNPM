@@ -31,6 +31,9 @@ const Route = sequelize.define('Route', {
 const RouteDAO = {
     async getAll() {
         return await Route.findAll();
+    },
+    async insertRouteDAO(route, dsCTRoute = {}) {
+        return await Route.create(route, dsCTRoute);
     }
 };
 

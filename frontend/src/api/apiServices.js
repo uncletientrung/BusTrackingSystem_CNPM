@@ -25,6 +25,7 @@ export const BusAPI = {
 
 export const RouteAPI = {
     getAllRoute: () => apiClient.fetchAll('Route'),
+    createRoute: (newRoute) => apiClient.create('Route', newRoute)
 }
 
 export const ScheduleAPI = {

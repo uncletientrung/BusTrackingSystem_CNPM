@@ -31,13 +31,19 @@ const CTRouteDAO = {
             order: [['matd', 'ASC'], ['thutu', 'ASC']]
         });
     },
-
     async getByMatd(matd) {
         return await CTRoute.findAll({
             where: { matd },
             order: [['thutu', 'ASC']]
         });
+    },
+    async insertCTRoute(dsCTRoute){
+        return await CTRoute.bulkCreate(dsCTRoute); // bulkCreate thêm nhiều cái cùng lúc
+    },
+    async deleteByMaTd(matd){
+        return await CTRoute.destroy({where:{madd}});
     }
+
 };
 
 module.exports = CTRouteDAO;

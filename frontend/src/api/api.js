@@ -12,5 +12,21 @@ const fetchById = async (endpoint, id) => {
   return await res.json();
 };
 
-const apiClient = { fetchAll, fetchById };
+const create = async (endpoint, data) => {
+  const res = await fetch(`${BASE_URL}/${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || `Lỗi tạo mới tại ${endpoint}`);
+  }
+
+  return await res.json();
+};
+const apiClient = { fetchAll, fetchById, create };
 export default apiClient;
