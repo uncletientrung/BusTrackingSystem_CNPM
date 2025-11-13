@@ -17,7 +17,7 @@ export default function NotificationPage() {
     priority: 'normal',
     scheduledTime: ''
   });
-
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
   useEffect(() => {
     (async () => {
       try {
@@ -103,21 +103,21 @@ export default function NotificationPage() {
   const getNotificationIcon = (type) => { // Lấy icon màu của thông báo
     switch (type) {
       case 'Đón học sinh':
-        return <BusFront className="text-blue-500" />;        
+        return <BusFront className="text-blue-500" />;
       case 'Trả học sinh':
-        return <House className="text-green-500" />;          
+        return <House className="text-green-500" />;
       case 'Trễ giờ':
-        return <ClockAlert className="text-yellow-500" />;    
+        return <ClockAlert className="text-yellow-500" />;
       case 'Lịch trình':
         return <ClipboardClock className="text-indigo-500" />;
       case 'Bảo trì':
-        return <Construction className="text-orange-500" />; 
+        return <Construction className="text-orange-500" />;
       case 'Khẩn cấp':
-        return <BellElectric className="text-red-600" />;     
+        return <BellElectric className="text-red-600" />;
       case 'Thông tin':
-        return <Info className="text-gray-500" />;            
+        return <Info className="text-gray-500" />;
       default:
-        return <Megaphone className="text-purple-500" />;     
+        return <Megaphone className="text-purple-500" />;
     }
   };
 
@@ -165,80 +165,84 @@ export default function NotificationPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
               <span><Bell /></span>
-              <span>Quản lý thông báo</span>
+              <span>{currentUser.manq == 1 ? "Quản lý thông báo" : "Thông báo"} </span>
             </h1>
 
           </div>
-
           {/* Nút xóa khi tích chọn*/}
-          <div className="flex space-x-3">
-            {/* Nút xóa */}
-            {!selectedNotifications.length == 0 && (
-              <button
-                onClick={handleDeleteSelected}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-              >
-                <span><Trash2 /></span>
-                <span>Xóa ({selectedNotifications.length})</span>
-              </button>
-            )}
+          {(currentUser.manq == 1 || currentUser.manq == 2) && (
+            <div div className="flex space-x-3">
+              {/* Nút xóa */}
+              {!selectedNotifications.length == 0 && (
+                <button
+                  onClick={handleDeleteSelected}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+                >
+                  <span><Trash2 /></span>
+                  <span>Xóa ({selectedNotifications.length})</span>
+                </button>
+              )}
 
-            {/* Nút tạo thông báo */}
-            <button
-              onClick={() => setIsCreating(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
-            >
-              <span><PlusCircle /></span>
-              <span>Tạo thông báo</span>
-            </button>
-          </div>
+              {/* Nút tạo thông báo */}
+              <button
+                onClick={() => setIsCreating(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
+              >
+                <span><PlusCircle /></span>
+                <span>Tạo thông báo</span>
+              </button>
+            </div>
+          )}
         </div>
+
 
         {/* Thống kê nhanh */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Thống kê thông báo */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <span className="text-2xl"><Megaphone /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Tổng thông báo</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredNotification.length}</p>
+        {currentUser.manq == 1 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Thống kê thông báo */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex items-center">
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <span className="text-2xl"><Megaphone /></span>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">Tổng thông báo</p>
+                  <p className="text-2xl font-bold text-gray-900">{filteredNotification.length}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Thống kê đã gửi */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <span className="text-2xl"><Check /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Đã gửi</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {filteredNotification.filter(tb => tb.trangthai === 2).length}
-                </p>
+            {/* Thống kê đã gửi */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex items-center">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <span className="text-2xl"><Check /></span>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">Đã gửi</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {filteredNotification.filter(tb => tb.trangthai === 2).length}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Thống kê đã lên lịch */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <span className="text-2xl"><ClipboardClock /></span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Đã lên lịch</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {filteredNotification.filter(tb => tb.trangthai === 1).length}
-                </p>
+            {/* Thống kê đã lên lịch */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex items-center">
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <span className="text-2xl"><ClipboardClock /></span>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">Đã lên lịch</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {filteredNotification.filter(tb => tb.trangthai === 1).length}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Tìm kiếm và bộ lọc */}
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -303,73 +307,82 @@ export default function NotificationPage() {
 
           {/* Các thông báo */}
           <div className="divide-y divide-gray-200">
-            {filteredNotification.map((notification) => (
-              <div
-                key={notification.matb}
-                className={`p-6 border-l-4 ${getNotificationColor(notification.loaithongbao, notification.mucdouutien)}
-                   hover:bg-gray-50 transition-colors`}
-              >
-                <div className="flex items-start space-x-4">
-                  {/* Ô tích thông báo */}
-                  <input
-                    type="checkbox"
-                    checked={selectedNotifications.includes(notification.matb)}
-                    onChange={() => handleSelectNotification(notification.matb)}
-                    className="mt-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  {/* Icon thông báo */}
-                  <div className="text-3xl">
-                    {getNotificationIcon(notification.loaithongbao)}
-                  </div>
-
-                  {/* Nội dung thông báo */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      {/* Title và nội dung thông báo */}
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                          {notification.tieude}
-                        </h4>
-                        <p className="text-gray-700 mb-3 leading-relaxed">
-                          {notification.noidung}
-                        </p>
-                      </div>
-
-                      {/* Trạng thái thông báo */}
-                      <div className="ml-4 text-right">
-                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(notification.trangthai)}`}>
-                          {getStatusText(notification.trangthai)}
-                        </span>
-                      </div>
+            {filteredNotification
+              .filter(notification => {
+                if (currentUser.manq === 1) {
+                  return true;
+                }
+                if (currentUser.manq === 2) {
+                  return notification.matx === currentUser.matk;
+                }
+                if (currentUser.manq === 3) {
+                  return notification.maph === currentUser.matk;
+                }
+                return false;
+              })
+              .map(notification => (
+                <div
+                  key={notification.matb}
+                  className={`p-6 border-l-4 ${getNotificationColor(notification.loaithongbao, notification.mucdouutien)} hover:bg-gray-50 transition-colors`}
+                >
+                  <div className="flex items-start space-x-4">
+                    {/* Ô tích thông báo */}
+                    <input
+                      type="checkbox"
+                      checked={selectedNotifications.includes(notification.matb)}
+                      onChange={() => handleSelectNotification(notification.matb)}
+                      className="mt-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    {/* Icon thông báo */}
+                    <div className="text-3xl">
+                      {getNotificationIcon(notification.loaithongbao)}
                     </div>
 
-                    {/* Thông tin thời gian gửi/ lên lịch */}
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center space-x-2">
-                        <span><CalendarDays /> </span>
-                        <span>{toLocalString(notification.thoigiantao)}</span>
-                        {notification.thoigiangui && (
-                          <>
-                            <span><AlarmClock /> </span>
-                            <span>Lên lịch: {formatTime(notification.thoigiangui)}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                    {/* Nội dung thông báo */}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                            {notification.tieude}
+                          </h4>
+                          <p className="text-gray-700 mb-3 leading-relaxed">
+                            {notification.noidung}
+                          </p>
+                        </div>
 
-                    {/* Thông báo mức độ ưu tiên */}
-                    {notification.mucdouutien === 'Cao' && (
-                      <div className="flex items-center space-x-2 mt-2">
-                        <span className="inline-flex items-center px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
-                          <MessageCircleWarning />
-                        </span>
-                        <span>Ưu tiên cao</span>
+                        <div className="ml-4 text-right">
+                          <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(notification.trangthai)}`}>
+                            {getStatusText(notification.trangthai)}
+                          </span>
+                        </div>
                       </div>
-                    )}
+
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-2">
+                          <span><CalendarDays /></span>
+                          <span>{toLocalString(notification.thoigiantao)}</span>
+                          {notification.thoigiangui && (
+                            <>
+                              <span><AlarmClock /></span>
+                              <span>Lên lịch: {formatTime(notification.thoigiangui)}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {notification.mucdouutien === 'Cao' && (
+                        <div className="flex items-center space-x-2 mt-2">
+                          <span className="inline-flex items-center px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
+                            <MessageCircleWarning />
+                          </span>
+                          <span>Ưu tiên cao</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+
           </div>
 
           {/* Xử lý khi không có thông báo nào */}
@@ -501,7 +514,7 @@ export default function NotificationPage() {
           </div>
         )}
 
-      </div>
+      </div >
     </>
   )
 };
