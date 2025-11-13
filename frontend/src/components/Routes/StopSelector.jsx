@@ -1,16 +1,16 @@
 import { GripVertical, MapPin, Plus, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function StopSelector({ selectedStops, onStopsChange, availableStops }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
 
-  // Filter available stops that aren't already selected
-  const filteredStops = availableStops.filter(stop => 
-    !selectedStops.find(s => s.id === stop.id) &&
-    (stop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     stop.code.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Lọc các điểm dừng có sẵn chưa được chọn
+  const filteredStops = availableStops.filter(stop =>
+    !selectedStops.find(s => s.madd === stop.madd) && // chưa được thêm
+    (stop.tendiemdung.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      stop.madd.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleAddStop = (stop) => {
@@ -23,14 +23,14 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
     setShowDropdown(false);
   };
 
-  const handleRemoveStop = (stopId) => {
-    const filtered = selectedStops.filter(s => s.id !== stopId);
-    // Reorder remaining stops
-    const reordered = filtered.map((stop, index) => ({
+  const handleRemoveStop = (maddXoa) => {
+    const filtered = selectedStops.filter(s => s.madd !== maddXoa);
+    // Xếp lại sau xóa
+    const listSelectedStop = filtered.map((stop, index) => ({
       ...stop,
       order: index + 1
     }));
-    onStopsChange(reordered);
+    onStopsChange(listSelectedStop);
   };
 
   const handleDragStart = (index) => {
@@ -98,7 +98,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
               {filteredStops.map((stop) => (
                 <button
-                  key={stop.id}
+                  key={stop.madd}
                   type="button"
                   onClick={() => handleAddStop(stop)}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors"
@@ -106,8 +106,8 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
                   <div className="flex items-center gap-3">
                     <MapPin className="h-4 w-4 text-primary-600 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{stop.name}</div>
-                      <div className="text-sm text-gray-500 truncate">{stop.code} • {stop.address}</div>
+                      <div className="font-medium text-gray-900 truncate">{stop.tendiemdung}</div>
+                      <div className="text-sm text-gray-500 truncate">STOP-{stop.madd} | Địa chỉ: {stop.diachi}</div>
                     </div>
                   </div>
                 </button>
@@ -117,25 +117,21 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
         </div>
       </div>
 
-      {/* Selected Stops List */}
+      {/* Danh sách điểm dừng đã chọn */}
       {selectedStops.length > 0 ? (
         <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-700 mb-2">
-            Danh sách điểm dừng ({selectedStops.length})
-          </div>
           <div className="bg-gray-50 rounded-lg p-3 space-y-2 max-h-96 overflow-y-auto">
             {selectedStops
               .sort((a, b) => a.order - b.order)
               .map((stop, index) => (
                 <div
-                  key={stop.id}
+                  key={stop.madd}
                   draggable
                   onDragStart={() => handleDragStart(index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`bg-white border border-gray-200 rounded-lg p-3 cursor-move hover:shadow-md transition-shadow ${
-                    draggedIndex === index ? 'opacity-50' : ''
-                  }`}
+                  className={`bg-white border border-gray-200 rounded-lg p-3 cursor-move hover:shadow-md transition-shadow ${draggedIndex === index ? 'opacity-50' : ''
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     {/* Drag Handle */}
@@ -152,20 +148,20 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
 
                     {/* Stop Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{stop.name}</div>
+                      <div className="font-medium text-gray-900 truncate">{stop.tendiemdung}</div>
                       <div className="text-sm text-gray-500 truncate">
-                        {stop.code}
-                        {stop.address && ` • ${stop.address}`}
+                        STOP-{stop.madd}
+                        {stop.diachi && ` • ${stop.diachi}`}
                       </div>
                       <div className="text-xs text-gray-400 mt-1">
-                        Tọa độ: {stop.lat?.toFixed(4) || stop.latitude?.toFixed(4)}, {stop.lng?.toFixed(4) || stop.longitude?.toFixed(4)}
+                        Tọa độ: {stop.vido}, {stop.kinhdo}
                       </div>
                     </div>
 
                     {/* Remove Button */}
                     <button
                       type="button"
-                      onClick={() => handleRemoveStop(stop.id)}
+                      onClick={() => handleRemoveStop(stop.madd)}
                       className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <X className="h-5 w-5" />
@@ -174,9 +170,6 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
                 </div>
               ))}
           </div>
-          <p className="text-xs text-gray-500 italic">
-            💡 Kéo thả để sắp xếp thứ tự các điểm dừng
-          </p>
         </div>
       ) : (
         <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">

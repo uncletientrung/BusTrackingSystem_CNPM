@@ -1,8 +1,7 @@
-// src/pages/Routes/RoutesPage.jsx
 import { Eye, RouteIcon, PlusCircle, Search, SquarePen, Trash2, X, EthernetPort, RulerDimensionLine } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CTRouteAPI, RouteAPI, StopAPI } from "../../api/apiServices";
-import RouteForm from "./RouteForm"; // Import component form từ file riêng
+import RouteForm from "./RouteForm";
 
 export default function RoutesPage() {
   const [routes, setRoutes] = useState([]); // Danh sách tuyến
@@ -13,15 +12,17 @@ export default function RoutesPage() {
   const [currentPage, setCurrentPage] = useState(1); // Phân trang
   const routesPerPage = 10; // Số tuyến mỗi trang
   const [availableStops, setAvailableStops] = useState([]); // Danh sách điểm dừng có sẵn
+  const [stops, setStops] = useState([]); // Danh sách điểm dừng
 
 
   // Giả lập dữ liệu ban đầu (giữ nguyên như cũ)
   useEffect(() => {
     (async () => {
       try {
-        const [listRoute] = await Promise.all([RouteAPI.getAllRoute(),
-        ]);
+        const [listRoute, listStop] = await Promise.all([RouteAPI.getAllRoute(),
+        StopAPI.getAllStops()]);
         setRoutes(listRoute);
+        setStops(listStop);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu Route: ', error);
       }
@@ -335,8 +336,8 @@ export default function RoutesPage() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
             {/* Form */}
             <RouteForm
-              route={editingRoute}
-              availableStops={availableStops}
+              route={editingRoute}  
+              listStop={stops}
               onSave={handleSaveRoute}
               onCancel={() => setIsModalOpen(false)}
             />

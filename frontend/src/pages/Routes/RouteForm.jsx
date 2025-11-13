@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { RouteIcon, X, MapPin } from "lucide-react";
 import StopSelector from "../../components/Routes/StopSelector";
-import { calculateRouteDistance, estimateTravelTime } from "../../utils/distanceCalculator";
+import { calculateRouteDistance } from "../../utils/distanceCalculator";
 import { CTRouteAPI, StopAPI } from "../../api/apiServices";
 
-export default function RouteForm({ route, availableStops, onSave, onCancel }) {
-  const isReadOnly = route?.__readOnly === true; // Kiểm tra chế độ XEM
+export default function RouteForm({ route, listStop, onSave, onCancel }) {
+  const isReadOnly = route?.__readOnly === true; // Kiểm tra chế độ xem
   const [stops, setStops] = useState([]);
   const [formData, setFormData] = useState({ // Form xem/ sửa/ thêm
     name: route ? route.tentuyen : '',
@@ -21,13 +21,15 @@ export default function RouteForm({ route, availableStops, onSave, onCancel }) {
       try {
         const [dsCTTD, listStop] = await Promise.all([CTRouteAPI.getCTTTById(Number(route.matd))
           , StopAPI.getAllStops()]);
-        setFormData(prev => ({ ...prev, stops: dsCTTD }));
+        if (isReadOnly) {
+          setFormData(prev => ({ ...prev, stops: dsCTTD }));
+        }
         setStops(listStop);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu Chi tiết Route: ', error);
       }
     })();
-  }, [route])
+  }, [route, isReadOnly])
 
   const [errors, setErrors] = useState({});
 
@@ -44,12 +46,10 @@ export default function RouteForm({ route, availableStops, onSave, onCancel }) {
   const handleStopsChange = (stops) => {
     if (isReadOnly) return;
     const distance = calculateRouteDistance(stops);
-    const time = estimateTravelTime(parseFloat(distance));
     setFormData(prev => ({
       ...prev,
       stops,
       distance,
-      estimatedTime: time
     }));
   };
 
@@ -194,7 +194,7 @@ export default function RouteForm({ route, availableStops, onSave, onCancel }) {
           <StopSelector
             selectedStops={formData.stops}
             onStopsChange={handleStopsChange}
-            availableStops={availableStops}
+            availableStops={listStop}
           />
         )}
       </div>
