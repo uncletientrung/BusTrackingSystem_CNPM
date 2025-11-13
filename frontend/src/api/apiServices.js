@@ -34,3 +34,7 @@ export const ScheduleAPI = {
 export const NotificationAPI = {
     getAllNotification: () => apiClient.fetchAll('Notification')
 }
+
+export const CTRouteAPI = {
+    getCTTTById: (matd) => apiClient.fetchById('CTRoute', matd)
+}

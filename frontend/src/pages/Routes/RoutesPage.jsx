@@ -2,7 +2,7 @@ import { Eye, RouteIcon, PlusCircle, Search, SquarePen, Trash2, X, BusFront, Clo
 import { useEffect, useState } from "react";
 import StopSelector from "../../components/Routes/StopSelector";
 import { calculateRouteDistance, estimateTravelTime } from "../../utils/distanceCalculator";
-import { RouteAPI } from "../../api/apiServices";
+import { CTRouteAPI, RouteAPI, StopAPI } from "../../api/apiServices";
 
 export default function RoutesPage() {
   const [routes, setRoutes] = useState([]); // Danh sách tuyến
@@ -14,11 +14,13 @@ export default function RoutesPage() {
   const routesPerPage = 10; // Số tuyến mỗi trang
   const [availableStops, setAvailableStops] = useState([]); // Danh sách điểm dừng có sẵn
 
+
   // Giả lập dữ liệu ban đầu (giữ nguyên như cũ)
   useEffect(() => {
     (async () => {
       try {
-        const listRoute = await RouteAPI.getAllRoute();
+        const [listRoute] = await Promise.all([RouteAPI.getAllRoute(),
+        ]);
         setRoutes(listRoute);
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu Route: ', error);
@@ -84,7 +86,7 @@ export default function RoutesPage() {
   };
 
   // Xem chi tiết (chỉ đọc)
-  const handleViewRoute = (route) => {
+  const handleViewRoute = async (route) => {
     setEditingRoute({ ...route, __readOnly: true }); // Đánh dấu chỉ đọc
     setIsModalOpen(true);
   };
@@ -347,15 +349,28 @@ export default function RoutesPage() {
 
 function RouteForm({ route, availableStops, onSave, onCancel }) {
   const isReadOnly = route?.__readOnly === true; // Kiểm tra chế độ XEM
-  const [formData, setFormData] = useState({
-    name: route ? route.name : '',
-    code: route?.code || '',
-    description: route?.description || '',
-    stops: route?.stops || [],
-    status: route?.status || 'active',
-    distance: route?.distance || '',
-    estimatedTime: route?.estimatedTime || ''
+  const [stops, setStops] = useState([]);
+  const [formData, setFormData] = useState({ // Form xem/ sửa/ thêm
+    name: route ? route.tentuyen : '',
+    code: route?.matd || '',
+    description: route?.mota || '',
+    stops: [],
+    status: route?.trangthai || -1,
+    distance: route?.tongquangduong || 0,
   });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [dsCTTD, listStop] = await Promise.all([CTRouteAPI.getCTTTById(Number(route.matd))
+          , StopAPI.getAllStops()]);
+        setFormData(prev => ({ ...prev, stops: dsCTTD }));
+        setStops(listStop);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu Chi tiết Route: ', error);
+      }
+    })();
+  }, [route])
 
   const [errors, setErrors] = useState({});
 
@@ -418,7 +433,7 @@ function RouteForm({ route, availableStops, onSave, onCancel }) {
           </label>
           <input
             type="text"
-            value={formData.code}
+            value={"TD-" + formData.code}
             onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, code: e.target.value }))}
             disabled={isReadOnly || !!route}
             placeholder="VD: BT-SB-01"
@@ -483,8 +498,7 @@ function RouteForm({ route, availableStops, onSave, onCancel }) {
           <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
           {isReadOnly ? (
             <div className="px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-700">
-              {formData.status === 'active' ? 'Hoạt động' :
-                formData.status === 'maintenance' ? 'Bảo trì' : 'Ngưng hoạt động'}
+              {formData.status === 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
             </div>
           ) : (
             <select
@@ -492,26 +506,27 @@ function RouteForm({ route, availableStops, onSave, onCancel }) {
               onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
             >
-              <option value="active">Hoạt động</option>
-              <option value="maintenance">Bảo trì</option>
-              <option value="inactive">Ngưng hoạt động</option>
+              <option value={1}>Hoạt động</option>
+              <option value={0}>Ngưng hoạt động</option>
             </select>
           )}
         </div>
       </div>
+
       {/* Danh sách điểm dừng */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Điểm dừng ({formData.stops.length})
+
         </label>
         {isReadOnly ? (
           <div className="space-y-2 max-h-48 overflow-y-auto p-3 bg-gray-50 border border-gray-300 rounded-lg">
             {formData.stops.length > 0 ? (
               formData.stops.map((stop, idx) => (
-                <div key={stop.id} className="flex items-center gap-2 text-sm text-gray-700">
+                <div key={stop.madd} className="flex items-center gap-2 text-sm text-gray-700">
                   <span className="font-medium text-primary-600">{idx + 1}.</span>
                   <MapPin className="h-4 w-4 text-gray-500" />
-                  <span>{stop.name}</span>
+                  <span>{stops.find(s => s.madd == stop.madd).tendiemdung}</span>
                 </div>
               ))
             ) : (
