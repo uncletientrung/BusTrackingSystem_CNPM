@@ -9,6 +9,7 @@ const BusRoutes = require('./Routes/BusRoutes');
 const RouteRoutes = require('./Routes/RouteRoutes');
 const ScheduleRoutes = require('./Routes/ScheduleRoutes');
 const NotificationRoutes = require('./Routes/NotificationRoutes');
+const CTRoutes = require('./Routes/CTRouteRoutes');
 
 const app = express(); // là đối tượng Express chính, đại diện cho server.
 const PORT = 5000;
@@ -23,6 +24,7 @@ app.use('/api/Bus', BusRoutes);
 app.use('/api/Route', RouteRoutes);
 app.use('/api/Schedule', ScheduleRoutes);
 app.use('/api/Notification', NotificationRoutes);
+app.use('/api/CTRoute', CTRoutes);
 
 const startServer = async () => {
     await connectDB();
