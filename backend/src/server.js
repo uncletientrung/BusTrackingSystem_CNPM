@@ -10,7 +10,7 @@ const RouteRoutes = require('./Routes/RouteRoutes');
 const ScheduleRoutes = require('./Routes/ScheduleRoutes');
 const NotificationRoutes = require('./Routes/NotificationRoutes');
 const CTRoutes = require('./Routes/CTRouteRoutes');
-
+    
 const app = express(); // là đối tượng Express chính, đại diện cho server.
 const PORT = 5000;
 

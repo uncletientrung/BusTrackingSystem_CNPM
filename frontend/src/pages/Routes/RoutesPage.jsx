@@ -1,4 +1,4 @@
-import { Eye, RouteIcon, PlusCircle, Search, SquarePen, Trash2, X, EthernetPort, RulerDimensionLine } from "lucide-react";
+import { Eye, RouteIcon, PlusCircle, Search, SquarePen, Trash2, X, EthernetPort, RulerDimensionLine, LucideGpu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CTRouteAPI, RouteAPI, StopAPI } from "../../api/apiServices";
 import RouteForm from "./RouteForm";
@@ -11,7 +11,6 @@ export default function RoutesPage() {
   const [editingRoute, setEditingRoute] = useState(null); // Tuyến đang sửa
   const [currentPage, setCurrentPage] = useState(1); // Phân trang
   const routesPerPage = 10; // Số tuyến mỗi trang
-  const [availableStops, setAvailableStops] = useState([]); // Danh sách điểm dừng có sẵn
   const [stops, setStops] = useState([]); // Danh sách điểm dừng
 
 
@@ -27,23 +26,6 @@ export default function RoutesPage() {
         console.error('Lỗi khi tải dữ liệu Route: ', error);
       }
     })();
-
-    // Danh sách điểm dừng có sẵn
-    const demoStops = [
-      { id: 1, code: 'ST-001', name: 'Bến xe Bến Thành', latitude: 10.8231, longitude: 106.6297, address: '1 Phạm Ngũ Lão, Quận 1, TP.HCM' },
-      { id: 2, code: 'ST-002', name: 'Chợ Tân Định', latitude: 10.7890, longitude: 106.6850, address: '120 Hai Bà Trưng, Quận 1, TP.HCM' },
-      { id: 3, code: 'ST-003', name: 'Công viên Tao Đàn', latitude: 10.7769, longitude: 106.6909, address: 'Trương Định, Quận 1, TP.HCM' },
-      { id: 4, code: 'ST-004', name: 'Sân bay Tân Sơn Nhất', latitude: 10.8187, longitude: 106.6519, address: 'Trường Sơn, Tân Bình, TP.HCM' },
-      { id: 5, code: 'ST-005', name: 'Nhà thờ Đức Bà', latitude: 10.7798, longitude: 106.6990, address: '01 Công xã Paris, Quận 1, TP.HCM' },
-      { id: 6, code: 'ST-006', name: 'Cầu Sài Gòn', latitude: 10.7624, longitude: 106.6832, address: 'Võ Văn Kiệt, Quận 1, TP.HCM' },
-      { id: 7, code: 'ST-007', name: 'TTTM Crescent Mall', latitude: 10.7292, longitude: 106.7197, address: '101 Tôn Dật Tiên, Quận 7, TP.HCM' },
-      { id: 8, code: 'ST-008', name: 'ĐH Quốc gia TP.HCM', latitude: 10.8700, longitude: 106.8030, address: 'Linh Trung, Thủ Đức, TP.HCM' },
-      { id: 9, code: 'ST-009', name: 'Chợ Thủ Đức', latitude: 10.8506, longitude: 106.7717, address: 'Võ Văn Ngân, Thủ Đức, TP.HCM' },
-      { id: 10, code: 'ST-010', name: 'Bệnh viện Chợ Rẫy', latitude: 10.7554, longitude: 106.6665, address: '201B Nguyễn Chí Thanh, Quận 5, TP.HCM' },
-      { id: 11, code: 'ST-011', name: 'Chợ Gò Vấp', latitude: 10.8142, longitude: 106.6438, address: 'Quang Trung, Gò Vấp, TP.HCM' },
-      { id: 12, code: 'ST-012', name: 'Đầm Sen', latitude: 10.7889, longitude: 106.6542, address: 'Hòa Bình, Quận 11, TP.HCM' },
-    ];
-    setAvailableStops(demoStops);
   }, []);
 
   // Lọc theo search
@@ -75,6 +57,7 @@ export default function RoutesPage() {
 
   // Mở modal sửa
   const handleEditRoute = (route) => {
+    if (!route?.matd) return;
     setEditingRoute(route);
     setIsModalOpen(true);
   };
@@ -88,33 +71,30 @@ export default function RoutesPage() {
 
   // Xem chi tiết (chỉ đọc)
   const handleViewRoute = async (route) => {
+    if (!route?.matd) return;
     setEditingRoute({ ...route, __readOnly: true }); // Đánh dấu chỉ đọc
     setIsModalOpen(true);
   };
 
   // Lưu tuyến (thêm hoặc sửa)
-  const handleSaveRoute = (routeData) => {
-    if (editingRoute) {
-      // Cập nhật
-      setRoutes(routes.map((r) =>
-        r.id === editingRoute.id
-          ? { ...r, ...routeData, lastUpdated: new Date().toISOString().split('T')[0] }
-          : r
-      ));
-    } else {
-      // Thêm mới
-      const newId = Math.max(...routes.map((r) => r.id), 0) + 1;
-      const newRoute = {
-        ...routeData,
-        id: newId,
-        busCount: 0,
-        dailyTrips: 0,
-        createdAt: new Date().toISOString().split('T')[0],
-        lastUpdated: new Date().toISOString().split('T')[0]
-      };
-      setRoutes([...routes, newRoute]);
+  const handleSaveRoute = async (routeData) => {
+    try {
+      // if (editingRoute) { // Cập nhật
+      //   setRoutes(routes.map((r) =>
+      //   r.id === editingRoute.id
+      //     ? { ...r, ...routeData, lastUpdated: new Date().toISOString().split('T')[0] }
+      //     : r
+      // ));
+      // } else {   // Thêm mới
+
+      await RouteAPI.createRoute(routeData);
+      const [listRoute,] = await Promise.all([RouteAPI.getAllRoute(),
+      StopAPI.getAllStops()]);
+      setRoutes(listRoute);
+      setIsModalOpen(false);
+    } catch (error) {
+      alert("Lỗi tạo tuyến ở Page: " + error.message);
     }
-    setIsModalOpen(false);
   };
 
   return (
@@ -336,7 +316,7 @@ export default function RoutesPage() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
             {/* Form */}
             <RouteForm
-              route={editingRoute}  
+              route={editingRoute}
               listStop={stops}
               onSave={handleSaveRoute}
               onCancel={() => setIsModalOpen(false)}

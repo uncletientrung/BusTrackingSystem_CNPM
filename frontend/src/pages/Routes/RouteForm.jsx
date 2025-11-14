@@ -8,28 +8,34 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
   const isReadOnly = route?.__readOnly === true; // Kiểm tra chế độ xem
   const [stops, setStops] = useState([]);
   const [formData, setFormData] = useState({ // Form xem/ sửa/ thêm
-    name: route ? route.tentuyen : '',
-    code: route?.matd || '',
-    description: route?.mota || '',
+    tentuyen: route ? route.tentuyen : '',
+    mota: route?.mota || '',
+    tongquangduong: route?.tongquangduong || 0,
+    trangthai: route?.trangthai || 0,
     stops: [],
-    status: route?.trangthai || -1,
-    distance: route?.tongquangduong || 0,
+    matd: route?.matd || '',
   });
 
   useEffect(() => {
-    (async () => {
-      try {
-        const [dsCTTD, listStop] = await Promise.all([CTRouteAPI.getCTTTById(Number(route.matd))
-          , StopAPI.getAllStops()]);
-        if (isReadOnly) {
-          setFormData(prev => ({ ...prev, stops: dsCTTD }));
-        }
-        setStops(listStop);
-      } catch (error) {
-        console.error('Lỗi khi tải dữ liệu Chi tiết Route: ', error);
+  (async () => {
+    try {
+      let dsCTTD = [];
+      const listStop = await StopAPI.getAllStops();
+      if (route?.matd) {
+        dsCTTD = await CTRouteAPI.getCTTTById(Number(route.matd));
       }
-    })();
-  }, [route, isReadOnly])
+      if (isReadOnly || route?.matd) {
+        setFormData(prev => ({
+          ...prev,
+          stops: dsCTTD // Chỉ gán khi có dữ liệu
+        }));
+      }
+      setStops(listStop);
+    } catch (error) {
+      console.error('Lỗi khi tải dữ liệu:', error);
+    }
+  })();
+}, [route, isReadOnly]);
 
   const [errors, setErrors] = useState({});
 
@@ -37,9 +43,10 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
   const validate = () => {
     if (isReadOnly) return true;
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Tên tuyến không được để trống';
-    if (!formData.code.trim()) newErrors.code = 'Mã tuyến không được để trống';
+    if (!formData.tentuyen.trim()) newErrors.tentuyen = 'Tên tuyến không được để trống';
+    if (!formData.mota.trim()) newErrors.mota = 'Mô tả không được để trống';
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) alert("Vui lòng nhập đầy đủ thông tin");
     return Object.keys(newErrors).length === 0;
   };
 
@@ -48,14 +55,25 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
     const distance = calculateRouteDistance(stops);
     setFormData(prev => ({
       ...prev,
-      stops,
-      distance,
+      stops, // Lưu danh sách điểm dừng 
+      tongquangduong: distance,
     }));
+    
   };
 
   const handleSubmit = () => {
     if (validate()) {
-      onSave(formData);
+      const submitData = {
+        tentuyen: formData.tentuyen,
+        mota: formData.mota,
+        tongquangduong: formData.tongquangduong,
+        trangthai: formData.trangthai,
+        dsCTRoute: formData.stops.map(s => ({
+          madd: s.madd,
+          thutu: s.thutu
+        }))
+      };
+      onSave(submitData);
     }
   };
 
@@ -82,24 +100,27 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
       </div>
 
       {/* Form Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className={`grid gap-5 ${isReadOnly ? "grid-cols-2" : "grid-cols-1 md:grid-cols-1"}`}>
         {/* Mã tuyến */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Mã tuyến {isReadOnly ? '' : '*'}
-          </label>
-          <input
-            type="text"
-            value={"TD-" + formData.code}
-            onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, code: e.target.value }))}
-            disabled={isReadOnly || !!route}
-            placeholder="VD: BT-SB-01"
-            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.code ? 'border-red-300' : 'border-gray-300'
-              } ${isReadOnly || route ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-            readOnly={isReadOnly}
-          />
-          {errors.code && !isReadOnly && <p className="mt-1 text-xs text-red-600">{errors.code}</p>}
-        </div>
+        {isReadOnly && (
+          <div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Mã tuyến {isReadOnly ? '' : '*'}
+            </label>
+
+            <input
+              type="text"
+              value={"TD-" + formData.matd}
+              onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, matd: e.target.value }))}
+              disabled
+              placeholder="VD: BT-SB-01"
+              className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.matd ? 'border-red-300' : 'border-gray-300'
+                } ${isReadOnly || route ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+              readOnly
+            />
+          </div>
+        )}
 
         {/* Tên tuyến */}
         <div>
@@ -108,15 +129,15 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
           </label>
           <input
             type="text"
-            value={formData.name}
-            onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, name: e.target.value }))}
+            value={formData.tentuyen}
+            onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, tentuyen: e.target.value }))}
             disabled={isReadOnly}
             placeholder="VD: Bến Thành - Sân Bay"
-            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.name ? 'border-red-300' : 'border-gray-300'
+            className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.tentuyen ? 'border-red-300' : 'border-gray-300'
               } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
             readOnly={isReadOnly}
           />
-          {errors.name && !isReadOnly && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+          {errors.tentuyen && !isReadOnly && <p className="mt-1 text-xs text-red-600">{errors.tentuyen}</p>}
         </div>
       </div>
 
@@ -124,15 +145,16 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
         <textarea
-          value={formData.description}
-          onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, description: e.target.value }))}
+          value={formData.mota}
+          onChange={(e) => !isReadOnly && setFormData(prev => ({ ...prev, mota: e.target.value }))}
           rows={3}
           disabled={isReadOnly}
           placeholder="Mô tả chi tiết về tuyến đường..."
-          className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors resize-none ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''
-            }`}
+          className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors ${errors.mota ? 'border-red-300' : 'border-gray-300'
+            } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
           readOnly={isReadOnly}
         />
+        {errors.mota && !isReadOnly && <p className="mt-1 text-xs text-red-600">{errors.mota}</p>}
       </div>
 
       {/* Khoảng cách */}
@@ -143,7 +165,7 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
           </label>
           <input
             type="text"
-            value={formData.distance || 'Chưa có điểm dừng'}
+            value={formData.tongquangduong || 'Chưa có điểm dừng'}
             readOnly
             disabled
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
@@ -155,12 +177,12 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
           <label className="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
           {isReadOnly ? (
             <div className="px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-700">
-              {formData.status === 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
+              {formData.trangthai === 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
             </div>
           ) : (
             <select
-              value={formData.status}
-              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+              value={formData.trangthai}
+              onChange={(e) => setFormData(prev => ({ ...prev, trangthai: e.target.value }))}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value={1}>Hoạt động</option>

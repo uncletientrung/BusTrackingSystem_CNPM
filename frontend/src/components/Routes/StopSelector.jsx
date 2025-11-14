@@ -16,7 +16,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
   const handleAddStop = (stop) => {
     const newStop = {
       ...stop,
-      order: selectedStops.length + 1
+      thutu: selectedStops.length + 1
     };
     onStopsChange([...selectedStops, newStop]);
     setSearchTerm('');
@@ -28,7 +28,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
     // Xếp lại sau xóa
     const listSelectedStop = filtered.map((stop, index) => ({
       ...stop,
-      order: index + 1
+      thutu: index + 1
     }));
     onStopsChange(listSelectedStop);
   };
@@ -49,7 +49,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
     // Update order
     const reordered = items.map((item, idx) => ({
       ...item,
-      order: idx + 1
+      thutu: idx + 1
     }));
 
     onStopsChange(reordered);
@@ -122,7 +122,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
         <div className="space-y-2">
           <div className="bg-gray-50 rounded-lg p-3 space-y-2 max-h-96 overflow-y-auto">
             {selectedStops
-              .sort((a, b) => a.order - b.order)
+              .sort((a, b) => a.thutu - b.thutu)
               .map((stop, index) => (
                 <div
                   key={stop.madd}
@@ -142,7 +142,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
                     {/* Order Number */}
                     <div className="flex-shrink-0">
                       <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                        {stop.order}
+                        {stop.thutu}
                       </div>
                     </div>
 

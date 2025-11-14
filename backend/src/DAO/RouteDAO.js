@@ -32,8 +32,8 @@ const RouteDAO = {
     async getAll() {
         return await Route.findAll();
     },
-    async insertRouteDAO(route, dsCTRoute = {}) {
-        return await Route.create(route, dsCTRoute);
+    async insertRouteDAO(route, { transaction } = {}) {
+        return await Route.create(route, { transaction });
     }
 };
 

@@ -41,7 +41,7 @@ const CTRouteDAO = {
         return await CTRoute.bulkCreate(dsCTRoute); // bulkCreate thêm nhiều cái cùng lúc
     },
     async deleteByMaTd(matd){
-        return await CTRoute.destroy({where:{madd}});
+        return await CTRoute.destroy({where:{matd}});
     }
 
 };

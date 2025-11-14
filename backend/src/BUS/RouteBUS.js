@@ -19,7 +19,7 @@ const RouteBUS = {
     async insertRouteBUS(route, dsCTRoute) {
         const giaodich = await require('../config/connectDB').sequelize.transaction();
         try {
-            const tuyen = await RouteDAO.insertRouteDAO(route, { giaodich }) // Lưu vào bản ghi
+            const tuyen = await RouteDAO.insertRouteDAO(route, { transaction: giaodich }); // Lưu vào bản ghi
             const cttuyen = dsCTRoute.map((ctRoute) => ({
                 matd: tuyen.matd,
                 madd: ctRoute.madd,

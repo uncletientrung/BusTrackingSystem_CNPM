@@ -49,10 +49,10 @@ export function calculateRouteDistance(stops) {
     const stop1 = stops[i];
     const stop2 = stops[i + 1];
     
-    const lat1 = stop1.lat || stop1.latitude;
-    const lon1 = stop1.lng || stop1.longitude;
-    const lat2 = stop2.lat || stop2.latitude;
-    const lon2 = stop2.lng || stop2.longitude;
+    const lat1 = stop1.vido;
+    const lon1 = stop1.kinhdo;
+    const lat2 = stop2.vido;
+    const lon2 = stop2.kinhdo;
     
     if (lat1 && lon1 && lat2 && lon2) {
       const R = 6371;
