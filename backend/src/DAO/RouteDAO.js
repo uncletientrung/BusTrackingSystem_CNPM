@@ -34,7 +34,18 @@ const RouteDAO = {
     },
     async insertRouteDAO(route, { transaction } = {}) {
         return await Route.create(route, { transaction });
+    },
+    async deleteRouteDAO(matd, { transaction } = {}) {
+        return await Route.destroy({ where: { matd }, transaction });
+        // destroy() trả về số bản ghi bị xóa → dùng để kiểm tra có xóa được không.
+    },
+    async updateRouteDAO(matd, route, { transaction } = {}) {
+        return await Route.update(route, {
+            where: { matd },
+            transaction
+        });
     }
+
 };
 
 module.exports = RouteDAO;

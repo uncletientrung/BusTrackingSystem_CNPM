@@ -37,11 +37,11 @@ const CTRouteDAO = {
             order: [['thutu', 'ASC']]
         });
     },
-    async insertCTRoute(dsCTRoute){
-        return await CTRoute.bulkCreate(dsCTRoute); // bulkCreate thêm nhiều cái cùng lúc
+    async insertCTRoute(dsCTRoute, { transaction } = {}) {
+        return await CTRoute.bulkCreate(dsCTRoute, { transaction }); // bulkCreate thêm nhiều cái cùng lúc
     },
-    async deleteByMaTd(matd){
-        return await CTRoute.destroy({where:{matd}});
+    async deleteByMaTd(matd, { transaction } = {}) {
+        return await CTRoute.destroy({ where: { matd }, transaction });
     }
 
 };

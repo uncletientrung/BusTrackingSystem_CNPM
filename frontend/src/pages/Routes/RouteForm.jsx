@@ -17,25 +17,24 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
   });
 
   useEffect(() => {
-  (async () => {
-    try {
-      let dsCTTD = [];
-      const listStop = await StopAPI.getAllStops();
-      if (route?.matd) {
-        dsCTTD = await CTRouteAPI.getCTTTById(Number(route.matd));
+    (async () => {
+      try {
+        let dsCTTD = [];
+        if (route?.matd) {
+          dsCTTD = await CTRouteAPI.getCTTTById(Number(route.matd));
+        }
+        if (isReadOnly || route?.matd) {
+          setFormData(prev => ({
+            ...prev,
+            stops: dsCTTD // Chỉ gán khi có dữ liệu
+          }));
+        }
+        setStops(listStop);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu:', error);
       }
-      if (isReadOnly || route?.matd) {
-        setFormData(prev => ({
-          ...prev,
-          stops: dsCTTD // Chỉ gán khi có dữ liệu
-        }));
-      }
-      setStops(listStop);
-    } catch (error) {
-      console.error('Lỗi khi tải dữ liệu:', error);
-    }
-  })();
-}, [route, isReadOnly]);
+    })();
+  }, [route, listStop, isReadOnly]);
 
   const [errors, setErrors] = useState({});
 
@@ -58,7 +57,7 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
       stops, // Lưu danh sách điểm dừng 
       tongquangduong: distance,
     }));
-    
+
   };
 
   const handleSubmit = () => {
@@ -73,6 +72,7 @@ export default function RouteForm({ route, listStop, onSave, onCancel }) {
           thutu: s.thutu
         }))
       };
+
       onSave(submitData);
     }
   };

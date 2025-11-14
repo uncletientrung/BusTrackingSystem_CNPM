@@ -1,10 +1,19 @@
 import { GripVertical, MapPin, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { StopAPI } from "../../api/apiServices";
 
 export default function StopSelector({ selectedStops, onStopsChange, availableStops }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const stops = availableStops;
+  const danhSachDiemDungDayDu = selectedStops.map(selected => {
+    const full = stops.find(s => s.madd === selected.madd);
+    return {
+      ...selected,
+      ...full
+    };
+  });
 
   // Lọc các điểm dừng có sẵn chưa được chọn
   const filteredStops = availableStops.filter(stop =>
@@ -14,11 +23,11 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
   );
 
   const handleAddStop = (stop) => {
-    const newStop = {
+    const newStop = { // Danh sách này có tất cả + thứ tự
       ...stop,
-      thutu: selectedStops.length + 1
+      thutu: danhSachDiemDungDayDu.length + 1
     };
-    onStopsChange([...selectedStops, newStop]);
+    onStopsChange([...danhSachDiemDungDayDu, newStop]);
     setSearchTerm('');
     setShowDropdown(false);
   };
@@ -123,52 +132,58 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
           <div className="bg-gray-50 rounded-lg p-3 space-y-2 max-h-96 overflow-y-auto">
             {selectedStops
               .sort((a, b) => a.thutu - b.thutu)
-              .map((stop, index) => (
-                <div
-                  key={stop.madd}
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragEnd={handleDragEnd}
-                  className={`bg-white border border-gray-200 rounded-lg p-3 cursor-move hover:shadow-md transition-shadow ${draggedIndex === index ? 'opacity-50' : ''
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Drag Handle */}
-                    <div className="flex-shrink-0">
-                      <GripVertical className="h-5 w-5 text-gray-400" />
-                    </div>
-
-                    {/* Order Number */}
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                        {stop.thutu}
+              .map((stop, index) => {
+                const full = stops.find(s => s.madd == stop.madd) || {};
+                const { tendiemdung, diachi, vido, kinhdo } = full;
+                return (
+                  <div
+                    key={stop.madd}
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragEnd={handleDragEnd}
+                    className={`bg-white border border-gray-200 rounded-lg p-3 cursor-move hover:shadow-md transition-shadow ${draggedIndex === index ? 'opacity-50' : ''
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Drag Handle */}
+                      <div className="flex-shrink-0">
+                        <GripVertical className="h-5 w-5 text-gray-400" />
                       </div>
-                    </div>
 
-                    {/* Stop Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{stop.tendiemdung}</div>
-                      <div className="text-sm text-gray-500 truncate">
-                        STOP-{stop.madd}
-                        {stop.diachi && ` • ${stop.diachi}`}
+                      {/* Order Number */}
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                          {stop.thutu}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        Tọa độ: {stop.vido}, {stop.kinhdo}
-                      </div>
-                    </div>
 
-                    {/* Remove Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveStop(stop.madd)}
-                      className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
+                      {/* Stop Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 truncate">
+                          {tendiemdung}
+                        </div>
+                        <div className="text-sm text-gray-500 truncate">
+                          STOP-{stop.madd}
+                          {` • ${diachi}`}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          Tọa độ: {vido}, {kinhdo}
+                        </div>
+                      </div>
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveStop(stop.madd)}
+                        className="flex-shrink-0 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
           </div>
         </div>
       ) : (

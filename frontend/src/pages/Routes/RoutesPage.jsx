@@ -62,38 +62,53 @@ export default function RoutesPage() {
     setIsModalOpen(true);
   };
 
-  // Xóa tuyến
-  const handleDeleteRoute = (id) => {
+  // Xóa
+  const handleDeleteRoute = async (matd) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa tuyến này?')) {
-      setRoutes(routes.filter((r) => r.id !== id));
+      try {
+        await RouteAPI.deleteRoute(matd);
+        setRoutes(routes.filter((r) => r.matd !== matd));
+      } catch (error) {
+        alert(error.message || 'Xóa thất bại!');
+      }
     }
   };
 
-  // Xem chi tiết (chỉ đọc)
+  //Xem chi tiết
   const handleViewRoute = async (route) => {
     if (!route?.matd) return;
     setEditingRoute({ ...route, __readOnly: true }); // Đánh dấu chỉ đọc
     setIsModalOpen(true);
   };
 
-  // Lưu tuyến (thêm hoặc sửa)
+  // Thêm/ Sửa
   const handleSaveRoute = async (routeData) => {
     try {
-      // if (editingRoute) { // Cập nhật
-      //   setRoutes(routes.map((r) =>
-      //   r.id === editingRoute.id
-      //     ? { ...r, ...routeData, lastUpdated: new Date().toISOString().split('T')[0] }
-      //     : r
-      // ));
-      // } else {   // Thêm mới
+      let newRoute;
+      if (editingRoute) {       // Cập nhật
+        const result = await RouteAPI.updateRoute(editingRoute.matd, routeData);
+        newRoute = result.route;
+      } else {        // Tạo mới
+        const result = await RouteAPI.createRoute(routeData);
+        newRoute = result.route;
+      }
 
-      await RouteAPI.createRoute(routeData);
-      const [listRoute,] = await Promise.all([RouteAPI.getAllRoute(),
-      StopAPI.getAllStops()]);
-      setRoutes(listRoute);
+      setRoutes(prev => {
+        const index = prev.findIndex(r => r.matd === newRoute.matd);
+        if (index >= 0) {    // Cập nhật
+          const updated = [...prev];
+          updated[index] = newRoute;
+          return updated;
+        } else { // Thêm mới
+          return [...prev, newRoute];
+        }
+      });
+
       setIsModalOpen(false);
+      setEditingRoute(null);
     } catch (error) {
-      alert("Lỗi tạo tuyến ở Page: " + error.message);
+      console.error('Lỗi lưu tuyến:', error);
+      alert("Lỗi: " + error.message);
     }
   };
 
@@ -240,7 +255,7 @@ export default function RoutesPage() {
 
                         {/* Xóa */}
                         <button
-                          onClick={() => handleDeleteRoute(route.id)}
+                          onClick={() => handleDeleteRoute(route.matd)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />

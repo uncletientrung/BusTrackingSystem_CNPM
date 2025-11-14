@@ -25,7 +25,9 @@ export const BusAPI = {
 
 export const RouteAPI = {
     getAllRoute: () => apiClient.fetchAll('Route'),
-    createRoute: (newRoute) => apiClient.create('Route', newRoute)
+    createRoute: (newRoute) => apiClient.create('Route', newRoute),
+    deleteRoute: (matd) => apiClient.deleteForm('Route', matd),
+    updateRoute: (matd, updateRoute) => apiClient.update('Route', matd, updateRoute)
 }
 
 export const ScheduleAPI = {
