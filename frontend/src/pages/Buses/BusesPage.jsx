@@ -12,7 +12,6 @@ export default function BusesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const busesPerPage = 10;
 
-  // Gọi API tải dữ liệu
   useEffect(() => {
     (async () => {
       try {
@@ -28,7 +27,8 @@ export default function BusesPage() {
   // Filter theo search
   useEffect(() => {
     const filtered = buses.filter((bus) =>
-      bus.maxe.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      console.log(bus) &&
+      bus.maxe.toString().includes(searchTerm.toLowerCase()) ||
       bus.bienso.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bus.hangxe.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -59,22 +59,20 @@ export default function BusesPage() {
     }
   };
 
-  const handleSaveBus = (busData) => {
+  const handleSaveBus = async (busData) => {
+    let newBus;
     if (editingBus) {
       // Cập nhật
       setBuses(buses.map((bus) =>
-        bus.id === editingBus.id ? { ...bus, ...busData } : bus
+        bus.maxe === editingBus.maxe ? { ...bus, ...busData } : bus
       ));
-    } else {
-      // Thêm mới
-      const newId = Math.max(...buses.map((b) => b.id), 0) + 1;
-      const newBus = {
-        ...busData,
-        id: newId,
-      };
-      setBuses([...buses, newBus]);
+    } else {  // Thêm mới
+      newBus = await BusAPI.createBus(busData);
+      setBuses(prev => [...prev, newBus.bus]);
     }
+
     setIsModalOpen(false);
+    setEditingBus(null);
   };
 
   const handlePageChange = (pageNumber) => {
@@ -191,21 +189,21 @@ export default function BusesPage() {
                       </div>
                     </td>
 
-                   
+
                     {/* Hiệu suất vận hành*/}
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-gray-900 flex items-center">
                         <TruckElectric className="h-4 w-4 mr-1 text-gray-500" />
-                        {'Vận tốc: ' + bus.vantoctrungbinh +' km/h'|| 'Chưa có'}
+                        {'Vận tốc: ' + bus.vantoctrungbinh + ' km/h' || 'Chưa có'}
                       </div>
                     </td>
 
                     {/* Trạng thái */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${bus.trangthai === 1 ? 'bg-green-100 text-green-800' :
-                          bus.trangthai === 2 ? 'bg-yellow-100 text-yellow-800' :
-                            bus.trangthai === 3 ? 'bg-orange-100 text-orange-800' :
-                              'bg-red-100 text-red-800'
+                        bus.trangthai === 2 ? 'bg-yellow-100 text-yellow-800' :
+                          bus.trangthai === 3 ? 'bg-orange-100 text-orange-800' :
+                            'bg-red-100 text-red-800'
                         }`}>
                         {bus.trangthai === 1 ? 'Hoạt động' :
                           bus.trangthai === 2 ? 'Bảo trì' :
@@ -223,7 +221,7 @@ export default function BusesPage() {
                           <SquarePen className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteBus(bus.id)}
+                          onClick={() => handleDeleteBus(bus.maxe)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -301,7 +299,7 @@ export default function BusesPage() {
           onSave={handleSaveBus}
         />
       )}
-      
+
     </div>
   );
 }

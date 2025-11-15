@@ -8,17 +8,12 @@ export default function BusModal({ bus, onClose, onSave }) {
     bienso: '',
     hangxe: '',
     namsanxuat: '',
-    succhua: '',
-    nhienlieu: 'diesel',
+    soghe: '',
     trangthai: 1,
-    matuyen: '',
-    tentaixe: '',
-    giaypheplaixe: ''
   });
 
   const [errors, setErrors] = useState({});
 
-  // Khi mở modal để sửa → điền dữ liệu
   useEffect(() => {
     if (bus) {
       setFormData({
@@ -26,12 +21,8 @@ export default function BusModal({ bus, onClose, onSave }) {
         bienso: bus.bienso || '',
         hangxe: bus.hangxe || '',
         namsanxuat: bus.namsanxuat || '',
-        succhua: bus.succhua || '',
-        nhienlieu: bus.nhienlieu || 'diesel',
-        trangthai: bus.trangthai || 1,
-        matuyen: bus.matuyen || '',
-        tentaixe: bus.tentaixe || '',
-        giaypheplaixe: bus.giaypheplaixe || ''
+        soghe: bus.soghe || '',
+        trangthai: bus.trangthai || 0,
       });
     } else {
       setFormData({
@@ -39,12 +30,8 @@ export default function BusModal({ bus, onClose, onSave }) {
         bienso: '',
         hangxe: '',
         namsanxuat: '',
-        succhua: '',
-        nhienlieu: 'diesel',
-        trangthai: 1,
-        matuyen: '',
-        tentaixe: '',
-        giaypheplaixe: ''
+        soghe: '',
+        trangthai: 0,
       });
     }
     setErrors({});
@@ -52,9 +39,8 @@ export default function BusModal({ bus, onClose, onSave }) {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.maxe.trim()) newErrors.maxe = 'Mã xe không được để trống';
     if (!formData.bienso.trim()) newErrors.bienso = 'Biển số không được để trống';
-    if (!formData.succhua || formData.succhua <= 0) newErrors.succhua = 'Sức chứa phải lớn hơn 0';
+    if (!formData.soghe || formData.soghe <= 0) newErrors.soghe = 'Sức chứa phải lớn hơn 0';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -63,7 +49,7 @@ export default function BusModal({ bus, onClose, onSave }) {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'succhua' || name === 'namsanxuat' || name === 'trangthai' ? parseInt(value) || '' : value
+      [name]: name === 'soghe' || name === 'trangthai' ? parseInt(value) || '' : value
     }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -97,27 +83,27 @@ export default function BusModal({ bus, onClose, onSave }) {
 
         {/* Form */}
         <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className={`grid gap-5 grid-cols-1 ${bus && bus.maxe != null ? "md:grid-cols-2" : ""}`}>
             {/* Mã xe */}
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <BusFront className="h-4 w-4" />
-                Mã xe <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="maxe"
-                value={formData.maxe}
-                onChange={handleChange}
-                placeholder="VD: BUS-001"
-                disabled={!!bus}
-                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                  errors.maxe ? 'border-red-300' : 'border-gray-300'
-                } ${bus ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-              />
-              {errors.maxe && <p className="mt-1 text-xs text-red-600">{errors.maxe}</p>}
-            </div>
-
+            {bus?.maxe && (
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <BusFront className="h-4 w-4" />
+                  Mã xe <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="maxe"
+                  value={formData.maxe}
+                  onChange={handleChange}
+                  placeholder="VD: BUS-001"
+                  disabled={!!bus}
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${errors.maxe ? 'border-red-300' : 'border-gray-300'
+                    } ${bus ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                />
+                {errors.maxe && <p className="mt-1 text-xs text-red-600">{errors.maxe}</p>}
+              </div>
+            )}
             {/* Biển số */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -130,13 +116,13 @@ export default function BusModal({ bus, onClose, onSave }) {
                 value={formData.bienso}
                 onChange={handleChange}
                 placeholder="VD: 51B-123.45"
-                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                  errors.bienso ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${errors.bienso ? 'border-red-300' : 'border-gray-300'
+                  }`}
               />
               {errors.bienso && <p className="mt-1 text-xs text-red-600">{errors.bienso}</p>}
             </div>
-
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Hãng xe */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -179,16 +165,15 @@ export default function BusModal({ bus, onClose, onSave }) {
               </label>
               <input
                 type="number"
-                name="succhua"
-                value={formData.succhua}
+                name="soghe"
+                value={formData.soghe}
                 onChange={handleChange}
                 placeholder="40"
                 min="1"
-                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${
-                  errors.succhua ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${errors.soghe ? 'border-red-300' : 'border-gray-300'
+                  }`}
               />
-              {errors.succhua && <p className="mt-1 text-xs text-red-600">{errors.succhua}</p>}
+              {errors.soghe && <p className="mt-1 text-xs text-red-600">{errors.soghe}</p>}
             </div>
 
 

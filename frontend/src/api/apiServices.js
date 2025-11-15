@@ -21,6 +21,7 @@ export const StudentAPI = {
 
 export const BusAPI = {
     getAllBus: () => apiClient.fetchAll('Bus'),
+    createBus: (newBus) => apiClient.create('Bus', newBus)
 }
 
 export const RouteAPI = {
