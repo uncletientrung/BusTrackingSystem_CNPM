@@ -57,9 +57,6 @@ const RouteBUS = {
         const giaodich = await require('../config/connectDB').sequelize.transaction();
         try {
             const [updatedCount] = await RouteDAO.updateRouteDAO(matd, routeData, { transaction: giaodich });
-            // if (updatedCount === 0) {
-            //     throw new Error('Không tìm thấy tuyến đường để cập nhật');
-            // }
             await CTRouteDAO.deleteByMaTd(matd, { transaction: giaodich }); // Xóa CT cũ
             if (dsCTRoute && dsCTRoute.length > 0) {
                 const cttuyen = dsCTRoute.map(ct => ({

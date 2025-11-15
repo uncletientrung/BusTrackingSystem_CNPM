@@ -2,7 +2,8 @@
 import { X, BusFront, Gauge, Users, Calendar, Fuel, User, Route } from "lucide-react";
 import { useState, useEffect } from "react";
 
-export default function BusModal({ bus, onClose, onSave }) {
+export default function BusModal({ bus, onClose, onSave, buses }) {
+  const listBus = buses;
   const [formData, setFormData] = useState({
     maxe: '',
     bienso: '',
@@ -41,6 +42,15 @@ export default function BusModal({ bus, onClose, onSave }) {
     const newErrors = {};
     if (!formData.bienso.trim()) newErrors.bienso = 'Biển số không được để trống';
     if (!formData.soghe || formData.soghe <= 0) newErrors.soghe = 'Sức chứa phải lớn hơn 0';
+    if (!formData.namsanxuat) newErrors.namsanxuat = 'Năm sản xuất không được để trống';
+    const currentYear= new Date().getFullYear();
+    if (Number(formData.namsanxuat) > currentYear) newErrors.namsanxuat = 'Năm sản xuất không được lớn hơn năm hiện tại';
+    for (const bus of listBus) {
+      if (bus.maxe !== formData.maxe && bus.bienso === formData.bienso) {
+        newErrors.bienso = 'Biển số đã tồn tại';
+        break;
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -94,9 +104,8 @@ export default function BusModal({ bus, onClose, onSave }) {
                 <input
                   type="text"
                   name="maxe"
-                  value={formData.maxe}
+                  value={"BUS-" + formData.maxe}
                   onChange={handleChange}
-                  placeholder="VD: BUS-001"
                   disabled={!!bus}
                   className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors ${errors.maxe ? 'border-red-300' : 'border-gray-300'
                     } ${bus ? 'bg-gray-50 cursor-not-allowed' : ''}`}
@@ -155,6 +164,7 @@ export default function BusModal({ bus, onClose, onSave }) {
                 max="2030"
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
+              {errors.namsanxuat && <p className="mt-1 text-xs text-red-600">{errors.namsanxuat}</p>}
             </div>
 
             {/* Sức chứa */}

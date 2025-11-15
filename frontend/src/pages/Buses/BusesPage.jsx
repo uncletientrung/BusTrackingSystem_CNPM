@@ -27,7 +27,6 @@ export default function BusesPage() {
   // Filter theo search
   useEffect(() => {
     const filtered = buses.filter((bus) =>
-      console.log(bus) &&
       bus.maxe.toString().includes(searchTerm.toLowerCase()) ||
       bus.bienso.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bus.hangxe.toLowerCase().includes(searchTerm.toLowerCase())
@@ -52,19 +51,25 @@ export default function BusesPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteBus = (id) => {
+  const handleDeleteBus = async (maxe) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa xe buýt này?')) {
-      setBuses(buses.filter((bus) => bus.id !== id));
-      setFilteredBuses(filteredBuses.filter((bus) => bus.id !== id));
+      try {
+        await BusAPI.deleteBus(maxe);
+        setBuses(buses.filter((bus) => bus.maxe !== maxe));
+      } catch (error) {
+        alert(error.message || 'Xóa thất bại!');
+      }
     }
   };
 
   const handleSaveBus = async (busData) => {
     let newBus;
-    if (editingBus) {
-      // Cập nhật
+    if (editingBus) {       // Cập nhật
+      console.log(busData);
+
+      await BusAPI.updateBus(editingBus.maxe, busData);
       setBuses(buses.map((bus) =>
-        bus.maxe === editingBus.maxe ? { ...bus, ...busData } : bus
+        bus.maxe === editingBus.maxe ? { ...bus, ...busData } : bus // { ...bus, ...busData } trộn data cũ sang data mới
       ));
     } else {  // Thêm mới
       newBus = await BusAPI.createBus(busData);
@@ -297,6 +302,7 @@ export default function BusesPage() {
           bus={editingBus}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveBus}
+          buses={buses}
         />
       )}
 
