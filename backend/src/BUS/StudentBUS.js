@@ -20,7 +20,28 @@ const StudentBUS = {
             )
         );
         return result;
+    },
+    async createStudent(studentData) {
+        const { hoten, ngaysinh, gioitinh, lop, diachi, sdt, maph, diemdon, diemdung, trangthai } = studentData;
+        const newStudent = await StudentDAO.create({
+            hoten, ngaysinh, gioitinh, lop, diachi, sdt, maph, diemdon, diemdung, trangthai
+        });
+
+        return new StudentDTO(
+            newStudent.mahs,
+            newStudent.hoten,
+            newStudent.ngaysinh,
+            newStudent.gioitinh,
+            newStudent.lop,
+            newStudent.diachi,
+            newStudent.sdt,
+            newStudent.maph,
+            newStudent.diemdon,
+            newStudent.diemdung,
+            newStudent.trangthai
+        );
     }
+
 }
 
 module.exports = StudentBUS;

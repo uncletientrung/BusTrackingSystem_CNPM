@@ -56,6 +56,9 @@ const Student = sequelize.define('Student', {
 const StudentDAO = {
     async getAll() {
         return await Student.findAll();
+    }, 
+    async create(studentData){
+        return await Student.create(studentData);
     }
 };
 

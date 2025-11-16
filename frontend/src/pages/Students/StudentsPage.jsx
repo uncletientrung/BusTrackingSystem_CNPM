@@ -1,7 +1,8 @@
-import { Check, CheckCircle, CirclePlus, Clock, Edit, Eye, Filter, GraduationCap, Phone, Plus, PlusCircle, Route, Search, Trash2, Users, Users2, X, XCircle } from "lucide-react"
+import { Check, CheckCircle, CirclePlus, Edit, Eye, Phone, Route, Search, Trash2, Users2, XCircle, GraduationCap } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { StudentAPI, StopAPI, UserAPI } from "../../api/apiServices"
+import StudentModal from "./StudentModal" // Import modal chứa form thêm/sửa
 
 export default function StudentsPage() {
   const navigate = useNavigate() // Dùng để chuyển hướng trang (hook)
@@ -9,63 +10,39 @@ export default function StudentsPage() {
   const [filteredStudents, setFilteredStudents] = useState([]) // Danh sách học sinh sau lọc
   const [searchTerm, setSearchTerm] = useState('') // Ký tự tìm
   const [selectedGrade, setSelectedGrade] = useState('all')
-  const [selectedPickUp, setSelectedPickUp] = useState(-1);
-  const [selectedDropOff, setselectedDropOff] = useState(-1);
+  const [selectedPickUp, setSelectedPickUp] = useState(-1)
+  const [selectedDropOff, setSelectedDropOff] = useState(-1)
   const [selectedStatus, setSelectedStatus] = useState(-1)
   const [showCreateModal, setShowCreateModal] = useState(false) // Trạng thái thêm student
   const [showEditModal, setShowEditModal] = useState(false) // Trạng thái sửa student
   const [editingStudent, setEditingStudent] = useState(null) // Đối tượng sửa
-  const [newStudent, setNewStudent] = useState({
-    name: '',
-    studentId: '',
-    grade: '1',
-    parentName: '',
-    parentPhone: '',
-    address: '',
-    route: '',
-    pickupPoint: '',
-    dropdownPoint: '',
-    sex: '',
-    birthday: '',
-    status: 'active'
-  })
-
-  const [stops, setStops] = useState([]);
-  const [users, setUsers] = useState([]);
-
+  const [stops, setStops] = useState([])
+  const [users, setUsers] = useState([])
 
   useEffect(() => {
-    // Filter students based on user role
     StudentAPI.getAllStudent().then((listStudent) => {
       setStudents(listStudent)
       setFilteredStudents(listStudent)
     }).catch((error) => {
-      console.error('Lỗi khi tải dữ liệu học sinh:', error);
-    });
-    // if (user?.role === 'parent') {
-    //    // In real app, this would filter by parent's children
-    //    filteredByRole = demoStudents.filter(student =>
-    //       student.parentEmail === user.email
-    //    )
-    // }
+      console.error('Lỗi khi tải dữ liệu học sinh:', error)
+    })
 
     // Lấy hết điểm dừng (Cách viết 1)
     StopAPI.getAllStops().then(listStop => setStops(listStop))
       .catch((error) => {
-        console.error('Lỗi khi tải dữ liệu điểm dừng ở học sinh:', error);
-      });
+        console.error('Lỗi khi tải dữ liệu điểm dừng ở học sinh:', error)
+      })
 
-    // Lấy hết User (Cách viết 2)
-    (async () => {
-      try {
-        const listUser = await UserAPI.getAllUsers();
-        setUsers(listUser);
-      } catch (error) {
-        console.error('Lỗi khi tải dữ liệu user ở học sinh:', error);
-      }
-    })();
-
-  }, []);
+      // Lấy hết User (Cách viết 2)
+      ; (async () => {
+        try {
+          const listUser = await UserAPI.getAllUsers()
+          setUsers(listUser)
+        } catch (error) {
+          console.error('Lỗi khi tải dữ liệu user ở học sinh:', error)
+        }
+      })()
+  }, [])
 
   useEffect(() => { // Lọc dữ liệu dựa trên tìm kiếm
     let filtered = students
@@ -77,75 +54,27 @@ export default function StudentsPage() {
       )
     }
 
-    // Tìm dựa trên lớp
-    if (selectedGrade != 'all') {
+    if (selectedGrade !== 'all') {
       filtered = filtered.filter(student => student.lop === selectedGrade)
     }
-    // Tìm dựa trên điểm đón
-    if (selectedPickUp != -1) {
+    if (selectedPickUp !== -1) {
       filtered = filtered.filter(student => student.diemdon === selectedPickUp)
     }
-    // Tìm dựa trên điểm trả
-    if (selectedDropOff != -1) {
+    if (selectedDropOff !== -1) {
       filtered = filtered.filter(student => student.diemdung === selectedDropOff)
     }
-    // Tìm dựa trên trạng thái
-    if (selectedStatus != -1) {
+    if (selectedStatus !== -1) {
       filtered = filtered.filter(student => student.trangthai === selectedStatus)
     }
 
     setFilteredStudents(filtered)
   }, [students, searchTerm, selectedGrade, selectedPickUp, selectedDropOff, selectedStatus])
 
-  const handleCreateStudent = () => { // Hàm xử lý thêm student
-    const student = {
-      id: students.length + 1,
-      ...newStudent,
-      createdAt: new Date().toISOString().split('T')[0],
-      attendance: {
-        present: 0,
-        absent: 0,
-        late: 0
-      },
-      emergencyContact: '',
-      medicalNotes: 'Không có'
-    }
-    setStudents([...students, student])
-    setShowCreateModal(false)
-    setNewStudent({
-      name: '',
-      studentId: '',
-      grade: '1',
-      parentName: '',
-      parentPhone: '',
-      address: '',
-      route: '',
-      pickupPoint: '',
-      status: 'active'
-    })
-  }
-  const toggleStudentStatus = (mahs) => {
-    setStudents(students.map(student =>
-      student.mahs === mahs
-        ? { ...student, trangthai: student.trangthai === 1 ? 0 : 1 }
-        : student
-    ))
-  }
-
-  const handleEditStudent = () => { // Hàm xử lý sửa
-    setStudents(students.map(student =>
-      student.id === editingStudent.id ? editingStudent : student
-    ))
-    setShowEditModal(false)
-    setEditingStudent(null)
-  }
-
   const handleDeleteStudent = (id) => { // Hàm xử lý xóa
     if (window.confirm('Bạn có chắc chắn muốn xóa học sinh này?')) {
       setStudents(students.filter(student => student.id !== id))
     }
   }
-
 
   const getStatusColor = (status) => { // Màu trạng thái 
     return status === 1
@@ -175,7 +104,17 @@ export default function StudentsPage() {
     }
   ]
 
-
+  const handleSaveStudent = async (StudentData) => {
+    if (editingStudent) {
+      console.log(editingStudent);
+      setShowEditModal(false);
+    } else {
+      let newStudent = await StudentAPI.createStudent(StudentData);
+      setStudents(prev => [...prev, newStudent.student]);
+      setShowCreateModal(false);
+    }
+    setEditingStudent(null);
+  }
   return (
     <>
       <div className="space-y-6">
@@ -190,10 +129,7 @@ export default function StudentsPage() {
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 
                     rounded-lg font-semibold transition-colors flex items-center space-x-2"
           >
-
-            <span>
-              <CirclePlus className="h-5 w-5 text-white" />
-            </span>
+            <CirclePlus className="h-5 w-5 text-white" />
             <span>Thêm học sinh</span>
           </button>
         </div>
@@ -266,7 +202,7 @@ export default function StudentsPage() {
             {/* Bộ lọc điểm trả */}
             <select
               value={selectedDropOff.toString()}
-              onChange={(e) => setselectedDropOff(parseInt(e.target.value))}
+              onChange={(e) => setSelectedDropOff(parseInt(e.target.value))}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="-1">Tất cả điểm trả</option>
@@ -285,13 +221,6 @@ export default function StudentsPage() {
               <option value="1">Đang học</option>
               <option value="0">Tạm nghỉ</option>
             </select>
-
-
-            {/* Text số kết quả tìm thấy */}
-            {/* <div className="flex items-center text-sm text-gray-600">
-              <Filter className="h-4 w-4 mr-2" />
-              Tìm thấy {filteredStudents.length} kết quả
-            </div> */}
           </div>
         </div>
 
@@ -339,7 +268,7 @@ export default function StudentsPage() {
                       </div>
                     </td>
 
-                    {/* Nội dung cột phụ huy */}
+                    {/* Nội dung cột phụ huynh */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {users.find(user => user.mand == student.maph)?.hoten || "Chưa có"}
@@ -350,12 +279,11 @@ export default function StudentsPage() {
                       </div>
                     </td>
 
-                    {/* Nội dung điểm đón /trả */}
+                    {/* Nội dung điểm đón / trả */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 flex items-center">
                         <Route className="h-4 w-4 mr-2 text-gray-900" />
                         Điểm đón: {stops.find(stop => stop.madd === student.diemdon)?.tendiemdung || "Chưa có"}
-
                       </div>
                       <div className="text-sm text-gray-900 flex items-center">
                         <Route className="h-4 w-4 mr-2 text-gray-900" />
@@ -379,17 +307,7 @@ export default function StudentsPage() {
                           className="text-gray-600 hover:text-gray-900"
                           title="Xem chi tiết"
                         >
-                          <Eye className="h-4 w-4"></Eye>
-                        </button>
-
-                        {/* Nút đổi status */}
-                        <button
-                          onClick={() => toggleStudentStatus(student.mahs)}
-                          className={`${student.trangthai === 0 ? 'text-red-600 hover:text-red-900'
-                            : 'text-green-600 hover:text-green-900'}`}
-                          title={student.trangthai === 0 ? 'Tạm nghỉ' : 'Kích hoạt'}
-                        >
-                          {student.trangthai === 0 ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                          <Eye className="h-4 w-4" />
                         </button>
 
                         {/* Nút sửa học sinh */}
@@ -421,297 +339,31 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        {/* Dialog thêm học sinh */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Thêm học sinh mới</h3>
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="absolute top-2 right-2 mt-2 mr-2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X></X>
-                  </button>
-                </div>
+        {/* Modal thêm học sinh */}
+        <StudentModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          mode="create"
+          students={students}
+          student={null}
+          users={users}
+          stops={stops}
+          onSave={handleSaveStudent}
+        />
 
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Ô mã học sinh */}
-                  <input
-                    type="text"
-                    placeholder="Mã học sinh"
-                    value={newStudent.studentId}
-                    onChange={(e) => setNewStudent({ ...newStudent, studentId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô họ tên */}
-                  <input
-                    type="text"
-                    placeholder="Họ và tên"
-                    value={newStudent.name}
-                    onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô mã học sinh */}
-                  <input
-                    type="date"
-                    placeholder="Ngày sinh"
-                    value={newStudent.birthday}
-                    onChange={(e) => setNewStudent({ ...newStudent, birthday: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô giới tính */}
-                  <select
-                    value={newStudent.sex}
-                    onChange={(e) => setNewStudent({ ...newStudent, sex: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
-                  </select>
-
-                  {/* Chọn lớp */}
-                  <select
-                    value={newStudent.grade}
-                    onChange={(e) => setNewStudent({ ...newStudent, grade: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="1">Lớp 1</option>
-                    <option value="2">Lớp 2</option>
-                    <option value="3">Lớp 3</option>
-                    <option value="4">Lớp 4</option>
-                    <option value="5">Lớp 5</option>
-                    <option value="6">Lớp 6</option>
-                    <option value="7">Lớp 7</option>
-                    <option value="8">Lớp 8</option>
-                    <option value="9">Lớp 9</option>
-                    <option value="10">Lớp 10</option>
-                    <option value="11">Lớp 11</option>
-                    <option value="12">Lớp 12</option>
-                  </select>
-
-                  {/* Ô ẩn */}
-                  <p></p>
-
-                  {/* Ô số điện thoại phụ huynh */}
-                  <input
-                    type="tel"
-                    placeholder="Số điện thoại phụ huynh"
-                    value={newStudent.parentPhone}
-                    onChange={(e) => setNewStudent({ ...newStudent, parentPhone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô tên phụ huynh */}
-                  <input
-                    type="text"
-                    placeholder="Tên phụ huynh"
-                    value={newStudent.parentName}
-                    onChange={(e) => setNewStudent({ ...newStudent, parentName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-
-                  {/* Ô điểm đón */}
-                  <input
-                    type="text"
-                    placeholder="Điểm đón"
-                    value={newStudent.pickupPoint}
-                    onChange={(e) => setNewStudent({ ...newStudent, pickupPoint: e.target.value })}
-                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô điểm dừng trả */}
-                  <input
-                    type="text"
-                    placeholder="Điểm dừng"
-                    value={newStudent.dropdownPoint}
-                    onChange={(e) => setNewStudent({ ...newStudent, dropdownPoint: e.target.value })}
-                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô địa chỉ */}
-                  <textarea
-                    placeholder="Địa chỉ nhà"
-                    value={newStudent.address}
-                    onChange={(e) => setNewStudent({ ...newStudent, address: e.target.value })}
-                    className="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={2}
-                  />
-
-                </div>
-
-
-                {/* Nút tắt và thêm */}
-                <div className="flex justify-end space-x-3 mt-6">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 
-                              px-4 rounded-lg font-medium transition-colors"
-                  >
-                    Hủy
-                  </button>
-
-                  <button
-                    onClick={handleCreateStudent}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 
-                              rounded-lg font-medium transition-colors"
-                  >
-                    Thêm
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Dialog sửa học sinh */}
-        {showEditModal && editingStudent && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Chỉnh sửa thông tin học sinh</h3>
-                  <button
-                    onClick={() => setShowEditModal(false)}
-                    className="absolute top-2 right-2 mt-2 mr-2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X></X>
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Ô mã học sinh*/}
-                  <input
-                    type="text"
-                    placeholder="Mã số học sinh"
-                    value={editingStudent.studentId}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, studentId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô họ và tên */}
-                  <input
-                    type="text"
-                    placeholder="Họ tên học sinh"
-                    value={editingStudent.name}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô mã học sinh */}
-                  <input
-                    type="date"
-                    placeholder="Ngày sinh"
-                    value={editingStudent.birthday}
-                    onChange={(e) => setNewStudent({ ...editingStudent, birthday: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô giới tính */}
-                  <select
-                    value={editingStudent.sex}
-                    onChange={(e) => setNewStudent({ ...editingStudent, sex: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
-                  </select>
-
-                  {/* Ô chọn lớp*/}
-                  <select
-                    value={editingStudent.grade}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, grade: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="1">Lớp 1</option>
-                    <option value="2">Lớp 2</option>
-                    <option value="3">Lớp 3</option>
-                    <option value="4">Lớp 4</option>
-                    <option value="5">Lớp 5</option>
-                  </select>
-
-                  {/* Ô ẩn */}
-                  <p></p>
-
-                  {/* Ô tên phụ huynh */}
-                  <input
-                    type="text"
-                    placeholder="Tên phụ huynh"
-                    value={editingStudent.parentName}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, parentName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô số phụ huynh */}
-                  <input
-                    type="tel"
-                    placeholder="Số điện thoại phụ huynh"
-                    value={editingStudent.parentPhone}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, parentPhone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô điểm đón */}
-                  <input
-                    type="text"
-                    placeholder="Điểm đón"
-                    value={editingStudent.pickupPoint}
-                    onChange={(e) => setNewStudent({ ...editingStudent, pickupPoint: e.target.value })}
-                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô điểm dừng trả */}
-                  <input
-                    type="text"
-                    placeholder="Điểm dừng"
-                    value={editingStudent.dropdownPoint}
-                    onChange={(e) => setNewStudent({ ...editingStudent, dropdownPoint: e.target.value })}
-                    className=" w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-
-                  {/* Ô địa chỉ */}
-                  <textarea
-                    placeholder="Địa chỉ"
-                    value={editingStudent.address}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, address: e.target.value })}
-                    className="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={2}
-                  />
-
-                  {/* Ô điểm đón */}
-                  <input
-                    type="text"
-                    placeholder="Điểm đón"
-                    value={editingStudent.pickupPoint}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, pickupPoint: e.target.value })}
-                    className="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Nút hủy và cập nhật */}
-                <div className="flex justify-end space-x-3 mt-6">
-                  <button
-                    onClick={() => setShowEditModal(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={handleEditStudent}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Cập nhật
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Modal sửa học sinh */}
+        <StudentModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false)
+          }}
+          mode="edit"
+          student={editingStudent}
+          stops={stops}
+          users={users}
+          onSave={handleSaveStudent}
+        />
       </div>
     </>
   )
-};
+}

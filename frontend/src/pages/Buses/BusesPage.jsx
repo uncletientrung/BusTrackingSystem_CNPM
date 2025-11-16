@@ -65,8 +65,6 @@ export default function BusesPage() {
   const handleSaveBus = async (busData) => {
     let newBus;
     if (editingBus) {       // Cập nhật
-      console.log(busData);
-
       await BusAPI.updateBus(editingBus.maxe, busData);
       setBuses(buses.map((bus) =>
         bus.maxe === editingBus.maxe ? { ...bus, ...busData } : bus // { ...bus, ...busData } trộn data cũ sang data mới

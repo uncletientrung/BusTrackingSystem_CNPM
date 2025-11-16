@@ -1,3 +1,4 @@
+
 import apiClient from './api';
 
 
@@ -17,6 +18,7 @@ export const AccountAPI = {
 
 export const StudentAPI = {
     getAllStudent: () => apiClient.fetchAll('Student'),
+    createStudent: (newStudent) => apiClient.create('Student', newStudent)
 }
 
 export const BusAPI = {
