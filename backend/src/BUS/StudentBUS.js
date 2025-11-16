@@ -27,19 +27,17 @@ const StudentBUS = {
             hoten, ngaysinh, gioitinh, lop, diachi, sdt, maph, diemdon, diemdung, trangthai
         });
 
-        return new StudentDTO(
-            newStudent.mahs,
-            newStudent.hoten,
-            newStudent.ngaysinh,
-            newStudent.gioitinh,
-            newStudent.lop,
-            newStudent.diachi,
-            newStudent.sdt,
-            newStudent.maph,
-            newStudent.diemdon,
-            newStudent.diemdung,
-            newStudent.trangthai
+        return new StudentDTO(newStudent.mahs, newStudent.hoten, newStudent.ngaysinh, newStudent.gioitinh,
+            newStudent.lop, newStudent.diachi, newStudent.sdt, newStudent.maph, newStudent.diemdon,
+            newStudent.diemdung, newStudent.trangthai
         );
+    },
+    async deleteStudent(mahs) {
+        const result = await StudentDAO.delete(mahs);
+        if (result == 0) {
+            throw new Error('Xóa thất bại');
+        }
+        return { message: 'Xóa học sinhh thành công!', mahs };
     }
 
 }

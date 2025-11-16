@@ -22,6 +22,19 @@ const StudentController = {
             console.error('Lỗi thêm học sinh:', error);
             res.status(400).json({ message: error.message });
         }
+    },
+    async delete(req, res) {
+        try {
+            const { mahs } = req.params
+            await StudentBUS.deleteStudent(Number(mahs));
+            res.json({
+                message: 'Xóa xe thành công',
+                mahs: Number(mahs)
+            });
+        } catch (error) {
+            console.error('Lỗi xóa học sinh:', error);
+            res.status(400).json({ message: error.message });
+        }
     }
 };
 

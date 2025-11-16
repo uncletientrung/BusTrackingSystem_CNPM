@@ -18,7 +18,8 @@ export const AccountAPI = {
 
 export const StudentAPI = {
     getAllStudent: () => apiClient.fetchAll('Student'),
-    createStudent: (newStudent) => apiClient.create('Student', newStudent)
+    createStudent: (newStudent) => apiClient.create('Student', newStudent),
+    deleteStudent: (mahs) => apiClient.deleteForm('Student', mahs)
 }
 
 export const BusAPI = {

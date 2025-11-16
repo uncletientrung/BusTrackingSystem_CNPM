@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/connectDB');
-const { DataTypes } = require('sequelize');
+const { DataTypes, AsyncQueueError } = require('sequelize');
 const { getAll } = require('./UserDAO');
 
 const Student = sequelize.define('Student', {
@@ -59,6 +59,9 @@ const StudentDAO = {
     }, 
     async create(studentData){
         return await Student.create(studentData);
+    },
+    async delete(mahs){
+        return await Student.destroy({where : {mahs}})
     }
 };
 

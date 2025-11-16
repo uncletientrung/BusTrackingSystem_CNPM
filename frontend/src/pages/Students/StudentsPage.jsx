@@ -70,13 +70,19 @@ export default function StudentsPage() {
     setFilteredStudents(filtered)
   }, [students, searchTerm, selectedGrade, selectedPickUp, selectedDropOff, selectedStatus])
 
-  const handleDeleteStudent = (id) => { // Hàm xử lý xóa
+  const handleDeleteStudent = async (mahs) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa học sinh này?')) {
-      setStudents(students.filter(student => student.id !== id))
+      try {
+        await StudentAPI.deleteStudent(mahs);
+        setStudents(students.filter(student => student.mahs !== mahs))
+      } catch (error) {
+        alert(error.message || 'Xóa thất bại!');
+      }
+
     }
   }
 
-  const getStatusColor = (status) => { // Màu trạng thái 
+  const getStatusColor = (status) => {
     return status === 1
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
@@ -107,12 +113,13 @@ export default function StudentsPage() {
   const handleSaveStudent = async (StudentData) => {
     if (editingStudent) {
       console.log(editingStudent);
-      setShowEditModal(false);
+
     } else {
       let newStudent = await StudentAPI.createStudent(StudentData);
       setStudents(prev => [...prev, newStudent.student]);
-      setShowCreateModal(false);
     }
+    setShowCreateModal(false);
+    setShowEditModal(false);
     setEditingStudent(null);
   }
   return (
@@ -324,7 +331,7 @@ export default function StudentsPage() {
 
                         {/* Nút xóa học sinh */}
                         <button
-                          onClick={() => handleDeleteStudent(student.id)}
+                          onClick={() => handleDeleteStudent(student.mahs)}
                           className="text-red-600 hover:text-red-900"
                           title="Xóa"
                         >
@@ -339,30 +346,21 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        {/* Modal thêm học sinh */}
-        <StudentModal
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          mode="create"
-          students={students}
-          student={null}
-          users={users}
-          stops={stops}
-          onSave={handleSaveStudent}
-        />
-
-        {/* Modal sửa học sinh */}
-        <StudentModal
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false)
-          }}
-          mode="edit"
-          student={editingStudent}
-          stops={stops}
-          users={users}
-          onSave={handleSaveStudent}
-        />
+        {(showCreateModal || showEditModal) && (
+          <StudentModal
+            isOpen={showCreateModal || showEditModal}
+            onClose={() => {
+              setShowCreateModal(false);
+              setShowEditModal(false);
+              setEditingStudent(null);
+            }}
+            mode={showEditModal ? 'edit' : 'create'}
+            student={editingStudent}
+            stops={stops}
+            users={users}
+            onSave={handleSaveStudent}
+          />
+        )}
       </div>
     </>
   )

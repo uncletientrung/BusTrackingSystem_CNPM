@@ -2,7 +2,6 @@ import { X, User, Calendar, Phone, Home, MapPin, GraduationCap, Users } from "lu
 import { useState, useEffect } from "react";
 
 export default function StudentModal({ isOpen, onClose, onSave, mode, student, stops, users }) {
-  // const listStudents = students;
   const [formData, setFormData] = useState({
     studentId: '',
     name: '',
@@ -12,16 +11,16 @@ export default function StudentModal({ isOpen, onClose, onSave, mode, student, s
     parentName: '',
     parentPhone: '',
     address: '',
-    pickupPoint: '',   // madd (number hoặc string rỗng)
-    dropdownPoint: '', // madd
+    pickupPoint: '',  
+    dropdownPoint: '', 
     status: 1
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (student) {
-       console.log("-");
+    if (!isOpen) return;
+    if (mode === 'edit' && student) {
       setFormData({
         studentId: student.mahs?.toString() || '',
         name: student.hoten || '',
@@ -36,8 +35,7 @@ export default function StudentModal({ isOpen, onClose, onSave, mode, student, s
         status: student.trangthai === 1 ? 1 : 0
       });
     } else {
-            console.log("+");
-      setFormData({
+      const defaultForm = {
         studentId: '',
         name: '',
         birthday: '',
@@ -49,11 +47,12 @@ export default function StudentModal({ isOpen, onClose, onSave, mode, student, s
         pickupPoint: '',
         dropdownPoint: '',
         status: 1
-      });
+      };
+      setFormData(defaultForm);
     }
-    
+
     setErrors({});
-  }, [student]);
+  }, [isOpen, mode, student, stops, users]);
 
   const validate = () => {
     const newErrors = {};

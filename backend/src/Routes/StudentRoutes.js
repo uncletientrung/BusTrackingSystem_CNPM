@@ -3,4 +3,5 @@ const router = express.Router();
 const StudentController = require('../Controllers/StudentControllers');
 router.get('/', StudentController.getAll);
 router.post('/', StudentController.create);
+router.delete('/:mahs', StudentController.delete)
 module.exports = router;
