@@ -28,14 +28,14 @@ const StopController = {
   },
   async create(req, res) {
     try {
-      const stopData = req.params
+      const stopData = req.body
       const newStop = await StopBUS.createStop(stopData);
       res.status(201).json({
         message: 'Thêm điểm dừng thành công!',
         stop: newStop
       });
     } catch (error) {
-      console.error('Lỗi thêm học sinh:', error);
+      console.error('Lỗi thêm điểm dừng ở COntroller:', error);
       res.status(400).json({ message: error.message });
     }
   }

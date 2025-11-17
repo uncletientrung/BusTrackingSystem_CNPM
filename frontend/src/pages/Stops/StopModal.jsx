@@ -1,43 +1,53 @@
 import { MapPin, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import StopMap from "./StopMap";
+import { StopAPI } from "../../api/apiServices";
 
 export default function StopModal({ stop, onClose, onSave }) {
+  const [stops, setStops] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [showMap, setShowMap] = useState(false);
   const [formData, setFormData] = useState({
     madd: '',
     tendiemdung: '',
     vido: '',
     kinhdo: '',
-    address: '',
-    description: ''
+    diachi: '',      
   });
-
-  const [errors, setErrors] = useState({});
-  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     if (stop) {
       setFormData({
-        madd: stop.madd || '',
-        tendiemdung: stop.tendiemdung || '',
-        vido: stop.vido || '',
-        kinhdo: stop.kinhdo || '',
-        address: stop.address || '',
-        description: stop.description || ''
+        madd: stop.madd,
+        tendiemdung: stop.tendiemdung,
+        vido: stop.vido,
+        kinhdo: stop.kinhdo,
+        diachi: stop.diachi,        
       });
-      // Show map if coordinates exist
       if (stop.vido && stop.kinhdo) {
         setShowMap(true);
       }
     } else {
-      // Auto-generate madd for new stop
-      const timestamp = Date.now().toString().slice(-6);
-      setFormData(prev => ({
-        ...prev,
-        madd: `ST-${timestamp}`
-      }));
+      setFormData({
+        madd: '',
+        tendiemdung: '',
+        vido: '',
+        kinhdo: '',
+        diachi: '',                      
+      });
     }
   }, [stop]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const listStop = await StopAPI.getAllStops();
+        setStops(listStop);
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu điểm dừng:', error);
+      }
+    })();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,20 +65,18 @@ export default function StopModal({ stop, onClose, onSave }) {
 
   const handleCoordinateChange = (e) => {
     const { name, value } = e.target;
-    // Allow empty, numbers, minus sign, and decimal point
     if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
       setFormData(prev => ({
         ...prev,
         [name]: value
       }));
-      if (errors[name]) {
+      if (errors[name]) { // Xóa lỗi khi nhập
         setErrors(prev => ({
           ...prev,
           [name]: ''
         }));
       }
 
-      // Show map if both coordinates are valid
       const lat = name === 'vido' ? parseFloat(value) : parseFloat(formData.vido);
       const lng = name === 'kinhdo' ? parseFloat(value) : parseFloat(formData.kinhdo);
       if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
@@ -92,33 +100,37 @@ export default function StopModal({ stop, onClose, onSave }) {
 
   const validate = () => {
     const newErrors = {};
-
-    if (!formData.madd.trim()) {
-      newErrors.madd = 'Mã điểm dừng không được để trống';
-    }
-
+    let lat;
+    let lng;
     if (!formData.tendiemdung.trim()) {
       newErrors.tendiemdung = 'Tên điểm dừng không được để trống';
     }
-
     if (!formData.vido) {
       newErrors.vido = 'Vĩ độ không được để trống';
     } else {
-      const lat = parseFloat(formData.vido);
+      lat = parseFloat(formData.vido);
       if (isNaN(lat) || lat < -90 || lat > 90) {
         newErrors.vido = 'Vĩ độ phải từ -90 đến 90';
       }
     }
-
     if (!formData.kinhdo) {
       newErrors.kinhdo = 'Kinh độ không được để trống';
     } else {
-      const lng = parseFloat(formData.kinhdo);
+      lng = parseFloat(formData.kinhdo);
       if (isNaN(lng) || lng < -180 || lng > 180) {
         newErrors.kinhdo = 'Kinh độ phải từ -180 đến 180';
       }
     }
+    if (!formData.diachi.trim()) {
+      newErrors.diachi = 'Địa chỉ không được để trống';
+    }
 
+    for (let i = 0; i < stops?.length; i++) {
+      if (stops[i].vido == lat && stops[i].kinhdo == lng) {
+        newErrors.vido = 'Địa điểm này đã có trên hệ thống';
+        newErrors.kinhdo = 'Địa điểm này đã có trên hệ thống';
+      }
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -176,25 +188,24 @@ export default function StopModal({ stop, onClose, onSave }) {
           <form onSubmit={handleSubmit} className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column - Form Fields */}
                 <div className="space-y-4">
-                  {/* Mã điểm dừng */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Mã điểm dừng <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="madd"
-                      value={formData.madd}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.madd ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
-                      placeholder="ST-001"
-                    />
-                    {errors.madd && (
-                      <p className="mt-1 text-sm text-red-500">{errors.madd}</p>
-                    )}
-                  </div>
+                  {/* Mã điểm dừng*/}
+                  {stop && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Mã điểm dừng <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="madd"
+                        value={formData.madd}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
+                        placeholder="ST-001"
+                        disabled
+                      />
+                    </div>
+                  )}
 
                   {/* Tên điểm dừng */}
                   <div>
@@ -253,20 +264,23 @@ export default function StopModal({ stop, onClose, onSave }) {
                   {/* Địa chỉ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Địa chỉ
+                      Địa chỉ <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      name="address"
-                      value={formData.address}
+                      name="diachi"
+                      value={formData.diachi}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border ${errors.diachi ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="1 Phạm Ngũ Lão, Quận 1, TP.HCM"
                     />
+                    {errors.diachi && (
+                      <p className="mt-1 text-sm text-red-500">{errors.diachi}</p>
+                    )}
                   </div>
                 </div>
 
-                {/* Right Column - Map */}
+                {/* Map */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700">
@@ -282,7 +296,7 @@ export default function StopModal({ stop, onClose, onSave }) {
                   </div>
 
                   {showMap ? (
-                    <div className="border border-gray-300 rounded-lg overflow-hidden h-96">
+                    <div className="border border-gray-300 rounded-lg overflow-hidden h-90">
                       <StopMap
                         latitude={parseFloat(formData.vido) || 10.8231}
                         longitude={parseFloat(formData.kinhdo) || 106.6297}
@@ -291,7 +305,7 @@ export default function StopModal({ stop, onClose, onSave }) {
                       />
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center ">
                       <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                       <p className="text-gray-500">
                         Nhập tọa độ để xem vị trí trên bản đồ

@@ -13,14 +13,15 @@ export default function StopsPage() {
   const stopsPerPage = 10;
 
   useEffect(() => {
-    StopAPI.getAllStops()
-      .then((listStop) => {
+    (async () => {
+      try {
+        const listStop = await StopAPI.getAllStops();
         setStops(listStop);
         setFilteredStops(listStop);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Lỗi khi tải dữ liệu điểm dừng:', error);
-      });
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function StopsPage() {
     );
     setFilteredStops(filtered);
     setCurrentPage(1);
+
   }, [searchTerm, stops]);
 
   const indexOfLastStop = currentPage * stopsPerPage;
@@ -55,22 +57,23 @@ export default function StopsPage() {
     }
   };
 
-  const handleSaveStop = (stopData) => {
-    if (editingStop) {
-      // Cập nhật
-      setStops(stops.map((stop) =>
-        stop.madd === editingStop.madd ? { ...stop, ...stopData } : stop
-      ));
-    } else {
-      // Thêm mới
-      const newId = Math.max(...stops.map((s) => s.madd), 0) + 1;
-      const newStop = {
-        ...stopData,
-        madd: newId,
-      };
-      setStops([...stops, newStop]);
+  const handleSaveStop = async (stopData) => {
+    try {
+      if (editingStop) {
+        // Cập nhật
+        setStops(stops.map((stop) =>
+          stop.madd === editingStop.madd ? { ...stop, ...stopData } : stop
+        ));
+      } else {
+        const newStop = await StopAPI.createStop(stopData)
+        setStops([...stops, newStop.stop]);
+      }
+      setIsModalOpen(false);
+      setEditingStop(null);
+    } catch (error) {
+      console.error('Lỗi lưu điểm dừng ở Page:', error);
+      alert("Lỗi: " + error.message);
     }
-    setIsModalOpen(false);
   };
 
   const handlePageChange = (pageNumber) => {
@@ -248,8 +251,8 @@ export default function StopsPage() {
                     key={index + 1}
                     onClick={() => handlePageChange(index + 1)}
                     className={`px-3 py-1 rounded-lg ${currentPage === index + 1
-                        ? 'bg-primary-600 text-white'
-                        : 'border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-primary-600 text-white'
+                      : 'border border-gray-300 hover:bg-gray-50'
                       }`}
                   >
                     {index + 1}
