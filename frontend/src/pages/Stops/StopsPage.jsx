@@ -50,20 +50,27 @@ export default function StopsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteStop = (madd) => {
+  const handleDeleteStop = async (madd) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa điểm dừng này?')) {
-      setStops(stops.filter((stop) => stop.madd !== madd));
-      setFilteredStops(filteredStops.filter((stop) => stop.madd !== madd));
+      try {
+        await StopAPI.deleteStop(madd)
+        setStops(stops.filter((stop) => stop.madd !== madd));
+        // setFilteredStops(filteredStops.filter((stop) => stop.madd !== madd));
+      } catch (error) {
+        alert(error.message || 'Xóa thất bại!');
+      }
+
     }
   };
 
   const handleSaveStop = async (stopData) => {
     try {
       if (editingStop) {
-        // Cập nhật
+        await StopAPI.updateStop(editingStop.madd, stopData)
         setStops(stops.map((stop) =>
           stop.madd === editingStop.madd ? { ...stop, ...stopData } : stop
         ));
+        
       } else {
         const newStop = await StopAPI.createStop(stopData)
         setStops([...stops, newStop.stop]);

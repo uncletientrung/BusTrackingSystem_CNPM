@@ -70,6 +70,8 @@ export default function BusesPage() {
         bus.maxe === editingBus.maxe ? { ...bus, ...busData } : bus // { ...bus, ...busData } trộn data cũ sang data mới
       ));
     } else {  // Thêm mới
+      console.log(busData);
+      
       newBus = await BusAPI.createBus(busData);
       setBuses(prev => [...prev, newBus.bus]);
     }

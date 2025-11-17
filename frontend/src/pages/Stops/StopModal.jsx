@@ -55,6 +55,7 @@ export default function StopModal({ stop, onClose, onSave }) {
       ...prev,
       [name]: value
     }));
+    
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -125,8 +126,8 @@ export default function StopModal({ stop, onClose, onSave }) {
       newErrors.diachi = 'Địa chỉ không được để trống';
     }
 
-    for (let i = 0; i < stops?.length; i++) {
-      if (stops[i].vido == lat && stops[i].kinhdo == lng) {
+    for (let i = 0; i < stops.length; i++) {
+      if (stops[i].vido == lat && stops[i].kinhdo == lng && stops[i].madd != formData.madd) {
         newErrors.vido = 'Địa điểm này đã có trên hệ thống';
         newErrors.kinhdo = 'Địa điểm này đã có trên hệ thống';
       }
@@ -198,11 +199,11 @@ export default function StopModal({ stop, onClose, onSave }) {
                       <input
                         type="text"
                         name="madd"
-                        value={formData.madd}
-                        onChange={handleChange}
+                        value={"STOP-"+formData.madd}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
                         placeholder="ST-001"
                         disabled
+                        readOnly
                       />
                     </div>
                   )}

@@ -1,5 +1,6 @@
 // Cầu nối giữa frontend và tầng nghiệp vụ (BUS).
 const StopBUS = require('../BUS/StopBUS');
+const { update } = require('../DAO/StopDAO');
 
 const StopController = {
   async getAll(req, res) { // req là request gửi yêu cầu lên client, res là respone là server trả về
@@ -36,6 +37,34 @@ const StopController = {
       });
     } catch (error) {
       console.error('Lỗi thêm điểm dừng ở COntroller:', error);
+      res.status(400).json({ message: error.message });
+    }
+  },
+  async delete(req, res) {
+    try {
+      const { madd } = req.params;
+      await StopBUS.deleteStop(Number(madd));
+      res.json({
+        message: 'Xóa học sinh thành công',
+        madd: Number(madd)
+      });
+    } catch (error) {
+      console.error('Lỗi xóa điểm dừng ở Controller:', error);
+      res.status(400).json({ message: error.message });
+    }
+  },
+  async update(req, res) {
+    try {
+      const { madd } = req.params;
+      const { tendiemdung, vido, kinhdo, diachi } = req.body;
+      const stopData = { tendiemdung, vido, kinhdo, diachi }
+      const updateStopCount = await StopBUS.updateStop(madd, stopData);
+      res.json({
+        message: 'Cập nhật tuyến đường thành công!',
+        stop: updateStopCount
+      });
+    } catch (error) {
+      console.error('Lỗi cập nhật điểm dừng ở Controller:', error);
       res.status(400).json({ message: error.message });
     }
   }

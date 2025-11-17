@@ -22,6 +22,17 @@ const StopBUS = {
       const newStop = await StopDAO.create({ tendiemdung, vido, kinhdo, diachi });
       return new StopDTO(newStop.madd, newStop.tendiemdung, newStop.vido, newStop.kinhdo, newStop.diachi);
     }
+  },
+  async deleteStop(madd){
+    const result= await StopDAO.delete(madd);
+    if(result ==0){
+      throw new Error('Xóa Stop thất bại ở BUS');
+    }
+    return { message: 'Xóa học sinhh thành công!', madd };
+  },
+  async updateStop(madd, stopData){
+    const stopSauUpdateCount= await StopDAO.update(madd, stopData);
+    return stopSauUpdateCount;
   }
 };
 

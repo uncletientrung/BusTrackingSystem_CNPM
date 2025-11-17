@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/connectDB');
-const { DataTypes } = require('sequelize');
+const { DataTypes, where } = require('sequelize');
 
 const Stop = sequelize.define('Stop', {
     madd: {
@@ -39,6 +39,12 @@ const StopDAO = {
 
     async create(stopData) {
         return await Stop.create(stopData);
+    },
+    async delete(madd) {
+        return await Stop.destroy({ where: { madd } });
+    },
+    async update(madd, stopData) {
+        return await Stop.update(stopData, { where: { madd } });
     }
 };
 
