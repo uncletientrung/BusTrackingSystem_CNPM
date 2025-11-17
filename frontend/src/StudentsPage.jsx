@@ -115,7 +115,6 @@ export default function StudentsPage() {
       await StudentAPI.updateStudent(editingStudent.mahs, StudentData);
       setStudents(students.map(student =>
         student.mahs == editingStudent.mahs ? { ...student, ...StudentData } : student));
-
     } else {
       let newStudent = await StudentAPI.createStudent(StudentData);
       setStudents(prev => [...prev, newStudent.student]);

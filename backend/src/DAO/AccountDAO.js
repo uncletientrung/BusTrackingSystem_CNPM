@@ -36,6 +36,9 @@ const AccountDAO = {
     async getById(id) {
         return await Account.findByPk(id);
     },
+    async create(accountData, { transaction } = {}) {
+        return await Account.create(accountData, transaction);
+    }
 
 };
 

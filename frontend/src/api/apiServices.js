@@ -3,7 +3,8 @@ import apiClient from './api';
 
 
 export const UserAPI = {
-    getAllUsers: () => apiClient.fetchAll('User')
+    getAllUsers: () => apiClient.fetchAll('User'),
+    createUser: (UsernAccountNEW) => apiClient.create('User', UsernAccountNEW)
 }
 
 export const StopAPI = {
@@ -19,7 +20,8 @@ export const AccountAPI = {
 export const StudentAPI = {
     getAllStudent: () => apiClient.fetchAll('Student'),
     createStudent: (newStudent) => apiClient.create('Student', newStudent),
-    deleteStudent: (mahs) => apiClient.deleteForm('Student', mahs)
+    deleteStudent: (mahs) => apiClient.deleteForm('Student', mahs),
+    updateStudent: (mahs, updateStudent) => apiClient.update('Student', mahs, updateStudent)
 }
 
 export const BusAPI = {

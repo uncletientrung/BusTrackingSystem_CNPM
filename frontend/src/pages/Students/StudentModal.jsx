@@ -11,8 +11,8 @@ export default function StudentModal({ isOpen, onClose, onSave, mode, student, s
     parentName: '',
     parentPhone: '',
     address: '',
-    pickupPoint: '',  
-    dropdownPoint: '', 
+    pickupPoint: '',
+    dropdownPoint: '',
     status: 1
   });
 
@@ -117,6 +117,7 @@ export default function StudentModal({ isOpen, onClose, onSave, mode, student, s
           diemdung: diemdungId,
           trangthai: formData.status
         };
+
         onSave(updatedStudent);
       }
       onClose();

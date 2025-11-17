@@ -56,13 +56,16 @@ const Student = sequelize.define('Student', {
 const StudentDAO = {
     async getAll() {
         return await Student.findAll();
-    }, 
-    async create(studentData){
+    },
+    async create(studentData) {
         return await Student.create(studentData);
     },
-    async delete(mahs){
-        return await Student.destroy({where : {mahs}})
-    }
+    async delete(mahs) {
+        return await Student.destroy({ where: { mahs } })
+    },
+    async update(mahs, studentData) {
+        return await Student.update(studentData, { where: { mahs } })
+    },
 };
 
 module.exports = StudentDAO;

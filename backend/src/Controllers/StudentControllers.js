@@ -28,11 +28,25 @@ const StudentController = {
             const { mahs } = req.params
             await StudentBUS.deleteStudent(Number(mahs));
             res.json({
-                message: 'Xóa xe thành công',
+                message: 'Xóa học sinh thành công',
                 mahs: Number(mahs)
             });
         } catch (error) {
             console.error('Lỗi xóa học sinh:', error);
+            res.status(400).json({ message: error.message });
+        }
+    },
+    async update(req, res) {
+        try {
+            const { mahs } = req.params;
+            const studentData = req.body;
+            const studentUpdate = await StudentBUS.updateStudent(mahs, studentData);
+            res.json({
+                message: 'Cập nhật học sinh thành công',
+                student: studentUpdate
+            })
+        } catch (error) {
+            console.error('Lỗi sửa học sinh:', error);
             res.status(400).json({ message: error.message });
         }
     }

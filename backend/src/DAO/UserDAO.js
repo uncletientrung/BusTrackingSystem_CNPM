@@ -36,7 +36,7 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
 }, {
-    tableName: 'nguoidung', 
+    tableName: 'nguoidung',
     timestamps: false,
 });
 
@@ -50,9 +50,9 @@ const UserDAO = {
     //     return await User.findByPk(id);
     // },
 
-    // async create(userData) {
-    //     return await User.create(userData);
-    // },
+    async create(userData, { transaction } = {}) {
+        return await User.create(userData, { transaction });
+    },
 
     // async update(id, userData) {
     //     const user = await User.findByPk(id);

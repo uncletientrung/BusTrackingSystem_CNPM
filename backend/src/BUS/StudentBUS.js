@@ -38,8 +38,14 @@ const StudentBUS = {
             throw new Error('Xóa thất bại');
         }
         return { message: 'Xóa học sinhh thành công!', mahs };
+    },
+    async updateStudent(mahs, studentData) {
+        const updateStudent = await StudentDAO.update(mahs, studentData);
+        return new StudentDTO(updateStudent.mahs, updateStudent.hoten, updateStudent.ngaysinh, updateStudent.gioitinh,
+            updateStudent.lop, updateStudent.diachi, updateStudent.sdt, updateStudent.maph, updateStudent.diemdon,
+            updateStudent.diemdung, updateStudent.trangthai);
     }
 
 }
 
-module.exports = StudentBUS;
+module.exports = StudentBUS; { }
