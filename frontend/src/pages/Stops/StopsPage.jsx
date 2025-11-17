@@ -12,7 +12,6 @@ export default function StopsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const stopsPerPage = 10;
 
-  // Gọi API tải dữ liệu
   useEffect(() => {
     StopAPI.getAllStops()
       .then((listStop) => {
@@ -24,7 +23,6 @@ export default function StopsPage() {
       });
   }, []);
 
-  // Filter stops based on search term
   useEffect(() => {
     const filtered = stops.filter((stop) =>
       stop.tendiemdung?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,7 +33,6 @@ export default function StopsPage() {
     setCurrentPage(1);
   }, [searchTerm, stops]);
 
-  // Pagination
   const indexOfLastStop = currentPage * stopsPerPage;
   const indexOfFirstStop = indexOfLastStop - stopsPerPage;
   const currentStops = filteredStops.slice(indexOfFirstStop, indexOfLastStop);

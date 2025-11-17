@@ -26,6 +26,19 @@ const StopController = {
       res.status(500).json({ message: error.message });
     }
   },
+  async create(req, res) {
+    try {
+      const stopData = req.params
+      const newStop = await StopBUS.createStop(stopData);
+      res.status(201).json({
+        message: 'Thêm điểm dừng thành công!',
+        stop: newStop
+      });
+    } catch (error) {
+      console.error('Lỗi thêm học sinh:', error);
+      res.status(400).json({ message: error.message });
+    }
+  }
 };
 
 module.exports = StopController;

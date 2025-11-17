@@ -37,15 +37,9 @@ const StopDAO = {
         return await Stop.findByPk(id);
     },
 
-    // // Lọc điều kiện
-    // const filtered = await DiemDung.findAll({
-    //   where: { diachia: "TP.HCM" }
-    // });
-
-    // // Sắp xếp
-    // const sorted = await DiemDung.findAll({
-    //   order: [['madd', 'DESC']]
-    // });
+    async create(stopData) {
+        return await Stop.create(stopData);
+    }
 };
 
 module.exports = StopDAO;

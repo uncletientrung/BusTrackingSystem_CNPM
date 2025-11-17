@@ -4,10 +4,10 @@ import StopMap from "./StopMap";
 
 export default function StopModal({ stop, onClose, onSave }) {
   const [formData, setFormData] = useState({
-    code: '',
-    name: '',
-    latitude: '',
-    longitude: '',
+    madd: '',
+    tendiemdung: '',
+    vido: '',
+    kinhdo: '',
     address: '',
     description: ''
   });
@@ -18,23 +18,23 @@ export default function StopModal({ stop, onClose, onSave }) {
   useEffect(() => {
     if (stop) {
       setFormData({
-        code: stop.code || '',
-        name: stop.name || '',
-        latitude: stop.latitude || '',
-        longitude: stop.longitude || '',
+        madd: stop.madd || '',
+        tendiemdung: stop.tendiemdung || '',
+        vido: stop.vido || '',
+        kinhdo: stop.kinhdo || '',
         address: stop.address || '',
         description: stop.description || ''
       });
       // Show map if coordinates exist
-      if (stop.latitude && stop.longitude) {
+      if (stop.vido && stop.kinhdo) {
         setShowMap(true);
       }
     } else {
-      // Auto-generate code for new stop
+      // Auto-generate madd for new stop
       const timestamp = Date.now().toString().slice(-6);
       setFormData(prev => ({
         ...prev,
-        code: `ST-${timestamp}`
+        madd: `ST-${timestamp}`
       }));
     }
   }, [stop]);
@@ -45,7 +45,6 @@ export default function StopModal({ stop, onClose, onSave }) {
       ...prev,
       [name]: value
     }));
-    // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -62,16 +61,16 @@ export default function StopModal({ stop, onClose, onSave }) {
         ...prev,
         [name]: value
       }));
-      // Clear error when user types
       if (errors[name]) {
         setErrors(prev => ({
           ...prev,
           [name]: ''
         }));
       }
+
       // Show map if both coordinates are valid
-      const lat = name === 'latitude' ? parseFloat(value) : parseFloat(formData.latitude);
-      const lng = name === 'longitude' ? parseFloat(value) : parseFloat(formData.longitude);
+      const lat = name === 'vido' ? parseFloat(value) : parseFloat(formData.vido);
+      const lng = name === 'kinhdo' ? parseFloat(value) : parseFloat(formData.kinhdo);
       if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
         setShowMap(true);
       }
@@ -81,43 +80,42 @@ export default function StopModal({ stop, onClose, onSave }) {
   const handleMapClick = (lat, lng) => {
     setFormData(prev => ({
       ...prev,
-      latitude: lat.toFixed(6),
-      longitude: lng.toFixed(6)
+      vido: lat.toFixed(6),
+      kinhdo: lng.toFixed(6)
     }));
-    // Clear coordinate errors
     setErrors(prev => ({
       ...prev,
-      latitude: '',
-      longitude: ''
+      vido: '',
+      kinhdo: ''
     }));
   };
 
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.code.trim()) {
-      newErrors.code = 'Mã điểm dừng không được để trống';
+    if (!formData.madd.trim()) {
+      newErrors.madd = 'Mã điểm dừng không được để trống';
     }
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Tên điểm dừng không được để trống';
+    if (!formData.tendiemdung.trim()) {
+      newErrors.tendiemdung = 'Tên điểm dừng không được để trống';
     }
 
-    if (!formData.latitude) {
-      newErrors.latitude = 'Vĩ độ không được để trống';
+    if (!formData.vido) {
+      newErrors.vido = 'Vĩ độ không được để trống';
     } else {
-      const lat = parseFloat(formData.latitude);
+      const lat = parseFloat(formData.vido);
       if (isNaN(lat) || lat < -90 || lat > 90) {
-        newErrors.latitude = 'Vĩ độ phải từ -90 đến 90';
+        newErrors.vido = 'Vĩ độ phải từ -90 đến 90';
       }
     }
 
-    if (!formData.longitude) {
-      newErrors.longitude = 'Kinh độ không được để trống';
+    if (!formData.kinhdo) {
+      newErrors.kinhdo = 'Kinh độ không được để trống';
     } else {
-      const lng = parseFloat(formData.longitude);
+      const lng = parseFloat(formData.kinhdo);
       if (isNaN(lng) || lng < -180 || lng > 180) {
-        newErrors.longitude = 'Kinh độ phải từ -180 đến 180';
+        newErrors.kinhdo = 'Kinh độ phải từ -180 đến 180';
       }
     }
 
@@ -130,8 +128,8 @@ export default function StopModal({ stop, onClose, onSave }) {
     if (validate()) {
       onSave({
         ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude)
+        vido: parseFloat(formData.vido),
+        kinhdo: parseFloat(formData.kinhdo)
       });
     }
   };
@@ -150,7 +148,7 @@ export default function StopModal({ stop, onClose, onSave }) {
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] ">
+        <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh]">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
@@ -180,83 +178,79 @@ export default function StopModal({ stop, onClose, onSave }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column - Form Fields */}
                 <div className="space-y-4">
-                  {/* Code */}
+                  {/* Mã điểm dừng */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Mã điểm dừng <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      name="code"
-                      value={formData.code}
+                      name="madd"
+                      value={formData.madd}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.code ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      className={`w-full px-3 py-2 border ${errors.madd ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="ST-001"
                     />
-                    {errors.code && (
-                      <p className="mt-1 text-sm text-red-500">{errors.code}</p>
+                    {errors.madd && (
+                      <p className="mt-1 text-sm text-red-500">{errors.madd}</p>
                     )}
                   </div>
 
-                  {/* Name */}
+                  {/* Tên điểm dừng */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Tên điểm dừng <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="tendiemdung"
+                      value={formData.tendiemdung}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 border ${errors.name ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      className={`w-full px-3 py-2 border ${errors.tendiemdung ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
                       placeholder="Bến xe Bến Thành"
                     />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                    {errors.tendiemdung && (
+                      <p className="mt-1 text-sm text-red-500">{errors.tendiemdung}</p>
                     )}
                   </div>
 
-                  {/* Latitude */}
+                  {/* Vĩ độ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Vĩ độ (Latitude) <span className="text-red-500">*</span>
+                      Vĩ độ <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      name="latitude"
-                      value={formData.latitude}
+                      name="vido"
+                      value={formData.vido}
                       onChange={handleCoordinateChange}
-                      className={`w-full px-3 py-2 border ${errors.latitude ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
-                      placeholder="10.8231 (từ -90 đến 90)"
+                      className={`w-full px-3 py-2 border ${errors.vido ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      placeholder="10.8231"
                     />
-                    {errors.latitude && (
-                      <p className="mt-1 text-sm text-red-500">{errors.latitude}</p>
+                    {errors.vido && (
+                      <p className="mt-1 text-sm text-red-500">{errors.vido}</p>
                     )}
                   </div>
 
-                  {/* Longitude */}
+                  {/* Kinh độ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Kinh độ (Longitude) <span className="text-red-500">*</span>
+                      Kinh độ <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      name="longitude"
-                      value={formData.longitude}
+                      name="kinhdo"
+                      value={formData.kinhdo}
                       onChange={handleCoordinateChange}
-                      className={`w-full px-3 py-2 border ${errors.longitude ? 'border-red-500' : 'border-gray-300'
-                        } rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
-                      placeholder="106.6297 (từ -180 đến 180)"
+                      className={`w-full px-3 py-2 border ${errors.kinhdo ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+                      placeholder="106.6297"
                     />
-                    {errors.longitude && (
-                      <p className="mt-1 text-sm text-red-500">{errors.longitude}</p>
+                    {errors.kinhdo && (
+                      <p className="mt-1 text-sm text-red-500">{errors.kinhdo}</p>
                     )}
                   </div>
 
-                  {/* Address */}
+                  {/* Địa chỉ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Địa chỉ
@@ -288,12 +282,12 @@ export default function StopModal({ stop, onClose, onSave }) {
                   </div>
 
                   {showMap ? (
-                    <div className="border border-gray-300 rounded-lg overflow-hidden">
+                    <div className="border border-gray-300 rounded-lg overflow-hidden h-96">
                       <StopMap
-                        latitude={parseFloat(formData.latitude) || 10.8231}
-                        longitude={parseFloat(formData.longitude) || 106.6297}
+                        latitude={parseFloat(formData.vido) || 10.8231}
+                        longitude={parseFloat(formData.kinhdo) || 106.6297}
                         onMapClick={handleMapClick}
-                        stopName={formData.name || 'Điểm dừng mới'}
+                        stopName={formData.tendiemdung || 'Điểm dừng mới'}
                       />
                     </div>
                   ) : (
@@ -320,14 +314,14 @@ export default function StopModal({ stop, onClose, onSave }) {
               <button
                 type="button"
                 onClick={onClose}
-                                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg font-medium transition-colors"
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-                >
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
                 {stop ? 'Cập nhật' : 'Thêm mới'}
               </button>
             </div>
