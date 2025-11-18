@@ -159,7 +159,10 @@ export default function UsersPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-8 w-8 text-primary-600" />
+              <h1 className="text-3xl font-bold text-gray-900">Quản lý người dùng</h1>
+            </div>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}

@@ -1,4 +1,4 @@
-import { Check, CheckCircle, CirclePlus, Edit, Eye, Phone, Route, Search, Trash2, Users2, XCircle, GraduationCap } from "lucide-react"
+import { Check, CheckCircle, CirclePlus, Edit, Eye, Phone, Route, Search, Trash2, Users2, XCircle, GraduationCap, Bus } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { StudentAPI, StopAPI, UserAPI } from "../../api/apiServices"
@@ -129,8 +129,11 @@ export default function StudentsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Quản lý học sinh</h1>
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <GraduationCap className="h-8 w-8 text-primary-600" />
+              <h1 className="text-3xl font-bold text-gray-900">Quản lý học sinh</h1>
+            </div>
           </div>
           {/* Nút thêm học sinh */}
           <button

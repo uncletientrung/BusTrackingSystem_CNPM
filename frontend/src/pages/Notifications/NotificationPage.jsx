@@ -1,4 +1,4 @@
-import { AlarmClock, Bell, BellElectric, BusFront, CalendarDays, Check, ClipboardClock, ClockAlert, Construction, House, Info, Megaphone, MessageCircleWarning, Plus, PlusCircle, RefreshCcw, Trash2, X } from "lucide-react";
+import { AlarmClock, Bell, BellElectric, BusFront, CalendarDays, Check, ClipboardCheck, ClipboardClock, ClockAlert, Construction, House, Info, Megaphone, MessageCircleWarning, Plus, PlusCircle, RefreshCcw, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NotificationAPI } from "../../api/apiServices";
 import toLocalString from "../../utils/DateFormated";
@@ -163,11 +163,10 @@ export default function NotificationPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           {/* Tiêu đề */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-              <span><Bell /></span>
-              <span>{currentUser.manq == 1 ? "Quản lý thông báo" : "Thông báo"} </span>
-            </h1>
-
+            <div className="flex items-center gap-2 mb-2">
+              <Bell className="h-8 w-8 text-primary-600" />
+              <h1 className="text-3xl font-bold text-gray-900">{currentUser.manq == 1 ? "Quản lý thông báo" : "Thông báo"}</h1>
+            </div>
           </div>
           {/* Nút xóa khi tích chọn*/}
           {(currentUser.manq == 1 || currentUser.manq == 2) && (
@@ -202,8 +201,10 @@ export default function NotificationPage() {
             {/* Thống kê thông báo */}
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <span className="text-2xl"><Megaphone /></span>
+                <div className="p-3 bg-blue-500 rounded-lg">
+                  <span className="h-6 w-6 text-white">
+                    <Bell />
+                  </span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Tổng thông báo</p>
@@ -215,8 +216,8 @@ export default function NotificationPage() {
             {/* Thống kê đã gửi */}
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <span className="text-2xl"><Check /></span>
+                <div className="p-3 bg-green-500 rounded-lg">
+                  <span className="h-6 w-6 text-white"><ClipboardCheck /></span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Đã gửi</p>
@@ -230,8 +231,8 @@ export default function NotificationPage() {
             {/* Thống kê đã lên lịch */}
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
-                <div className="p-3 bg-yellow-100 rounded-full">
-                  <span className="text-2xl"><ClipboardClock /></span>
+                <div className="p-3 bg-orange-400 rounded-lg">
+                  <span className="h-6 w-6 text-white"><ClipboardClock /></span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Đã lên lịch</p>

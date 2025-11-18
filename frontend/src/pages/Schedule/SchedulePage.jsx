@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { AlertTriangle, BusFront, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Eye, Hourglass, RefreshCcw, SquarePen, Trash2, UserPlus, Users, X } from "lucide-react"
+import { AlertTriangle, BusFront, Calendar, CalendarCheck, CheckCircle, CircleCheck, CirclePlus, Eye, Hourglass, RefreshCcw, SquarePen, Trash2, UserPlus, Users, X } from "lucide-react"
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector"
 import { BusAPI, RouteAPI, ScheduleAPI, UserAPI } from "../../api/apiServices";
 import toLocalString from "../../utils/DateFormated";
@@ -220,12 +220,10 @@ export default function SchedulePage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-              <span>
-                <CalendarCheck className="h-10 w-10 text-red-500" />
-              </span>
-              <span>Quản lý lịch trình</span>
-            </h1>
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-8 w-8 text-primary-600" />
+              <h1 className="text-3xl font-bold text-gray-900">Quản lý lịch trình</h1>
+            </div>
           </div>
 
           {/* Chưa thêm Action */}
@@ -249,8 +247,8 @@ export default function SchedulePage() {
           {/* Lọc số bus */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <span className="text-2xl">
+              <div className="p-3 bg-blue-500 rounded-lg">
+                <span className="h-6 w-6 text-white">
                   <BusFront />
                 </span>
               </div>
@@ -265,8 +263,8 @@ export default function SchedulePage() {
           {/* Lọc hoàn thành */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <span className="text-2xl">
+              <div className="p-3 bg-green-500 rounded-lg">
+                <span className="h-6 w-6 text-white">
                   <CircleCheck />
                 </span>
               </div>
@@ -283,8 +281,8 @@ export default function SchedulePage() {
           {/* Lọc đang chạy*/}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <span className="text-2xl">
+              <div className="p-3 bg-orange-400 rounded-lg">
+                <span className="h-6 w-6 text-white">
                   <Hourglass></Hourglass>
                 </span>
               </div>
@@ -301,8 +299,8 @@ export default function SchedulePage() {
           {/* Lọc trễ giờ */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
-              <div className="p-3 bg-red-100 rounded-full">
-                <span className="text-2xl">
+              <div className="p-3 bg-red-500 rounded-lg">
+                <span className="h-6 w-6 text-white">
                   <AlertTriangle></AlertTriangle>
                 </span>
               </div>
