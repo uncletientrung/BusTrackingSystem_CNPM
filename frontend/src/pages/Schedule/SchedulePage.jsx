@@ -78,16 +78,15 @@ export default function SchedulePage() {
   }, [selectedDate, selectedRoute, schedules, selectedDateEnd]);
 
   const getStatusColor = (status) => {
-    const map = {
-      3: 'bg-green-100 text-green-800', 2: 'bg-blue-100 text-blue-800',
-      1: 'bg-yellow-100 text-yellow-800', 0: 'bg-red-100 text-red-800',
-      '-1': 'bg-gray-100 text-gray-800'
+    const map = { 2: 'bg-green-100 text-green-800',
+      1: 'bg-yellow-100 text-yellow-800', 
+      0: 'bg-red-100 text-red-800'
     };
     return map[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusText = (status) => {
-    const map = { 3: 'Hoàn thành', 2: 'Đang chạy', 1: 'Đã lên lịch', 0: 'Hủy bỏ', '-1': 'Trễ giờ' };
+    const map = { 2: 'Hoàn thành',1: 'Đã lên lịch', 0: 'Hủy bỏ'};
     return map[status] || status;
   };
 
@@ -130,8 +129,8 @@ export default function SchedulePage() {
           </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Thống kê nhanh*/}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
             <div className="p-3 bg-blue-500 rounded-lg"><BusFront className="h-6 w-6 text-white" /></div>
             <div className="ml-4">
@@ -143,21 +142,14 @@ export default function SchedulePage() {
             <div className="p-3 bg-green-500 rounded-lg"><CircleCheck className="h-6 w-6 text-white" /></div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Hoàn thành</p>
-              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 3).length}</p>
+              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 2).length}</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
             <div className="p-3 bg-orange-400 rounded-lg"><Hourglass className="h-6 w-6 text-white" /></div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Đang chạy</p>
-              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 2).length}</p>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-            <div className="p-3 bg-red-500 rounded-lg"><AlertTriangle className="h-6 w-6 text-white" /></div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Trễ giờ</p>
-              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === -1).length}</p>
+              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 1).length}</p>
             </div>
           </div>
         </div>
@@ -329,19 +321,15 @@ export default function SchedulePage() {
 
       {isModalOpen && (
         <ScheduleModal
-          isOpen={isCreateModalOpen || isEditModalOpen}
-          schedule={editingSchedule}
+          
           onClose={() => {
             setIsModalOpen(false);
             setEditingSchedule(null);
           }}
           onSave={handleSave}
-          routes={routes}
-          buses={buses}
-          drivers={users.filter(u => u.manq === 2)} // Tài xế
+          schedule={editingSchedule}
           isStudentSelectorOpen={isStudentSelectorOpen}
           setIsStudentSelectorOpen={setIsStudentSelectorOpen}
-          onSuccess={() => window.location.reload()} // reload tạm, bạn có thể cải thiện bằng refetch
         />
       )}
 
