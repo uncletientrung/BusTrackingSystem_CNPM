@@ -1,157 +1,257 @@
-import { CirclePlus, Edit, Eye, Filter, KeyRound, Mail, MapPin, Phone, Plus, PlusCircle, Search, Trash2, User, UserCheck, Users, UserX, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { AccountAPI, UserAPI } from "../../api/apiServices"
+import {
+  CirclePlus,
+  Edit,
+  Eye,
+  Filter,
+  KeyRound,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  PlusCircle,
+  Search,
+  Trash2,
+  User,
+  UserCheck,
+  Users,
+  UserX,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AccountAPI, UserAPI } from "../../api/apiServices";
 
 export default function UsersPage() {
-  const navigate = useNavigate() // Dùng để chuyển hướng trang (hook)
-  const [users, setUsers] = useState([]) // Danh sách user
-  const [accounts, setAccounts] = useState([]) // Danh sách account
-  const [filteredUsers, setFilteredUsers] = useState([]) // Danh sách user sau lọc
-  const [searchTerm, setSearchTerm] = useState('') // Ký tự tìm kiếm
-  const [selectedRole, setSelectedRole] = useState('all') // Bộ lọc role
-  const [selectedStatus, setSelectedStatus] = useState('all') // Bộ lọc trạng thái
-  const [showCreateModal, setShowCreateModal] = useState(false) // Trạng thái tạo user
-  const [showEditModal, setShowEditModal] = useState(false) // Trạng thái sửa
-  const [editingUser, setEditingUser] = useState(null) // Đối tượng user sửa
-  const [newUser, setNewUser] = useState({ // Giả lập dữ liệu sửa 
-    name: '',
-    email: '',
-    phone: '',
-    username: '',
-    password: '',
-    sex: '',
-    birthday: '',
-    confirmPassword: '',
-    role: 'parent',
-    status: 'active',
-    address: ''
-  })
+  const navigate = useNavigate(); // Dùng để chuyển hướng trang (hook)
+  const [users, setUsers] = useState([]); // Danh sách user
+  const [accounts, setAccounts] = useState([]); // Danh sách account
+  const [filteredUsers, setFilteredUsers] = useState([]); // Danh sách user sau lọc
+  const [searchTerm, setSearchTerm] = useState(""); // Ký tự tìm kiếm
+  const [selectedRole, setSelectedRole] = useState("all"); // Bộ lọc role
+  const [selectedStatus, setSelectedStatus] = useState("all"); // Bộ lọc trạng thái
+  const [showCreateModal, setShowCreateModal] = useState(false); // Trạng thái tạo user
+  const [showEditModal, setShowEditModal] = useState(false); // Trạng thái sửa
+  const [editingUser, setEditingUser] = useState(null); // Đối tượng user sửa
+  const [newUser, setNewUser] = useState({
+    // Giả lập dữ liệu sửa
+    name: "",
+    email: "",
+    phone: "",
+    username: "",
+    password: "",
+    sex: "male",
+    birthday: "",
+    confirmPassword: "",
+    role: "parent",
+    status: "active",
+    address: "",
+  });
 
   // Tải dữ liệu từ API
   useEffect(() => {
-
     UserAPI.getAllUsers()
       .then((listUser) => {
-        setUsers(listUser)
-        setFilteredUsers(listUser)
-      }).catch((error) => {
-        console.error('Lỗi khi tải dữ liệu từ Page của User:', error);
+        setUsers(listUser);
+        setFilteredUsers(listUser);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải dữ liệu từ Page của User:", error);
       });
     AccountAPI.getAllAccount()
-      .then(listAccount => setAccounts(listAccount))
-      .catch(err => console.error(err));
-  }, [])
+      .then((listAccount) => setAccounts(listAccount))
+      .catch((err) => console.error(err));
+  }, []);
+  // useEffect để lọc danh sách hiển thị
+  useEffect(() => {
+    let filtered = users;
 
-  useEffect(() => { // Khởi tạo tìm kiếm mỗi lần render
-    let filtered = users
-
-    // Filter by search term
+    // Filter theo từ khóa search
     if (searchTerm) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.phone.includes(searchTerm)
-      )
+      filtered = filtered.filter(
+        (user) =>
+          user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          false ||
+          user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          false ||
+          user.phone?.includes(searchTerm) ||
+          false
+      );
     }
 
-    // Filter by role
-    if (selectedRole !== 'all') {
-      filtered = filtered.filter(user => user.role === selectedRole)
+    // Filter theo role
+    if (selectedRole !== "all") {
+      filtered = filtered.filter((user) => {
+        // Lấy account tương ứng với user
+        const account = accounts.find((acc) => acc.matk === user.mand);
+        if (!account) return false; // nếu chưa có account thì không hiển thị
+        const roleMap = { 1: "admin", 2: "driver", 3: "parent" };
+        return roleMap[account.manq] === selectedRole;
+      });
     }
 
-    // Filter by status
-    if (selectedStatus !== 'all') {
-      filtered = filtered.filter(user => user.status === selectedStatus)
+    // Filter theo trạng thái
+    if (selectedStatus !== "all") {
+      filtered = filtered.filter((user) => {
+        const statusMap = { 1: "active", 0: "inactive" };
+        return statusMap[user.trangthai] === selectedStatus;
+      });
     }
 
-    setFilteredUsers(filtered)
-  }, [users, searchTerm, selectedRole, selectedStatus])
+    setFilteredUsers(filtered);
+  }, [users, accounts, searchTerm, selectedRole, selectedStatus]);
 
+  // useEffect(() => {
+  //   // Khởi tạo tìm kiếm mỗi lần render
+  //   let filtered = users;
 
-  const handleCreateUser = () => { // Hàm handle khi tạo user
-    const user = {
-      id: users.length + 1,
-      ...newUser,
-      createdAt: new Date().toISOString().split('T')[0],
-      lastLogin: null
+  //   // Filter by search term
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(
+  //       (user) =>
+  //         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //         user.phone.includes(searchTerm)
+  //     );
+  //   }
+
+  //   // Filter by role
+  //   if (selectedRole !== "all") {
+  //     filtered = filtered.filter((user) => {
+  //       if (!user.account) return false; // tránh crash
+
+  //       const roleMap = { admin: 1, driver: 2, parent: 3 };
+  //       return user.account.manq === roleMap[selectedRole];
+  //     });
+  //   }
+
+  //   // Filter by status
+  //   if (selectedStatus !== "all") {
+  //     filtered = filtered.filter((user) => user.status === selectedStatus);
+  //   }
+
+  //   setFilteredUsers(filtered);
+  // }, [users, searchTerm, selectedRole, selectedStatus]);
+
+  const handleCreateUser = async () => {
+    try {
+      if (newUser.password !== newUser.confirmPassword) {
+        alert("Mật khẩu và xác nhận mật khẩu không khớp!");
+        return;
+      }
+      const result = await UserAPI.createUser(newUser);
+      const { user, account } = result || {};
+      // if (!account) {
+      //   alert("Tạo tài khoản thất bại, vui lòng thử lại!");
+      //   return;
+      // }
+
+      // Map thêm role/status sang kiểu frontend
+      const userWithExtras = {
+        ...user,
+        name: user.hoten || "",
+        email: user.email || "",
+        phone: user.sdt || "",
+        role:
+          account?.manq === 1
+            ? "admin"
+            : account?.manq === 2
+            ? "driver"
+            : "parent",
+        status: account?.trangthai === 1 ? "active" : "inactive",
+      };
+
+      setUsers([...users, userWithExtras]);
+      setAccounts([...accounts, account]);
+
+      setShowCreateModal(false);
+      setNewUser({
+        name: "",
+        email: "",
+        phone: "",
+        username: "",
+        password: "",
+        sex: "male",
+        birthday: "",
+        confirmPassword: "",
+        role: "parent",
+        status: "active",
+        address: "",
+      });
+    } catch (error) {
+      console.error("Lỗi khi tạo người dùng:", error);
     }
-    setUsers([...users, user])
-    setShowCreateModal(false)
-    setNewUser({
-      name: '',
-      email: '',
-      phone: '',
-      role: 'parent',
-      status: 'active',
-      address: ''
-    })
-  }
+  };
 
-  const handleEditUser = () => { // Hàm handle khi sửa User
-    setUsers(users.map(user =>
-      user.id === editingUser.id ? editingUser : user
-    ))
-    setShowEditModal(false)
-    setEditingUser(null)
-  }
+  const handleEditUser = () => {
+    // Hàm handle khi sửa User
+    setUsers(
+      users.map((user) => (user.id === editingUser.id ? editingUser : user))
+    );
+    setShowEditModal(false);
+    setEditingUser(null);
+  };
 
-  const handleDeleteUser = (id) => { // Hàm handle khi xóa User
-    if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-      setUsers(users.filter(user => user.id !== id))
+  const handleDeleteUser = (id) => {
+    // Hàm handle khi xóa User
+    if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
+      setUsers(users.filter((user) => user.id !== id));
     }
-  }
+  };
 
-  const getRoleName = (role) => { // Hàm lấy tên Role
+  const getRoleName = (role) => {
+    // Hàm lấy tên Role
     const roleMap = {
-      1: 'Quản trị viên',
-      2: 'Tài xế',
-      3: 'Phụ huynh'
-    }
-    return roleMap[role] || role
-  }
+      1: "Quản trị viên",
+      2: "Tài xế",
+      3: "Phụ huynh",
+    };
+    return roleMap[role] || role;
+  };
 
-  const getRoleColor = (role) => { // Lấy màu Role
+  const getRoleColor = (role) => {
+    // Lấy màu Role
     const colorMap = {
-      1: 'bg-red-100 text-red-800',
-      2: 'bg-green-100 text-green-800',
-      3: 'bg-yellow-100 text-yellow-800'
-    }
-    return colorMap[role] || 'bg-gray-100 text-gray-800'
-  }
+      1: "bg-red-100 text-red-800",
+      2: "bg-green-100 text-green-800",
+      3: "bg-yellow-100 text-yellow-800",
+    };
+    return colorMap[role] || "bg-gray-100 text-gray-800";
+  };
 
-  const getStatusColor = (status) => { // Lấy màu trạng thái
+  const getStatusColor = (status) => {
+    // Lấy màu trạng thái
     return status === 1
-      ? 'bg-green-100 text-green-800'
-      : 'bg-red-100 text-red-800'
-  }
+      ? "bg-green-100 text-green-800"
+      : "bg-red-100 text-red-800";
+  };
 
-  const stats = [ // Statistics
+  const stats = [
+    // Statistics
     {
-      name: 'Tổng người dùng',
+      name: "Tổng người dùng",
       value: users.length,
       icon: Users,
-      color: 'bg-blue-500'
+      color: "bg-blue-500",
     },
     {
-      name: 'Đang hoạt động',
-      value: users.filter(u => u.trangthai === 1).length,
+      name: "Đang hoạt động",
+      value: users.filter((u) => u.trangthai === 1).length,
       icon: UserCheck,
-      color: 'bg-green-500'
+      color: "bg-green-500",
     },
     {
-      name: 'Tạm khóa',
-      value: users.filter(u => u.trangthai === 0).length,
+      name: "Tạm khóa",
+      value: users.filter((u) => u.trangthai === 0).length,
       icon: UserX,
-      color: 'bg-red-500'
+      color: "bg-red-500",
     },
     {
-      name: 'Tài xế',
-      value: accounts.filter(u => u.manq === 2).length,
+      name: "Tài xế",
+      value: accounts.filter((u) => u?.manq === 2).length,
       icon: Users,
-      color: 'bg-purple-500'
-    }
-  ]
+      color: "bg-purple-500",
+    },
+  ];
 
   return (
     <>
@@ -161,7 +261,9 @@ export default function UsersPage() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Users className="h-8 w-8 text-primary-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Quản lý người dùng</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Quản lý người dùng
+              </h1>
             </div>
           </div>
           <button
@@ -185,8 +287,12 @@ export default function UsersPage() {
                   <stat.icon className="h-6 w-6 text-white" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    {stat.name}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
                 </div>
               </div>
             </div>
@@ -216,7 +322,6 @@ export default function UsersPage() {
             >
               <option value="all">Tất cả vai trò</option>
               <option value="admin">Quản trị viên</option>
-              <option value="dispatch">Điều phối</option>
               <option value="driver">Tài xế</option>
               <option value="parent">Phụ huynh</option>
             </select>
@@ -270,14 +375,18 @@ export default function UsersPage() {
 
               {/* Thêm dữ liệu vào Body */}
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map(user => {
-                  const account = accounts.find(acc => acc.matk === user.mand);
+                {filteredUsers.map((user) => {
+                  const account = accounts.find(
+                    (acc) => acc.matk === user.mand
+                  );
                   return (
                     <tr key={user.mand} className="hover:bg-gray-50">
                       {/* Dữ liệu cột Info người dùng */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{user.hoten}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {user.hoten}
+                          </div>
                           <div className="text-sm text-gray-500 flex items-center mt-1">
                             <MapPin className="h-3 w-3 mr-1" />
                             {user.diachi}
@@ -301,25 +410,35 @@ export default function UsersPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 flex items-center">
                           <User className="h-4 w-4 mr-2 text-gray-400" />
-                          {account ? account.tendangnhap : ''} {/* Render chưa kịp*/}
+                          {account ? account.tendangnhap : ""}{" "}
+                          {/* Render chưa kịp*/}
                         </div>
                         <div className="text-sm text-gray-500 flex items-center mt-1">
                           <KeyRound className="h-4 w-4 mr-2 text-gray-400" />
-                          {account ? account.matkhau : ''} {/* Render chưa kịp*/}
+                          {account ? account.matkhau : ""}{" "}
+                          {/* Render chưa kịp*/}
                         </div>
                       </td>
 
                       {/* Dữ liệu vai trò */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(account ? account.manq : 1)}`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(
+                            account ? account.manq : 1
+                          )}`}
+                        >
                           {getRoleName(account ? account.manq : 1)}
                         </span>
                       </td>
 
                       {/* Dữ liệu trạng thái */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.trangthai)}`}>
-                          {user.trangthai === 1 ? 'Hoạt động' : 'Tạm khóa'}
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                            user.trangthai
+                          )}`}
+                        >
+                          {user.trangthai === 1 ? "Hoạt động" : "Tạm khóa"}
                         </span>
                       </td>
 
@@ -338,8 +457,8 @@ export default function UsersPage() {
                           {/* Nút sửa */}
                           <button
                             onClick={() => {
-                              setEditingUser(user)
-                              setShowEditModal(true)
+                              setEditingUser(user);
+                              setShowEditModal(true);
                             }}
                             className="text-blue-600 hover:text-blue-900"
                             title="Chỉnh sửa"
@@ -372,7 +491,9 @@ export default function UsersPage() {
               <div className="mt-3">
                 {/* Title Thêm */}
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Thêm người dùng mới</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Thêm người dùng mới
+                  </h3>
                   <button
                     onClick={() => setShowCreateModal(false)}
                     className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -393,7 +514,9 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Họ và tên đầy đủ"
                         value={newUser.name}
-                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, name: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -405,7 +528,9 @@ export default function UsersPage() {
                       </label>
                       <select
                         value={newUser.sex}
-                        onChange={(e) => setEditingUser({ ...newUser, sex: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, sex: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="male">Nam</option>
@@ -422,7 +547,9 @@ export default function UsersPage() {
                         type="date"
                         placeholder="Ngày sinh"
                         value={newUser.birthday}
-                        onChange={(e) => setEditingUser({ ...newUser, birthday: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, birthday: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -436,11 +563,12 @@ export default function UsersPage() {
                         type="email"
                         placeholder="Địa chỉ email"
                         value={newUser.email}
-                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, email: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-
 
                     {/* Phone */}
                     <div>
@@ -451,7 +579,9 @@ export default function UsersPage() {
                         type="tel"
                         placeholder="Số điện thoại"
                         value={newUser.phone}
-                        onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, phone: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -465,7 +595,9 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Tên đăng nhập"
                         value={newUser.username}
-                        onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, username: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -479,7 +611,9 @@ export default function UsersPage() {
                         type="password"
                         placeholder="Mật khẩu"
                         value={newUser.password}
-                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, password: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -493,7 +627,12 @@ export default function UsersPage() {
                         type="password"
                         placeholder="Nhập lại mật khẩu"
                         value={newUser.confirmPassword}
-                        onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            confirmPassword: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -507,7 +646,9 @@ export default function UsersPage() {
                     <textarea
                       placeholder="Địa chỉ"
                       value={newUser.address}
-                      onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, address: e.target.value })
+                      }
                       rows={2}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
@@ -520,7 +661,9 @@ export default function UsersPage() {
                       </label>
                       <select
                         value={newUser.role}
-                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, role: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="parent">Phụ huynh</option>
@@ -536,7 +679,9 @@ export default function UsersPage() {
                       </label>
                       <select
                         value={newUser.status}
-                        onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}
+                        onChange={(e) =>
+                          setNewUser({ ...newUser, status: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="active">Hoạt động</option>
@@ -573,7 +718,9 @@ export default function UsersPage() {
             <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
               <div className="mt-3">
                 {/* Title */}
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Chỉnh sửa người dùng</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Chỉnh sửa người dùng
+                </h3>
 
                 {/* Nút đóng X */}
                 <button
@@ -594,7 +741,12 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Họ tên"
                         value={editingUser.name}
-                        onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            name: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -606,7 +758,12 @@ export default function UsersPage() {
                       </label>
                       <select
                         value={editingUser.sex}
-                        onChange={(e) => setEditingUser({ ...editingUser, sex: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            sex: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="male">Nam</option>
@@ -623,7 +780,12 @@ export default function UsersPage() {
                         type="date"
                         placeholder="Ngày sinh"
                         value={editingUser.birthday}
-                        onChange={(e) => setEditingUser({ ...editingUser, birthday: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            birthday: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -637,7 +799,12 @@ export default function UsersPage() {
                         type="email"
                         placeholder="Email"
                         value={editingUser.email}
-                        onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            email: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -651,7 +818,12 @@ export default function UsersPage() {
                         type="tel"
                         placeholder="Số điện thoại"
                         value={editingUser.phone}
-                        onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            phone: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -665,7 +837,12 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Tên đăng nhập"
                         value={editingUser.username}
-                        onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            username: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -679,7 +856,12 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Mật khẩu"
                         value={editingUser.password}
-                        onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            password: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -693,7 +875,12 @@ export default function UsersPage() {
                         type="text"
                         placeholder="Nhập lại mật khẩu"
                         value={editingUser.confirmPassword}
-                        onChange={(e) => setEditingUser({ ...editingUser, confirmPassword: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            confirmPassword: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
@@ -708,7 +895,12 @@ export default function UsersPage() {
                       type="text"
                       placeholder="Địa chỉ"
                       value={editingUser.address}
-                      onChange={(e) => setEditingUser({ ...editingUser, address: e.target.value })}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          address: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
@@ -721,7 +913,12 @@ export default function UsersPage() {
                       </label>
                       <select
                         value={editingUser.role}
-                        onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            role: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="parent">Phụ huynh</option>
@@ -738,7 +935,12 @@ export default function UsersPage() {
                       </label>
                       <select
                         value={editingUser.status}
-                        onChange={(e) => setEditingUser({ ...editingUser, status: e.target.value })}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            status: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="active">Hoạt động</option>
@@ -768,9 +970,7 @@ export default function UsersPage() {
             </div>
           </div>
         )}
-
-
       </div>
     </>
-  )
-};
+  );
+}
