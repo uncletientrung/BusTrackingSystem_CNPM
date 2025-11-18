@@ -321,7 +321,6 @@ export default function SchedulePage() {
 
       {isModalOpen && (
         <ScheduleModal
-          
           onClose={() => {
             setIsModalOpen(false);
             setEditingSchedule(null);
@@ -342,7 +341,7 @@ export default function SchedulePage() {
         users={users}
       />
 
-      <ScheduleStudentSelector
+      {/* <ScheduleStudentSelector
         selectedStudents={isEditModalOpen ? editingSchedule?.students : []}
         onStudentsChange={(students) => {
           if (isEditModalOpen && editingSchedule) {
@@ -351,7 +350,7 @@ export default function SchedulePage() {
         }}
         isOpen={isStudentSelectorOpen}
         onClose={() => setIsStudentSelectorOpen(false)}
-      />
+      /> */}
     </>
   );
 }

@@ -1,104 +1,86 @@
-import { Search, UserCheck, X } from "lucide-react";
+import { Route, Search, UserCheck, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { StopAPI, StudentAPI } from "../../api/apiServices";
 
-/**
- * Component cho phép chọn học sinh để thêm vào lịch trình
- * @param {Array} selectedStudents - Danh sách học sinh đã chọn
- * @param {Function} onStudentsChange - Callback khi danh sách thay đổi
- * @param {Boolean} isOpen - Trạng thái mở/đóng modal
- * @param {Function} onClose - Callback khi đóng modal
- */
-export default function ScheduleStudentSelector({ 
-  selectedStudents = [], 
-  onStudentsChange, 
-  isOpen, 
-  onClose 
+export default function ScheduleStudentSelector({
+  selectedStudents = [],
+  onClose,
+  setListSelectedStudent
 }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [tempSelected, setTempSelected] = useState([]);
+  const [selectedList, setSelectedList] = useState([]);
   const [allStudents, setAllStudents] = useState([]);
+  const [stops, setStops] = useState([])
 
-  // Mock data - Danh sách học sinh mẫu
   useEffect(() => {
-    const mockStudents = [
-      { id: 1, name: 'Nguyễn Văn A', studentCode: 'HS001', class: '10A1', grade: 10, phone: '0901234567', address: 'Quận 1, TP.HCM' },
-      { id: 2, name: 'Trần Thị B', studentCode: 'HS002', class: '10A1', grade: 10, phone: '0901234568', address: 'Quận 3, TP.HCM' },
-      { id: 3, name: 'Lê Văn C', studentCode: 'HS003', class: '10A2', grade: 10, phone: '0901234569', address: 'Quận 5, TP.HCM' },
-      { id: 4, name: 'Phạm Thị D', studentCode: 'HS004', class: '10A2', grade: 10, phone: '0901234570', address: 'Quận 7, TP.HCM' },
-      { id: 5, name: 'Hoàng Văn E', studentCode: 'HS005', class: '11A1', grade: 11, phone: '0901234571', address: 'Bình Thạnh, TP.HCM' },
-      { id: 6, name: 'Vũ Thị F', studentCode: 'HS006', class: '11A1', grade: 11, phone: '0901234572', address: 'Tân Bình, TP.HCM' },
-      { id: 7, name: 'Đặng Văn G', studentCode: 'HS007', class: '11A2', grade: 11, phone: '0901234573', address: 'Gò Vấp, TP.HCM' },
-      { id: 8, name: 'Bùi Thị H', studentCode: 'HS008', class: '11A2', grade: 11, phone: '0901234574', address: 'Thủ Đức, TP.HCM' },
-      { id: 9, name: 'Ngô Văn I', studentCode: 'HS009', class: '12A1', grade: 12, phone: '0901234575', address: 'Quận 2, TP.HCM' },
-      { id: 10, name: 'Đinh Thị K', studentCode: 'HS010', class: '12A1', grade: 12, phone: '0901234576', address: 'Quận 9, TP.HCM' },
-      { id: 11, name: 'Trương Văn L', studentCode: 'HS011', class: '12A2', grade: 12, phone: '0901234577', address: 'Quận 10, TP.HCM' },
-      { id: 12, name: 'Lý Thị M', studentCode: 'HS012', class: '12A2', grade: 12, phone: '0901234578', address: 'Quận 11, TP.HCM' },
-    ];
-    setAllStudents(mockStudents);
+    (async () => {
+      try {
+        const [listStudent, listStop] = await Promise.all([StudentAPI.getAllStudent(), StopAPI.getAllStops()]);
+        setAllStudents(listStudent);
+        setStops(listStop);
+      } catch (error) {
+        alert("Lỗi lấy dữ liệu học sinh ở ScheduleStudentSelector " + error)
+      }
+    })();
   }, []);
 
-  // Khởi tạo tempSelected từ selectedStudents khi modal mở
+  // Khởi tạo selectedList từ selectedStudents khi modal mở
   useEffect(() => {
-    if (isOpen) {
-      setTempSelected([...selectedStudents]);
-      setSearchTerm('');
-    }
-  }, [isOpen, selectedStudents]);
+    setSelectedList([...selectedStudents]);
+    setSearchTerm('');
+  }, [ selectedStudents]);
 
   // Lọc học sinh theo tìm kiếm
   const filteredStudents = allStudents.filter(student =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.studentCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.class.toLowerCase().includes(searchTerm.toLowerCase())
+    student.hoten.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.mahs.toString().includes(searchTerm.toLowerCase()) ||
+    student.lop.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Kiểm tra học sinh đã được chọn chưa
   const isSelected = (studentId) => {
-    return tempSelected.some(s => s.id === studentId);
+    return selectedList.some(s => s.mahs === studentId);
   };
 
   // Toggle chọn/bỏ chọn học sinh
   const handleToggleStudent = (student) => {
-    if (isSelected(student.id)) {
-      setTempSelected(tempSelected.filter(s => s.id !== student.id));
+    if (isSelected(student.mahs)) {
+      setSelectedList(selectedList.filter(s => s.mahs !== student.mahs));
     } else {
-      setTempSelected([...tempSelected, student]);
+      setSelectedList([...selectedList, student]);
     }
   };
 
   // Chọn tất cả học sinh hiện tại (trong kết quả tìm kiếm)
   const handleSelectAll = () => {
-    const newSelected = [...tempSelected];
+    const newSelected = [...selectedList];
     filteredStudents.forEach(student => {
-      if (!isSelected(student.id)) {
+      if (!isSelected(student.mahs)) {
         newSelected.push(student);
       }
     });
-    setTempSelected(newSelected);
+    setSelectedList(newSelected);
   };
 
   // Bỏ chọn tất cả
   const handleDeselectAll = () => {
-    setTempSelected([]);
+    setSelectedList([]);
   };
 
   // Xác nhận và lưu
   const handleConfirm = () => {
-    onStudentsChange(tempSelected);
+    setListSelectedStudent(selectedList);
     onClose();
   };
 
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       ></div>
 
-      {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
           {/* Header */}
@@ -111,9 +93,6 @@ export default function ScheduleStudentSelector({
                 <h2 className="text-2xl font-bold text-gray-900">
                   Chọn học sinh
                 </h2>
-                <p className="text-sm text-gray-600">
-                  Đã chọn: <span className="font-semibold text-primary-600">{tempSelected.length}</span> học sinh
-                </p>
               </div>
             </div>
             <button
@@ -124,10 +103,9 @@ export default function ScheduleStudentSelector({
             </button>
           </div>
 
-          {/* Search và Actions */}
+          {/* Thanh tìm kiếm */}
           <div className="p-4 border-b border-gray-200 bg-gray-50">
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* Search Box */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
@@ -139,7 +117,7 @@ export default function ScheduleStudentSelector({
                 />
               </div>
 
-              {/* Action Buttons */}
+              {/* Nút */}
               <div className="flex gap-2">
                 <button
                   onClick={handleSelectAll}
@@ -156,20 +134,14 @@ export default function ScheduleStudentSelector({
               </div>
             </div>
 
-            {/* Stats */}
             <div className="mt-3 flex gap-4 text-sm text-gray-600">
               <span>
                 Kết quả: <strong className="text-gray-900">{filteredStudents.length}</strong> học sinh
               </span>
-              {searchTerm && (
-                <span className="text-primary-600">
-                  Đang lọc theo: "<strong>{searchTerm}</strong>"
-                </span>
-              )}
             </div>
           </div>
 
-          {/* Student List */}
+          {/* Table */}
           <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 280px)' }}>
             {filteredStudents.length > 0 ? (
               <div className="overflow-x-auto">
@@ -178,9 +150,6 @@ export default function ScheduleStudentSelector({
                     <tr>
                       <th className="w-12 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                         Chọn
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        STT
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Mã HS
@@ -192,22 +161,21 @@ export default function ScheduleStudentSelector({
                         Lớp
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Khối
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Số điện thoại
+                        Điểm đón/ trả
                       </th>
                     </tr>
                   </thead>
+
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredStudents.map((student, index) => {
-                      const selected = isSelected(student.id);
+                    {filteredStudents.map((student) => {
+                      const selected = isSelected(student.mahs);
+                      const diemdon = stops.find(stop => stop.madd == student.diemdon).tendiemdung;
+                      const diemtra = stops.find(stop => stop.madd == student.diemdung).tendiemdung;
                       return (
                         <tr
-                          key={student.id}
-                          className={`hover:bg-gray-50 transition-colors cursor-pointer ${
-                            selected ? 'bg-primary-50' : ''
-                          }`}
+                          key={student.mahs}
+                          className={`hover:bg-gray-50 transition-colors cursor-pointer ${selected ? 'bg-primary-50' : ''
+                            }`}
                           onClick={() => handleToggleStudent(student)}
                         >
                           <td className="px-4 py-4 text-center">
@@ -219,24 +187,25 @@ export default function ScheduleStudentSelector({
                               onClick={(e) => e.stopPropagation()}
                             />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {index + 1}
-                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {student.studentCode}
+                            {student.mahs}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                            <div className="text-sm text-gray-500">{student.address}</div>
+                            <div className="text-sm font-medium text-gray-900">{student.hoten}</div>
+                            <div className="text-sm text-gray-500">{student.diachi}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {student.class}
+                            {student.lop}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            Khối {student.grade}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {student.phone}
+                            <div className="text-sm text-gray-900 flex items-center">
+                              <Route className="h-4 w-4 mr-2 text-gray-900" />
+                              Điểm đón: {diemdon}
+                            </div>
+                            <div className="text-sm text-gray-900 flex items-center">
+                              <Route className="h-4 w-4 mr-2 text-gray-900" />
+                              Điểm trả: {diemtra}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -248,17 +217,14 @@ export default function ScheduleStudentSelector({
               <div className="text-center py-12">
                 <UserCheck className="h-16 w-16 mx-auto mb-4 text-gray-300" />
                 <p className="text-gray-500 text-lg">Không tìm thấy học sinh nào</p>
-                <p className="text-gray-400 text-sm mt-1">
-                  {searchTerm ? 'Thử tìm kiếm với từ khóa khác' : 'Danh sách học sinh trống'}
-                </p>
               </div>
             )}
           </div>
 
-          {/* Footer */}
+          {/* Chân trang */}
           <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
             <div className="text-sm text-gray-600">
-              Đã chọn <strong className="text-primary-600">{tempSelected.length}</strong> học sinh
+              Đã chọn <strong className="text-primary-600">{selectedList.length}</strong> học sinh
             </div>
             <div className="flex gap-3">
               <button
