@@ -1,46 +1,49 @@
-const { sequelize } = require('../config/connectDB');
-const { DataTypes } = require('sequelize');
+const { sequelize } = require("../config/connectDB");
+const { DataTypes } = require("sequelize");
 
-const Account = sequelize.define('Account', {
+const Account = sequelize.define(
+  "Account",
+  {
     matk: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
     tendangnhap: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     matkhau: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     manq: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     trangthai: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-}, {
-    tableName: 'taikhoan',
+  },
+  {
+    tableName: "taikhoan",
     timestamps: false,
-});
+  }
+);
 
 const AccountDAO = {
-    async getAll() {
-        return await Account.findAll();
-    },
+  async getAll() {
+    return await Account.findAll();
+  },
 
-    async getById(id) {
-        return await Account.findByPk(id);
-    },
-    async create(accountData, { transaction } = {}) {
-        return await Account.create(accountData, transaction);
-    }
-
+  async getById(id) {
+    return await Account.findByPk(id);
+  },
+  async create(accountData) {
+    // accountData = { matk, tendangnhap, matkhau, manq, trangthai }
+    return await Account.create(accountData);
+  },
 };
 
 module.exports = AccountDAO;
-
