@@ -256,12 +256,10 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                 {errors.matx && <p className="mt-1 text-sm text-red-500">{errors.matx}</p>}
               </div>
 
-              <div>
-                <label />
-              </div>
+
 
               {/* Trạng thái (chỉ khi sửa) */}
-              {isEdit && (
+              {isEdit ? (
                 <div>
                   <label className="block text-sm font-medium mb-1">Trạng thái</label>
                   <select
@@ -270,12 +268,11 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                     onChange={handleChange}
                     className="w-full border rounded-lg px-3 py-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value={1}>Đã lên lịch</option>
-                    <option value={2}>Hoàn thành</option>
-                    <option value={0}>Hủy bỏ</option>
+                    <option value={0}>Trạng thái hệ thống</option>
+                    <option value={1}>Hoàn thành</option>
                   </select>
                 </div>
-              )}
+              ) : <div> <label /></div>}
             </div>
 
             {/* Danh sách học sinh */}

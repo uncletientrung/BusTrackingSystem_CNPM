@@ -77,19 +77,26 @@ export default function SchedulePage() {
 
   }, [selectedDate, selectedRoute, schedules, selectedDateEnd]);
 
-  const getStatusColor = (status) => {
-    const map = {
-      2: 'bg-green-100 text-green-800',
-      1: 'bg-yellow-100 text-yellow-800',
-      0: 'bg-red-100 text-red-800'
-    };
-    return map[status] || 'bg-gray-100 text-gray-800';
-  };
+  const getStatusText = (item) => {
+    const now = new Date();
+    const start = new Date(item.thoigianbatdau);
+    const end = new Date(item.thoigianketthuc);
 
-  const getStatusText = (status) => {
-    const map = { 2: 'Hoàn thành', 1: 'Đã lên lịch', 0: 'Hủy bỏ' };
-    return map[status] || status;
-  };
+    if (item.trangthai == 1) {
+      return { text: "Hoàn thành", color: "bg-green-100 text-green-800" };
+    } else {
+      if (now < start) {
+        return { text: "Đã lên lịch", color: "bg-blue-100 text-blue-800" };
+      } else if (now >= start && now <= end) {
+        return { text: "Đang chạy", color: "bg-yellow-100 text-yellow-800" };
+      } else if (now > end) {
+        return { text: "Trễ giờ", color: "bg-orange-100 text-orange-800" };
+      }
+    }
+
+    // Mặc định
+    return "Không xác định";
+  }
 
   const handleAddSchedule = () => {
     setEditingSchedule(null);
@@ -97,7 +104,7 @@ export default function SchedulePage() {
   };
   const handleEdit = (schedule) => {
     setEditingSchedule(schedule);
-    setIsEditModalOpen(true);
+    setIsModalOpen(true);
   };
 
   const handleViewDetail = (schedule) => {
@@ -295,9 +302,9 @@ export default function SchedulePage() {
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap"> {/* Màu trạng thái */}
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.trangthai)}`}>
-                          {getStatusText(item.trangthai)}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusText(item).color}`}>
+                          {getStatusText(item).text}
                         </span>
                       </td>
 

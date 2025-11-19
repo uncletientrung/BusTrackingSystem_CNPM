@@ -26,7 +26,7 @@ const ScheduleBUS = {
             const dsCTlichtrinh = dsCTSchedule.map((CTSchedule) => ({
                 malt: lichtrinh.malt,
                 mahs: CTSchedule.mahs,
-                trangthai: 1
+                trangthai: 0
             }))
             await CTScheduleDAO.createCTSchedule(dsCTlichtrinh, { transaction: record })
             await record.commit()
