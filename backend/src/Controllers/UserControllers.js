@@ -51,5 +51,48 @@ const UserController = {
       res.status(500).json({ message: error.message });
     }
   },
+
+  async update(req, res) {
+    try {
+      const { mand } = req.params;
+      if (!mand) throw new Error("Thiếu mã người dùng");
+
+      const {
+        name,
+        birthday,
+        phone,
+        email,
+        address,
+        sex, // "male" | "female"
+        username,
+        password,
+        role, // "admin" | "driver" | "parent"
+        status, // "active" | "inactive"
+      } = req.body;
+
+      // Dữ liệu gửi vào BUS
+      const userData = { name, birthday, phone, email, address, sex };
+      const accountData = {};
+
+      if (username !== undefined) accountData.username = username;
+      if (password !== undefined && password.trim() !== "")
+        accountData.password = password;
+      if (role !== undefined) accountData.role = role;
+      if (status !== undefined) accountData.trangthai = status; // string "active"/"inactive"
+
+      const result = await UserBUS.updateUser(mand, userData, accountData);
+
+      res.status(200).json({
+        message: "Cập nhật người dùng thành công!",
+        user: result.user,
+        account: result.account,
+      });
+    } catch (error) {
+      console.error("Lỗi cập nhật người dùng:", error);
+      res.status(500).json({
+        message: error.message || "Cập nhật thất bại",
+      });
+    }
+  },
 };
 module.exports = UserController;

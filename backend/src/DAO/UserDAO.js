@@ -54,6 +54,10 @@ const UserDAO = {
     // userData = { hoten, ngaysinh, sdt, email, diachi, trangthai, gioitinh }
     return await User.create(userData);
   },
+
+  async update(mand, userData) {
+    return await User.update(userData, { where: { mand } });
+  },
 };
 
 module.exports = UserDAO;

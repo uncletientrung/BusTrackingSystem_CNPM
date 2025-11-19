@@ -152,13 +152,61 @@ export default function UsersPage() {
     }
   };
 
-  const handleEditUser = () => {
-    // Hàm handle khi sửa User
-    setUsers(
-      users.map((user) => (user.id === editingUser.id ? editingUser : user))
-    );
-    setShowEditModal(false);
-    setEditingUser(null);
+  const handleEditUser = async () => {
+    try {
+      // 1. Kiểm tra mật khẩu (nếu có nhập)
+      if (editingUser.password || editingUser.confirmPassword) {
+        if (editingUser.password !== editingUser.confirmPassword) {
+          alert("Mật khẩu và xác nhận mật khẩu không khớp!");
+          return;
+        }
+      }
+
+      // 2. Chuẩn bị dữ liệu gửi lên backend
+      const userUpdateData = {
+        name: editingUser.hoten || editingUser.name,
+        birthday: editingUser.ngaysinh || editingUser.birthday || null,
+        phone: editingUser.sdt || editingUser.phone,
+        email: editingUser.email,
+        address: editingUser.diachi || editingUser.address || "",
+        sex: editingUser.sex, // "male" | "female"
+        username: editingUser.username,
+        role: editingUser.role, // "admin" | "driver" | "parent"
+        status: editingUser.status, // "active" | "inactive"
+      };
+
+      // Nếu có đổi mật khẩu → gửi lên
+      if (editingUser.password && editingUser.password.trim() !== "") {
+        userUpdateData.password = editingUser.password;
+      }
+
+      // 3. Gọi API cập nhật
+      const result = await UserAPI.updateUser(editingUser.mand, userUpdateData);
+      const { user: updatedUser, account: updatedAccount } = result;
+
+      if (!updatedUser) {
+        alert("Cập nhật thất bại!");
+        return;
+      }
+
+      setUsers((prev) =>
+        prev.map((u) => (u.mand === updatedUser.mand ? updatedUser : u))
+      );
+
+      if (updatedAccount) {
+        setAccounts((prev) =>
+          prev.map((a) => (a.matk === updatedAccount.matk ? updatedAccount : a))
+        );
+      }
+
+      // 5. Đóng modal + thông báo thành công
+      setShowEditModal(false);
+      setEditingUser(null);
+      alert("Cập nhật người dùng thành công!");
+    } catch (error) {
+      console.error("Lỗi khi cập nhật người dùng:", error);
+      alert("Cập nhật thất bại: " + (error.message || "Lỗi không xác định"));
+    }
   };
 
   const handleDeleteUser = (id) => {
@@ -427,7 +475,31 @@ export default function UsersPage() {
                           {/* Nút sửa */}
                           <button
                             onClick={() => {
-                              setEditingUser(user);
+                              const account = accounts.find(
+                                (acc) => acc.matk === user.mand
+                              );
+                              setEditingUser({
+                                mand: user.mand,
+                                name: user.hoten || "",
+                                email: user.email || "",
+                                phone: user.sdt || "",
+                                address: user.diachi || "",
+                                birthday: user.ngaysinh || "",
+                                sex: user.gioitinh === 1 ? "male" : "female",
+                                username: account?.tendangnhap || "",
+                                password: "",
+                                confirmPassword: "",
+                                role:
+                                  account?.manq === 1
+                                    ? "admin"
+                                    : account?.manq === 2
+                                    ? "driver"
+                                    : "parent",
+                                status:
+                                  account?.trangthai === 1
+                                    ? "active"
+                                    : "inactive",
+                              });
                               setShowEditModal(true);
                             }}
                             className="text-blue-600 hover:text-blue-900"
