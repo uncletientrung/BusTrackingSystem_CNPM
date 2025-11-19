@@ -67,15 +67,18 @@ export default function UsersPage() {
 
     // Filter theo từ khóa search
     if (searchTerm) {
-      filtered = filtered.filter(
-        (user) =>
-          user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          false ||
-          user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          false ||
-          user.phone?.includes(searchTerm) ||
-          false
-      );
+      const term = searchTerm.toLowerCase().trim();
+      if (term) {
+        filtered = filtered.filter((user) => {
+          const name = (user.hoten || "").toLowerCase();
+          const email = (user.email || "").toLowerCase();
+          const phone = (user.sdt || "").toString();
+
+          return (
+            name.includes(term) || email.includes(term) || phone.includes(term)
+          );
+        });
+      }
     }
 
     // Filter theo role
@@ -100,69 +103,33 @@ export default function UsersPage() {
     setFilteredUsers(filtered);
   }, [users, accounts, searchTerm, selectedRole, selectedStatus]);
 
-  // useEffect(() => {
-  //   // Khởi tạo tìm kiếm mỗi lần render
-  //   let filtered = users;
-
-  //   // Filter by search term
-  //   if (searchTerm) {
-  //     filtered = filtered.filter(
-  //       (user) =>
-  //         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         user.phone.includes(searchTerm)
-  //     );
-  //   }
-
-  //   // Filter by role
-  //   if (selectedRole !== "all") {
-  //     filtered = filtered.filter((user) => {
-  //       if (!user.account) return false; // tránh crash
-
-  //       const roleMap = { admin: 1, driver: 2, parent: 3 };
-  //       return user.account.manq === roleMap[selectedRole];
-  //     });
-  //   }
-
-  //   // Filter by status
-  //   if (selectedStatus !== "all") {
-  //     filtered = filtered.filter((user) => user.status === selectedStatus);
-  //   }
-
-  //   setFilteredUsers(filtered);
-  // }, [users, searchTerm, selectedRole, selectedStatus]);
-
   const handleCreateUser = async () => {
     try {
       if (newUser.password !== newUser.confirmPassword) {
         alert("Mật khẩu và xác nhận mật khẩu không khớp!");
         return;
       }
+
       const result = await UserAPI.createUser(newUser);
       const { user, account } = result || {};
-      // if (!account) {
-      //   alert("Tạo tài khoản thất bại, vui lòng thử lại!");
-      //   return;
-      // }
 
-      // Map thêm role/status sang kiểu frontend
-      const userWithExtras = {
-        ...user,
-        name: user.hoten || "",
-        email: user.email || "",
-        phone: user.sdt || "",
-        role:
-          account?.manq === 1
-            ? "admin"
-            : account?.manq === 2
-            ? "driver"
-            : "parent",
-        status: account?.trangthai === 1 ? "active" : "inactive",
+      if (!user || !account) {
+        alert("Tạo người dùng thất bại!");
+        return;
+      }
+
+      // Giữ nguyên cấu trúc dữ liệu như backend trả về
+      const newUserFromAPI = {
+        ...user, // có hoten, sdt, email, diachi, mand, trangthai...
       };
 
-      setUsers([...users, userWithExtras]);
-      setAccounts([...accounts, account]);
+      // Cập nhật danh sách users và accounts
+      setUsers((prev) => [...prev, newUserFromAPI]);
+      if (account) {
+        setAccounts((prev) => [...prev, account]);
+      }
 
+      // Reset form + đóng modal
       setShowCreateModal(false);
       setNewUser({
         name: "",
@@ -177,8 +144,11 @@ export default function UsersPage() {
         status: "active",
         address: "",
       });
+
+      alert("Thêm người dùng thành công!");
     } catch (error) {
       console.error("Lỗi khi tạo người dùng:", error);
+      alert("Có lỗi xảy ra: " + (error.message || error));
     }
   };
 
