@@ -46,7 +46,11 @@ const AccountDAO = {
   },
 
   async update(matk, accountData) {
-    return await Account.update(accountData, { where: { matk } });
+    await Account.update(accountData, { where: { matk } });
+
+    const updatedAccount = await Account.findByPk(matk);
+
+    return updatedAccount;
   },
 };
 
