@@ -27,6 +27,9 @@ const CTScheduleDAO = {
     },
     async deleteCTSchedule(malt, { transaction } = {}) {
         return await CTSchedule.destroy({ where: { malt } }, { transaction })
+    },
+    async getAllById(malt){
+        return await CTSchedule.findAll({where : {malt}})
     }
 }
 

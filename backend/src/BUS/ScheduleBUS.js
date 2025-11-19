@@ -56,6 +56,31 @@ const ScheduleBUS = {
             await record.rollback();
             throw error;
         }
+    },
+    async update(malt, scheduleData, dsCTSchedule) {
+        const record = await require('../config/connectDB').sequelize.transaction();
+        try {
+            await CTScheduleDAO.deleteCTSchedule(malt, { transaction: record })
+            await ScheduleDAO.updateSchedule(malt, scheduleData, { transaction: record });
+            if (dsCTSchedule.length > 0) {
+                const dsCTlichtrinh = dsCTSchedule.map(ct => ({
+                    malt, mahs: ct.mahs, trangthai: ct.trangthai
+                }));
+                await CTScheduleDAO.createCTSchedule(dsCTlichtrinh, { transaction: record });
+            }
+            await record.commit
+            return new ScheduleDTO(malt,
+                scheduleData.matx,
+                scheduleData.matd,
+                scheduleData.maxe,
+                scheduleData.thoigianbatdau,
+                scheduleData.thoigianketthuc,
+                scheduleData.tonghocsinh,
+                scheduleData.trangthai)
+        } catch (error) {
+            await record.rollback();
+            throw error;
+        }
     }
 }
 

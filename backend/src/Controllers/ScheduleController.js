@@ -40,6 +40,26 @@ const ScheduleController = {
             console.error('Lỗi xóa lịch trình ở Controller:', error);
             res.status(500).json({ message: error.message });
         }
+    },
+    async update(req, res) {
+        try {
+            const { malt } = req.params;
+            const { matd, matx, maxe, thoigianbatdau, thoigianketthuc,
+                tonghocsinh, trangthai, students } = req.body;
+            const lichtrinh = {
+                matd: Number(matd), matx: Number(matx), maxe: Number(maxe),
+                thoigianbatdau, thoigianketthuc, tonghocsinh: Number(tonghocsinh),
+                trangthai: Number(trangthai)
+            }
+            const updateSchedule = await ScheduleBUS.update(malt, lichtrinh, students);
+            res.status(201).json({
+                message: 'Sửa lịch trình thành công!',
+                schedule: updateSchedule
+            });
+        } catch (error) {
+            console.error('Lỗi sửa lịch trình ở Controller:', error);
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 

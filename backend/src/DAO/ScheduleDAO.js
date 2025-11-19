@@ -49,6 +49,9 @@ const ScheduleDAO = {
     },
     async deleteSchedule(malt, { transaction } = {}) {
         return Schedule.destroy({ where: { malt } }, { transaction })
+    },
+    async updateSchedule(malt, scheduleData, { transaction } = {}) {
+        return Schedule.update(scheduleData, { where: { malt } }, { transaction });
     }
 };
 

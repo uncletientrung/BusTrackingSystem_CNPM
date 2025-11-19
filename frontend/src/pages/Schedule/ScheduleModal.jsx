@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, UserPlus, CheckCircle, Users } from "lucide-react";
-import { AccountAPI, BusAPI, RouteAPI, ScheduleAPI, UserAPI } from "../../api/apiServices";
+import { AccountAPI, BusAPI, CTScheduleAPI, RouteAPI, ScheduleAPI, UserAPI } from "../../api/apiServices";
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector";
 
 export default function ScheduleModal({ onClose, onSave, schedule }) {
@@ -49,29 +49,34 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
   }, []);
 
   useEffect(() => {
-    if (isEdit && schedule) {
-      setFormData({
-        malt: schedule.malt,
-        maxe: schedule.maxe || "",
-        matd: schedule.matd || "",
-        matx: schedule.matx || "",
-        thoigianbatdau: schedule.thoigianbatdau?.slice(0, 16) || "", // "2025-04-05T07:30"
-        thoigianketthuc: schedule.thoigianketthuc?.slice(0, 16) || "",
-        trangthai: schedule.trangthai ?? 1,
-        students: schedule.students || [],
-      });
-    } else {
-      setFormData({
-        malt: null,
-        maxe: "",
-        matd: "",
-        matx: "",
-        thoigianbatdau: "",
-        thoigianketthuc: "",
-        trangthai: 1,
-        students: [],
-      });
-    }
+    (async () => {
+      if (isEdit && schedule) {
+        let listCTLT = [];
+        listCTLT = await CTScheduleAPI.getCTLTById(schedule.malt);
+        setFormData({
+          malt: schedule.malt,
+          maxe: schedule.maxe || "",
+          matd: schedule.matd || "",
+          matx: schedule.matx || "",
+          thoigianbatdau: schedule.thoigianbatdau?.slice(0, 16) || "", // "2025-04-05T07:30"
+          thoigianketthuc: schedule.thoigianketthuc?.slice(0, 16) || "",
+          trangthai: schedule.trangthai ?? 1,
+          students: listCTLT || []
+        });
+
+      } else {
+        setFormData({
+          malt: null,
+          maxe: "",
+          matd: "",
+          matx: "",
+          thoigianbatdau: "",
+          thoigianketthuc: "",
+          trangthai: 1,
+          students: [],
+        });
+      }
+    })();
     setErrors({});
   }, [isEdit, schedule]);
 
@@ -156,7 +161,14 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
         <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-bold">
-              {isEdit ? "Sửa lịch trình" : "Tạo lịch trình mới"}
+              {isEdit ? (
+                <>
+                  Sửa lịch trình mã:{" "}
+                  <span className="text-blue-600">SCH-{schedule.malt}</span>
+                </>
+              ) : (
+                "Tạo lịch trình mới"
+              )}
             </h3>
             <button onClick={onClose}>
               <X className="h-6 w-6" />

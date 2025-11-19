@@ -44,9 +44,10 @@ export const RouteAPI = {
 };
 
 export const ScheduleAPI = {
-    getAllSchedule: () => apiClient.fetchAll('Schedule'),
-    createSchedule: (newScheduleDayDu) => apiClient.create('Schedule', newScheduleDayDu),
-    deleteSchedule: (malt) => apiClient.deleteForm('Schedule', malt)
+  getAllSchedule: () => apiClient.fetchAll('Schedule'),
+  createSchedule: (newScheduleDayDu) => apiClient.create('Schedule', newScheduleDayDu),
+  deleteSchedule: (malt) => apiClient.deleteForm('Schedule', malt),
+  updateSchedule: (malt, updateScheduleDayDu) => apiClient.update('Schedule', malt, updateScheduleDayDu)
 }
 
 export const NotificationAPI = {
@@ -56,3 +57,7 @@ export const NotificationAPI = {
 export const CTRouteAPI = {
   getCTTTById: (matd) => apiClient.fetchById("CTRoute", matd),
 };
+
+export const CTScheduleAPI = {
+  getCTLTById: (malt) => apiClient.fetchById("CTSchedule", malt)
+}

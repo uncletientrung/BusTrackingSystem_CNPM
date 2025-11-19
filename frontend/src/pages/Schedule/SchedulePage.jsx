@@ -126,8 +126,14 @@ export default function SchedulePage() {
   const handleSave = async (scheduleData) => {
     try {
       if (editingSchedule) {
-        console.log("Sửa lịch");
+        console.log(scheduleData)
+        console.log(editingSchedule.malt);
+        
+        const updateSchedule = await ScheduleAPI.updateSchedule(editingSchedule.malt, scheduleData);
+        console.log(updateSchedule.schdule);
 
+        setSchedules(schedules.map(
+          lt => lt.malt == scheduleData.malt ? { ...lt, ...updateSchedule.schedule } : lt))
       } else {
         const newSchedule = await ScheduleAPI.createSchedule(scheduleData);
         setSchedules([...schedules, newSchedule.schedule]);
@@ -238,11 +244,11 @@ export default function SchedulePage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Xe buýt</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã Lịch trình</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tuyến đường</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khởi hành</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Đến nơi</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tài xế</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tài xế & Xe</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hành khách</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hành động</th>
@@ -260,31 +266,34 @@ export default function SchedulePage() {
                         <div className="flex items-center">
                           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                             <span className="text-blue-600 font-bold text-sm">
-                              <BusFront></BusFront>
+                              <Calendar></Calendar>
                             </span>
                           </div>
 
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">
-                              {bus.bienso}
+                              SCH-{item.malt}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm font-medium text-gray-900">
                           {route.tentuyen}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{toLocalString(item.thoigianbatdau)}</div>
+                        <div className="text-sm font-medium text-gray-900">{toLocalString(item.thoigianbatdau)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{toLocalString(item.thoigianketthuc)}</div>
+                        <div className="text-sm font-medium text-gray-900">{toLocalString(item.thoigianketthuc)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm font-medium text-gray-900">
                           {user.hoten}
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {bus.bienso}
                         </div>
                       </td>
 

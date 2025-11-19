@@ -5,3 +5,5 @@ class CTScheduleDTO {
         this.trangthai = trangthai;
     }
 }
+
+module.exports = CTScheduleDTO
