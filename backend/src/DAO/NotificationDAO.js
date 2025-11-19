@@ -53,6 +53,18 @@ const Notification = sequelize.define('Notification', {
 const NotificationDAO = {
     async getAll() {
         return await Notification.findAll();
+    },
+    async insertNotificationDAO(notification, {transaction} = {}){
+        return await Notification.create(notification, {transaction});
+    },
+    async deleteNotificationDAO(matb, {transaction} = {}){
+        return await Notification.destroy({ where: { matb }, transaction });
+    },
+    async updateNotificationDAO(matb, notification, {transaction} = {}){
+        return await Notification.update(notification, {
+            where: { matb },
+            transaction
+        });
     }
 };
 
