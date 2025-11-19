@@ -22,7 +22,7 @@ const Notification = sequelize.define('Notification', {
     },
     thoigiangui: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
         defaultValue: null,
     },
     tieude: {
