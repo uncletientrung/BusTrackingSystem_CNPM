@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, UserPlus, CheckCircle, Users } from "lucide-react";
 import { AccountAPI, BusAPI, CTScheduleAPI, RouteAPI, ScheduleAPI, StudentAPI, UserAPI } from "../../api/apiServices";
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector";
@@ -13,8 +13,6 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
   const [errors, setErrors] = useState({});
   const [isStudentSelectionBox, setIsStudentSelectionOpen] = useState(false);
   const [schedules, setSchedules] = useState([])
-  const [filteredBuses, setFilteredBuses] = useState([])
-  const [filteredDrivers, setFilteredDrivers] = useState([])
 
   const [formData, setFormData] = useState({
     malt: null,
@@ -27,7 +25,6 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     students: [],
   });
 
-  // === TẤT CẢ useEffect và logic giữ nguyên 100% ===
   useEffect(() => {
     (async () => {
       try {
@@ -83,6 +80,28 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     })();
     setErrors({});
   }, [isEdit, schedule, students]);
+
+  const { listBusHopLe, listDriverHopLe } = useMemo(() => {
+    if (!formData.thoigianbatdau || !formData.thoigianketthuc) {
+      return { listBusHopLe: buses, listDriverHopLe: drivers };
+    }
+    const start = new Date(formData.thoigianbatdau);
+    const end = new Date(formData.thoigianketthuc);
+
+    const DSLTTrung = schedules.filter(s => {
+      if (isEdit && s.malt === schedule.malt) return false; 
+      const sStart = new Date(s.thoigianbatdau);
+      const sEnd = new Date(s.thoigianketthuc);
+      return start < sEnd && end > sStart; // True là trùng
+    });
+
+    const busyBusId = new Set(DSLTTrung.map(s => s.maxe));
+    const busyDriverId = new Set(DSLTTrung.map(s => s.matx));
+    const listBusHopLe = buses.filter(bus => !busyBusId.has(bus.maxe));
+    const listDriverHopLe = drivers.filter(driver => !busyDriverId.has(driver.mand));
+
+    return { listBusHopLe, listDriverHopLe };
+  }, [formData.thoigianbatdau, formData.thoigianketthuc, schedules, buses, drivers, isEdit, schedule]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -216,7 +235,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                     className={`w-full border rounded-lg px-3 py-2 ${errors.maxe ? "border-red-500" : "border-gray-300"} focus:ring-2 focus:ring-blue-500`}
                   >
                     <option value="">Chọn xe</option>
-                    {buses.map((bus) => (
+                    {listBusHopLe.map((bus) => (
                       <option key={bus.maxe} value={bus.maxe}>
                         {bus.bienso} ({bus.soghe} chỗ)
                       </option>
@@ -258,7 +277,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                     className={`w-full border rounded-lg px-3 py-2 ${errors.matx ? "border-red-500" : "border-gray-300"} focus:ring-2 focus:ring-blue-500`}
                   >
                     <option value="">Chọn tài xế</option>
-                    {drivers.map((d) => (
+                    {listDriverHopLe.map((d) => (
                       <option key={d.mand} value={d.mand}>
                         {d.hoten}
                       </option>
