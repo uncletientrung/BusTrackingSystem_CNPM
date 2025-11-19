@@ -24,6 +24,9 @@ const CTSchedule = sequelize.define('CTSchedule', {
 const CTScheduleDAO = {
     async createCTSchedule(dsCTSchedule, { transaction } = {}) {
         return await CTSchedule.bulkCreate(dsCTSchedule, { transaction })
+    },
+    async deleteCTSchedule(malt, { transaction } = {}) {
+        return await CTSchedule.destroy({ where: { malt } }, { transaction })
     }
 }
 

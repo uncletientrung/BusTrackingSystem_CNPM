@@ -14,7 +14,11 @@ const ScheduleController = {
         try {
             const { matd, matx, maxe, thoigianbatdau, thoigianketthuc,
                 tonghocsinh, trangthai, students } = req.body;
-            const lichtrinh = { matd, matx, maxe, thoigianbatdau, thoigianketthuc, tonghocsinh, trangthai }
+            const lichtrinh = {
+                matd: Number(matd), matx: Number(matx), maxe: Number(maxe),
+                thoigianbatdau, thoigianketthuc, tonghocsinh: Number(tonghocsinh),
+                trangthai: Number(trangthai)
+            }
             const newSchedule = await ScheduleBUS.create(lichtrinh, students);
             res.status(201).json({
                 message: 'Tạo lịch trình thành công!',
@@ -22,6 +26,18 @@ const ScheduleController = {
             });
         } catch (error) {
             console.error('Lỗi tạo lịch trình ở Controller:', error);
+            res.status(500).json({ message: error.message });
+        }
+    },
+    async delete(req, res) {
+        try {
+            const { malt } = req.params;
+            await ScheduleBUS.delete(Number(malt));
+            res.status(201).json({
+                message: 'Xóa lịch trình thành công!',
+            });
+        } catch (error) {
+            console.error('Lỗi xóa lịch trình ở Controller:', error);
             res.status(500).json({ message: error.message });
         }
     }

@@ -68,16 +68,13 @@ export default function SchedulePage() {
           );
         });
       }
-     
-      
-
     }
-
     if (selectedRoute !== "-1") {
       filtered = filtered.filter(s => s.matd === parseInt(selectedRoute));
     }
 
     setFilteredSchedules(filtered);
+
   }, [selectedDate, selectedRoute, schedules, selectedDateEnd]);
 
   const getStatusColor = (status) => {
@@ -107,6 +104,17 @@ export default function SchedulePage() {
     setSelectedSchedule(schedule);
     setIsDetailOpen(true);
   };
+
+  const handleDelete = async (schedule) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa lịch trình này không?")) {
+      try {
+        await ScheduleAPI.deleteSchedule(schedule.malt);
+        setSchedules(schedules.filter(lt => lt.malt != schedule.malt));
+      } catch (error) {
+        alert(error.message || 'Xóa thất bại!');
+      }
+    }
+  }
 
   const handleSave = async (scheduleData) => {
     try {
@@ -310,7 +318,9 @@ export default function SchedulePage() {
                           >
                             <SquarePen className="h-4 w-4"></SquarePen>
                           </button>
-                          <button className="text-red-600 hover:text-red-900" title="Xóa lịch trình">
+                          <button className="text-red-600 hover:text-red-900"
+                            title="Xóa lịch trình"
+                            onClick={() => handleDelete(item)}>
                             <Trash2 className="h-4 w-4"></Trash2>
                           </button>
                         </div>

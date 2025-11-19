@@ -39,7 +39,21 @@ const ScheduleBUS = {
                 lichtrinh.tonghocsinh,
                 lichtrinh.trangthai)
         } catch (error) {
-            await giaodich.rollback();
+            await record.rollback();
+            throw error;
+        }
+    },
+    async delete(malt) {
+        const record = await require('../config/connectDB').sequelize.transaction();
+        try {
+            await CTScheduleDAO.deleteCTSchedule(malt, { transaction: record });
+            const result = ScheduleDAO.deleteSchedule(malt, { transaction: record });
+            if (result == 0) {
+                throw new Error('Không tìm thấy lịch trình để xóa');
+            }
+            await record.commit();
+        } catch (error) {
+            await record.rollback();
             throw error;
         }
     }

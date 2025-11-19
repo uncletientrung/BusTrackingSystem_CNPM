@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, UserPlus, CheckCircle, Users } from "lucide-react";
-import { AccountAPI, BusAPI, RouteAPI, UserAPI } from "../../api/apiServices";
+import { AccountAPI, BusAPI, RouteAPI, ScheduleAPI, UserAPI } from "../../api/apiServices";
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector";
 
 export default function ScheduleModal({ onClose, onSave, schedule }) {
@@ -11,6 +11,9 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
   const [drivers, setDrivers] = useState([]);
   const [errors, setErrors] = useState({});
   const [isStudentSelectionBox, setIsStudentSelectionOpen] = useState(false);
+  const [schedules, setSchedules] = useState([])
+  const [filteredBuses, setFilteredBuses] = useState([])
+  const [filteredDrivers, setFilteredDrivers] = useState([])
 
   const [formData, setFormData] = useState({
     malt: null,
@@ -26,17 +29,19 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
   useEffect(() => {
     (async () => {
       try {
-        const [listUsers, listRoutes, listBuses, listAccounts] = await Promise.all([
+        const [listUsers, listRoutes, listBuses, listAccounts, listSchedule] = await Promise.all([
           UserAPI.getAllUsers(),
           RouteAPI.getAllRoute(),
           BusAPI.getAllBus(),
           AccountAPI.getAllAccount(),
+          ScheduleAPI.getAllSchedule()
         ]);
         const tkDriver = listAccounts.filter(acc => acc.manq === 2);
         const listIdDriver = tkDriver.map(acc => acc.matk);
         setDrivers(listUsers.filter(user => listIdDriver.includes(user.mand)));
         setRoutes(listRoutes);
         setBuses(listBuses);
+        setSchedules(listSchedule);
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu ở Modal lịch trình:", error);
       }
@@ -70,13 +75,23 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     setErrors({});
   }, [isEdit, schedule]);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
+    if (name === "thoigianbatdau" || name === "thoigianketthuc") {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        maxe: "", matd: "", matx: "",
+        students: []
+      }));
+    }
+    else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -85,10 +100,17 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     }
   };
 
+
   const handleChangeStudentList = (listStudent) => {
     setFormData(prev => ({
       ...prev, students: listStudent
     }))
+    if (errors.students) {
+      setErrors(prev => ({
+        ...prev,
+        students: ""
+      }));
+    }
   }
 
   const validate = () => {
@@ -99,7 +121,6 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     if (!formData.matx) newErrors.matx = "Vui lòng chọn tài xế";
     if (!formData.thoigianbatdau) newErrors.thoigianbatdau = "Vui lòng chọn giờ khởi hành";
     if (!formData.thoigianketthuc) newErrors.thoigianketthuc = "Vui lòng chọn giờ kết thúc";
-
     if (formData.thoigianbatdau && formData.thoigianketthuc) {
       if (new Date(formData.thoigianbatdau) >= new Date(formData.thoigianketthuc)) {
         newErrors.thoigianketthuc = "Giờ đến phải sau giờ khởi hành";
@@ -107,12 +128,13 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
         console.log(new Date(formData.thoigianketthuc));
       }
     }
+    if (formData.students.length == 0) newErrors.students = "Vui lòng chọn học sinh"
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit
+  // Gửi form
   const handleSubmit = (e) => {
     e?.preventDefault();
     if (!validate()) return;
@@ -143,6 +165,34 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
+              {/* Giờ khởi hành */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Giờ khởi hành <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  name="thoigianbatdau"
+                  value={formData.thoigianbatdau}
+                  onChange={handleChange}
+                  className={`w-full border rounded-lg px-3 py-2 ${errors.thoigianbatdau ? "border-red-500" : "border-gray-300"} focus:ring-2 focus:ring-blue-500`}
+                />
+                {errors.thoigianbatdau && <p className="mt-1 text-sm text-red-500">{errors.thoigianbatdau}</p>}
+              </div>
+
+              {/* Giờ đến */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Giờ dự kiến đến <span className="text-red-500">*</span></label>
+                <input
+                  type="datetime-local"
+                  name="thoigianketthuc"
+                  value={formData.thoigianketthuc}
+                  onChange={handleChange}
+                  className={`w-full border rounded-lg px-3 py-2 ${errors.thoigianketthuc ? "border-red-500" : "border-gray-300"} focus:ring-2 focus:ring-blue-500`}
+                />
+                {errors.thoigianketthuc && <p className="mt-1 text-sm text-red-500">{errors.thoigianketthuc}</p>}
+              </div>
+
               {/* Xe buýt */}
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -207,35 +257,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
               </div>
 
               <div>
-                <input type="hide" />
-              </div>
-
-              {/* Giờ khởi hành */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Giờ khởi hành <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  name="thoigianbatdau"
-                  value={formData.thoigianbatdau}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.thoigianbatdau ? "border-red-500" : "border-gray-300"} focus:ring-2 focus:ring-blue-500`}
-                />
-                {errors.thoigianbatdau && <p className="mt-1 text-sm text-red-500">{errors.thoigianbatdau}</p>}
-              </div>
-
-              {/* Giờ đến */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Giờ đến nơi</label>
-                <input
-                  type="datetime-local"
-                  name="thoigianketthuc"
-                  value={formData.thoigianketthuc}
-                  onChange={handleChange}
-                  className={`w-full border rounded-lg px-3 py-2 ${errors.thoigianketthuc ? "border-red-500" : "border-gray-300"} focus:ring-2 focus:ring-blue-500`}
-                />
-                {errors.thoigianketthuc && <p className="mt-1 text-sm text-red-500">{errors.thoigianketthuc}</p>}
+                <label />
               </div>
 
               {/* Trạng thái (chỉ khi sửa) */}
@@ -260,17 +282,22 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
             <div className="mt-6">
               <div className="flex justify-between items-center mb-3">
                 <span className="font-medium">Học sinh ({formData.students.length})</span>
-                <button
-                  type="button"
-                  onClick={() => setIsStudentSelectionOpen(true)}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                >
-                  <UserPlus className="h-4 w-4" /> Thêm học sinh
-                </button>
+                {formData.thoigianbatdau && formData.thoigianketthuc ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsStudentSelectionOpen(true)}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+                  >
+                    <UserPlus className="h-4 w-4" /> Thêm học sinh
+                  </button>
+                ) : <span className="font-medium  text-red-600">
+                  Vui lòng chọn thời chạy
+                </span>}
               </div>
 
               {formData.students.length > 0 ? (
-                <div className="border rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto">
+                <div className={`rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto border 
+                  ${errors.students ? "border-red-500" : "border-gray-300"}`}>
                   {formData.students.map((s) => (
                     <div key={s.mahs} className="flex justify-between items-center bg-gray-50 p-2 rounded">
                       <div className="flex items-center gap-3">
@@ -299,11 +326,15 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                   ))}
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center text-gray-500">
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center text-gray-500 
+                  ${errors.students ? "border-red-500" : "border-gray-300"}`}   >
+
                   Chưa có học sinh nào
                 </div>
               )}
             </div>
+            {errors.students && <p className="mt-1 text-sm text-red-500">{errors.students}</p>}
 
             {/* Nút hành động */}
             <div className="flex gap-3 mt-8">

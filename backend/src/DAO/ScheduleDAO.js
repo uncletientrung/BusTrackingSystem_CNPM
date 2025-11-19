@@ -44,8 +44,11 @@ const ScheduleDAO = {
     async getAll() {
         return await Schedule.findAll();
     },
-    async createSchedule(scheduleData, {transaction} ={}){
-        return Schedule.create(scheduleData, {transaction})
+    async createSchedule(scheduleData, { transaction } = {}) {
+        return Schedule.create(scheduleData, { transaction })
+    },
+    async deleteSchedule(malt, { transaction } = {}) {
+        return Schedule.destroy({ where: { malt } }, { transaction })
     }
 };
 

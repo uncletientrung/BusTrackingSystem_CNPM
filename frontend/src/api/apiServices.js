@@ -43,7 +43,8 @@ export const RouteAPI = {
 
 export const ScheduleAPI = {
     getAllSchedule: () => apiClient.fetchAll('Schedule'),
-    createSchedule: (newScheduleDayDu) => apiClient.create('Schedule', newScheduleDayDu)
+    createSchedule: (newScheduleDayDu) => apiClient.create('Schedule', newScheduleDayDu),
+    deleteSchedule: (malt) => apiClient.deleteForm('Schedule', malt)
 }
 
 export const NotificationAPI = {
