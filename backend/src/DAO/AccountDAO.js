@@ -52,6 +52,9 @@ const AccountDAO = {
 
     return updatedAccount;
   },
+  async delete(matk) {
+    return await Account.destroy({ where: { matk } });
+  },
 };
 
 module.exports = AccountDAO;

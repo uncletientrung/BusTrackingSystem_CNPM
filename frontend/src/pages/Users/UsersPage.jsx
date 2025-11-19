@@ -204,16 +204,6 @@ export default function UsersPage() {
         );
       }
 
-      // setUsers((prev) =>
-      //   prev.map((u) => (u.mand === updatedUser.mand ? updatedUser : u))
-      // );
-
-      // if (updatedAccount) {
-      //   setAccounts((prev) =>
-      //     prev.map((a) => (a.matk === updatedAccount.matk ? updatedAccount : a))
-      //   );
-      // }
-
       // 5. Đóng modal + thông báo thành công
       setShowEditModal(false);
       setEditingUser(null);
@@ -224,10 +214,24 @@ export default function UsersPage() {
     }
   };
 
-  const handleDeleteUser = (id) => {
-    // Hàm handle khi xóa User
-    if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
-      setUsers(users.filter((user) => user.id !== id));
+  const handleDeleteUser = async (mand) => {
+    if (
+      !window.confirm(
+        "Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác!"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await UserAPI.deleteUser(mand);
+      setUsers((prev) => prev.filter((u) => u.mand !== mand));
+      setAccounts((prev) => prev.filter((a) => a.matk !== mand));
+      setFilteredUsers((prev) => prev.filter((u) => u.mand !== mand));
+      alert("Xóa người dùng thành công!");
+    } catch (error) {
+      console.error("Lỗi xóa người dùng:", error);
+      alert("Xóa thất bại: " + (error.message || "Lỗi không xác định"));
     }
   };
 
@@ -527,7 +531,7 @@ export default function UsersPage() {
 
                           {/* Nút xóa */}
                           <button
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(user.mand)}
                             className="text-red-600 hover:text-red-900"
                             title="Xóa"
                           >

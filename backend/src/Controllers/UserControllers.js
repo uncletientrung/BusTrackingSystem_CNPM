@@ -94,5 +94,18 @@ const UserController = {
       });
     }
   },
+
+  async delete(req, res) {
+    try {
+      const { mand } = req.params;
+      await UserBUS.deleteUser(Number(mand));
+      res
+        .status(200)
+        .json({ message: "Xóa người dùng thành công!", mand: Number(mand) });
+    } catch (error) {
+      console.error("Lỗi xóa người dùng:", error);
+      res.status(500).json({ message: error.message || "Xóa thất bại" });
+    }
+  },
 };
 module.exports = UserController;

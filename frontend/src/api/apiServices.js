@@ -3,6 +3,7 @@ import apiClient from "./api";
 export const UserAPI = {
   getAllUsers: () => apiClient.fetchAll("User"),
   createUser: (UsernAccountNEW) => apiClient.create("User", UsernAccountNEW),
+  deleteUser: (mand) => apiClient.deleteForm("User", mand),
   updateUser: (mand, userUpdateData) =>
     apiClient.update("User", mand, userUpdateData),
 };
@@ -44,10 +45,11 @@ export const RouteAPI = {
 };
 
 export const ScheduleAPI = {
-    getAllSchedule: () => apiClient.fetchAll('Schedule'),
-    createSchedule: (newScheduleDayDu) => apiClient.create('Schedule', newScheduleDayDu),
-    deleteSchedule: (malt) => apiClient.deleteForm('Schedule', malt)
-}
+  getAllSchedule: () => apiClient.fetchAll("Schedule"),
+  createSchedule: (newScheduleDayDu) =>
+    apiClient.create("Schedule", newScheduleDayDu),
+  deleteSchedule: (malt) => apiClient.deleteForm("Schedule", malt),
+};
 
 export const NotificationAPI = {
   getAllNotification: () => apiClient.fetchAll("Notification"),

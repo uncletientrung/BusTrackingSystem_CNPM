@@ -63,6 +63,9 @@ const UserDAO = {
     return updatedUser;
     s;
   },
+  async delete(mand) {
+    return await User.destroy({ where: { mand } });
+  },
 };
 
 module.exports = UserDAO;
