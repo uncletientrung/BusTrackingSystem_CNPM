@@ -103,6 +103,8 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     if (formData.thoigianbatdau && formData.thoigianketthuc) {
       if (new Date(formData.thoigianbatdau) >= new Date(formData.thoigianketthuc)) {
         newErrors.thoigianketthuc = "Giờ đến phải sau giờ khởi hành";
+        console.log(new Date(formData.thoigianbatdau));
+        console.log(new Date(formData.thoigianketthuc));
       }
     }
 

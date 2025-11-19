@@ -51,10 +51,11 @@ export default function SchedulePage() {
 
   useEffect(() => {
     let filtered = [...schedules];
-
     if (selectedDate && selectedDateEnd) {
       const dStart = new Date(selectedDate);
+      dStart.setHours(0, 0, 0);
       const dEnd = new Date(selectedDateEnd);
+      dEnd.setHours(23, 59, 59);
       if (dStart > dEnd) {
         alert("Ngày bắt đầu không được lớn hơn ngày kết thúc")
       } else {
@@ -67,6 +68,8 @@ export default function SchedulePage() {
           );
         });
       }
+     
+      
 
     }
 
@@ -78,15 +81,16 @@ export default function SchedulePage() {
   }, [selectedDate, selectedRoute, schedules, selectedDateEnd]);
 
   const getStatusColor = (status) => {
-    const map = { 2: 'bg-green-100 text-green-800',
-      1: 'bg-yellow-100 text-yellow-800', 
+    const map = {
+      2: 'bg-green-100 text-green-800',
+      1: 'bg-yellow-100 text-yellow-800',
       0: 'bg-red-100 text-red-800'
     };
     return map[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusText = (status) => {
-    const map = { 2: 'Hoàn thành',1: 'Đã lên lịch', 0: 'Hủy bỏ'};
+    const map = { 2: 'Hoàn thành', 1: 'Đã lên lịch', 0: 'Hủy bỏ' };
     return map[status] || status;
   };
 
@@ -104,9 +108,20 @@ export default function SchedulePage() {
     setIsDetailOpen(true);
   };
 
-  const handleSave = (scheduleData) => {
-    console.log(scheduleData);
+  const handleSave = async (scheduleData) => {
+    try {
+      if (editingSchedule) {
+        console.log("Sửa lịch");
 
+      } else {
+        const newSchedule = await ScheduleAPI.createSchedule(scheduleData);
+        setSchedules([...schedules, newSchedule.schedule]);
+      }
+      setIsModalOpen(false);
+      setEditingSchedule(null)
+    } catch (error) {
+      console.error('Lỗi lưu lịch trình ở Page:', error);
+    }
   }
 
   const handleRefresh = () => window.location.reload();
@@ -341,16 +356,6 @@ export default function SchedulePage() {
         users={users}
       />
 
-      {/* <ScheduleStudentSelector
-        selectedStudents={isEditModalOpen ? editingSchedule?.students : []}
-        onStudentsChange={(students) => {
-          if (isEditModalOpen && editingSchedule) {
-            setEditingSchedule({ ...editingSchedule, students });
-          }
-        }}
-        isOpen={isStudentSelectorOpen}
-        onClose={() => setIsStudentSelectorOpen(false)}
-      /> */}
     </>
   );
 }
