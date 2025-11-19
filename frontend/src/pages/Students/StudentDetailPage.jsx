@@ -1,188 +1,257 @@
-import { ArrowLeft, Calendar, CheckCircle, Clock, Edit, GraduationCap, MapPin, Phone, Route, Trash2, User, X, XCircle } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Edit,
+  GraduationCap,
+  MapPin,
+  Phone,
+  Route,
+  Trash2,
+  User,
+  X,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function StudentDetailPage() {
-  const { id } = useParams() // Dùng để lấy id trên thanh URL
-  const navigate = useNavigate()
-  const [student, setStudent] = useState(null) // Học sinh được chọn
-  const [loading, setLoading] = useState(true) // trạng thái loading
-  const [activeTab, setActiveTab] = useState('info')
-  const [showEditModal, setShowEditModal] = useState(false) // Trạng thái dialog sửa
-  const [editingStudent, setEditingStudent] = useState(null) // đối tượng sửa
+  const { id } = useParams(); // Dùng để lấy id trên thanh URL
+  const navigate = useNavigate();
+  const [student, setStudent] = useState(null); // Học sinh được chọn
+  const [loading, setLoading] = useState(true); // trạng thái loading
+  const [activeTab, setActiveTab] = useState("info");
+  const [showEditModal, setShowEditModal] = useState(false); // Trạng thái dialog sửa
+  const [editingStudent, setEditingStudent] = useState(null); // đối tượng sửa
 
   // Giả lập dữ liệu
   const demoStudents = [
     {
       id: 1,
-      name: 'Nguyễn Văn An',
-      studentId: 'HS001',
-      grade: '1',
-      parentName: 'Nguyễn Thị Bình',
-      parentPhone: '0901234567',
-      parentEmail: 'parent1@gmail.com',
-      address: '123 Đường ABC, Quận 1, TP.HCM',
-      route: 'Tuyến A',
-      routeId: 'route-1',
-      pickupPoint: 'Điểm đón A1 - Chợ Bến Thành',
-      pickupTime: '07:00',
-      dropoffTime: '16:30',
-      status: 'active',
+      name: "Nguyễn Văn An",
+      studentId: "HS001",
+      grade: "1",
+      parentName: "Nguyễn Thị Bình",
+      parentPhone: "0901234567",
+      parentEmail: "parent1@gmail.com",
+      address: "123 Đường ABC, Quận 1, TP.HCM",
+      route: "Tuyến A",
+      routeId: "route-1",
+      pickupPoint: "Điểm đón A1 - Chợ Bến Thành",
+      pickupTime: "07:00",
+      dropoffTime: "16:30",
+      status: "active",
       avatar: null,
-      emergencyContact: '0987654321',
-      emergencyContactName: 'Nguyễn Văn Cường (Ông nội)',
-      medicalNotes: 'Không có',
+      emergencyContact: "0987654321",
+      emergencyContactName: "Nguyễn Văn Cường (Ông nội)",
+      medicalNotes: "Không có",
       allergies: [],
-      bloodType: 'O+',
-      createdAt: '2024-01-15',
-      enrollmentDate: '2024-01-15',
+      bloodType: "O+",
+      createdAt: "2024-01-15",
+      enrollmentDate: "2024-01-15",
       attendance: {
         present: 45,
         absent: 3,
         late: 2,
-        excused: 1
+        excused: 1,
       },
       monthlyAttendance: [
-        { month: 'Tháng 9', present: 18, absent: 1, late: 1, total: 20 },
-        { month: 'Tháng 8', present: 22, absent: 0, late: 1, total: 23 },
-        { month: 'Tháng 7', present: 5, absent: 2, late: 0, total: 7 }
+        { month: "Tháng 9", present: 18, absent: 1, late: 1, total: 20 },
+        { month: "Tháng 8", present: 22, absent: 0, late: 1, total: 23 },
+        { month: "Tháng 7", present: 5, absent: 2, late: 0, total: 7 },
       ],
       recentActivities: [
-        { date: '2024-10-04', action: 'Đi học đúng giờ', type: 'attendance', status: 'success' },
-        { date: '2024-10-03', action: 'Đi học muộn 15 phút', type: 'attendance', status: 'warning' },
-        { date: '2024-10-02', action: 'Đi học đúng giờ', type: 'attendance', status: 'success' },
-        { date: '2024-10-01', action: 'Vắng mặt có phép', type: 'attendance', status: 'info' },
-        { date: '2024-09-30', action: 'Cập nhật thông tin y tế', type: 'medical', status: 'info' }
+        {
+          date: "2024-10-04",
+          action: "Đi học đúng giờ",
+          type: "attendance",
+          status: "success",
+        },
+        {
+          date: "2024-10-03",
+          action: "Đi học muộn 15 phút",
+          type: "attendance",
+          status: "warning",
+        },
+        {
+          date: "2024-10-02",
+          action: "Đi học đúng giờ",
+          type: "attendance",
+          status: "success",
+        },
+        {
+          date: "2024-10-01",
+          action: "Vắng mặt có phép",
+          type: "attendance",
+          status: "info",
+        },
+        {
+          date: "2024-09-30",
+          action: "Cập nhật thông tin y tế",
+          type: "medical",
+          status: "info",
+        },
       ],
       grades: {
         math: 8.5,
         literature: 9.0,
         science: 8.0,
         english: 7.5,
-        average: 8.25
+        average: 8.25,
       },
       behavior: {
-        discipline: 'Tốt',
-        participation: 'Tích cực',
-        homework: 'Đầy đủ',
-        notes: 'Học sinh ngoan, tích cực tham gia các hoạt động'
-      }
+        discipline: "Tốt",
+        participation: "Tích cực",
+        homework: "Đầy đủ",
+        notes: "Học sinh ngoan, tích cực tham gia các hoạt động",
+      },
     },
     {
       id: 2,
-      name: 'Trần Thị Bảo',
-      studentId: 'HS002',
-      grade: '2',
-      parentName: 'Trần Văn Cường',
-      parentPhone: '0902345678',
-      parentEmail: 'parent2@gmail.com',
-      address: '456 Đường DEF, Quận 2, TP.HCM',
-      route: 'Tuyến B',
-      routeId: 'route-2',
-      pickupPoint: 'Điểm đón B2 - Trường THCS Nam Sài Gòn',
-      pickupTime: '07:15',
-      dropoffTime: '16:45',
-      status: 'active',
+      name: "Trần Thị Bảo",
+      studentId: "HS002",
+      grade: "2",
+      parentName: "Trần Văn Cường",
+      parentPhone: "0902345678",
+      parentEmail: "parent2@gmail.com",
+      address: "456 Đường DEF, Quận 2, TP.HCM",
+      route: "Tuyến B",
+      routeId: "route-2",
+      pickupPoint: "Điểm đón B2 - Trường THCS Nam Sài Gòn",
+      pickupTime: "07:15",
+      dropoffTime: "16:45",
+      status: "active",
       avatar: null,
-      emergencyContact: '0987654322',
-      emergencyContactName: 'Trần Thị Dung (Bà nội)',
-      medicalNotes: 'Dị ứng với đậu phộng',
-      allergies: ['Đậu phộng', 'Tôm'],
-      bloodType: 'A+',
-      createdAt: '2024-02-01',
-      enrollmentDate: '2024-02-01',
+      emergencyContact: "0987654322",
+      emergencyContactName: "Trần Thị Dung (Bà nội)",
+      medicalNotes: "Dị ứng với đậu phộng",
+      allergies: ["Đậu phộng", "Tôm"],
+      bloodType: "A+",
+      createdAt: "2024-02-01",
+      enrollmentDate: "2024-02-01",
       attendance: {
         present: 42,
         absent: 5,
         late: 3,
-        excused: 2
+        excused: 2,
       },
       monthlyAttendance: [
-        { month: 'Tháng 9', present: 16, absent: 2, late: 2, total: 20 },
-        { month: 'Tháng 8', present: 20, absent: 2, late: 1, total: 23 },
-        { month: 'Tháng 7', present: 6, absent: 1, late: 0, total: 7 }
+        { month: "Tháng 9", present: 16, absent: 2, late: 2, total: 20 },
+        { month: "Tháng 8", present: 20, absent: 2, late: 1, total: 23 },
+        { month: "Tháng 7", present: 6, absent: 1, late: 0, total: 7 },
       ],
       recentActivities: [
-        { date: '2024-10-04', action: 'Đi học đúng giờ', type: 'attendance', status: 'success' },
-        { date: '2024-10-03', action: 'Vắng mặt không phép', type: 'attendance', status: 'error' },
-        { date: '2024-10-02', action: 'Đi học đúng giờ', type: 'attendance', status: 'success' },
-        { date: '2024-10-01', action: 'Đi học muộn 20 phút', type: 'attendance', status: 'warning' },
-        { date: '2024-09-30', action: 'Cập nhật thông tin dị ứng', type: 'medical', status: 'info' }
+        {
+          date: "2024-10-04",
+          action: "Đi học đúng giờ",
+          type: "attendance",
+          status: "success",
+        },
+        {
+          date: "2024-10-03",
+          action: "Vắng mặt không phép",
+          type: "attendance",
+          status: "error",
+        },
+        {
+          date: "2024-10-02",
+          action: "Đi học đúng giờ",
+          type: "attendance",
+          status: "success",
+        },
+        {
+          date: "2024-10-01",
+          action: "Đi học muộn 20 phút",
+          type: "attendance",
+          status: "warning",
+        },
+        {
+          date: "2024-09-30",
+          action: "Cập nhật thông tin dị ứng",
+          type: "medical",
+          status: "info",
+        },
       ],
       grades: {
         math: 7.5,
         literature: 8.5,
         science: 7.0,
         english: 8.0,
-        average: 7.75
+        average: 7.75,
       },
       behavior: {
-        discipline: 'Khá',
-        participation: 'Bình thường',
-        homework: 'Thỉnh thoảng thiếu',
-        notes: 'Cần cải thiện tính tự giác'
-      }
-    }
-  ]
+        discipline: "Khá",
+        participation: "Bình thường",
+        homework: "Thỉnh thoảng thiếu",
+        notes: "Cần cải thiện tính tự giác",
+      },
+    },
+  ];
 
-  useEffect(() => { // Tìm học sinh dựa trên mã
-    const foundStudent = demoStudents.find(s => s.id === parseInt(id))
-    setStudent(foundStudent)
-    setLoading(false)
-  }, [id])
-
+  useEffect(() => {
+    // Tìm học sinh dựa trên mã
+    const foundStudent = demoStudents.find((s) => s.id === parseInt(id));
+    setStudent(foundStudent);
+    setLoading(false);
+  }, [id]);
 
   const handleEditStudent = () => {
-    setStudent(editingStudent)
-    setShowEditModal(false)
-    setEditingStudent(null)
-  }
+    setStudent(editingStudent);
+    setShowEditModal(false);
+    setEditingStudent(null);
+  };
 
   const routes = [
-    { id: 'route-1', name: 'Tuyến A' },
-    { id: 'route-2', name: 'Tuyến B' },
-    { id: 'route-3', name: 'Tuyến C' }
-  ]
+    { id: "route-1", name: "Tuyến A" },
+    { id: "route-2", name: "Tuyến B" },
+    { id: "route-3", name: "Tuyến C" },
+  ];
 
   const handleDeleteStudent = () => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa học sinh này?')) {
-      navigate('/students')
+    if (window.confirm("Bạn có chắc chắn muốn xóa học sinh này?")) {
+      navigate("/students");
     }
-  }
+  };
 
   const toggleStudentStatus = () => {
-    const newStatus = student.status === 'active' ? 'inactive' : 'active'
-    setStudent({ ...student, status: newStatus })
-  }
+    const newStatus = student.status === "active" ? "inactive" : "active";
+    setStudent({ ...student, status: newStatus });
+  };
 
   const tabs = [
-    { id: 'info', label: 'Thông tin cơ bản', icon: User },
-    { id: 'attendance', label: 'Điểm danh', icon: Calendar }
-  ]
+    { id: "info", label: "Thông tin cơ bản", icon: User },
+    { id: "attendance", label: "Điểm danh", icon: Calendar },
+  ];
 
-  if (loading) { // Animation Loading
+  if (loading) {
+    // Animation Loading
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
-    )
+    );
   }
 
   // Nếu không tìm thấy student với mã
   if (!student) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900">Không tìm thấy học sinh</h2>
-        <p className="mt-2 text-gray-600">Học sinh với ID {id} không tồn tại.</p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Không tìm thấy học sinh
+        </h2>
+        <p className="mt-2 text-gray-600">
+          Học sinh với ID {id} không tồn tại.
+        </p>
         <button
-          onClick={() => navigate('/students')}
+          onClick={() => navigate("/students")}
           className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại danh sách
         </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -193,7 +262,7 @@ export default function StudentDetailPage() {
           <div className="flex items-center space-x-4">
             {/* Nút quay lại */}
             <button
-              onClick={() => navigate('/students')}
+              onClick={() => navigate("/students")}
               className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -201,8 +270,12 @@ export default function StudentDetailPage() {
             </button>
 
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Thông tin học sinh</h1>
-              <p className="mt-1 text-sm text-gray-600">Chi tiết và theo dõi học sinh</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Thông tin học sinh
+              </h1>
+              <p className="mt-1 text-sm text-gray-600">
+                Chi tiết và theo dõi học sinh
+              </p>
             </div>
           </div>
 
@@ -211,8 +284,8 @@ export default function StudentDetailPage() {
             {/* Nút sửa */}
             <button
               onClick={() => {
-                setEditingStudent(student)
-                setShowEditModal(true)
+                setEditingStudent(student);
+                setShowEditModal(true);
               }}
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
             >
@@ -222,12 +295,13 @@ export default function StudentDetailPage() {
 
             <button
               onClick={toggleStudentStatus}
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-white ${student.status === 'active'
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-green-600 hover:bg-green-700'
-                }`}
+              className={`inline-flex items-center px-4 py-2 rounded-lg text-white ${
+                student.status === "active"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
             >
-              {student.status === 'active' ? (
+              {student.status === "active" ? (
                 <>
                   <XCircle className="h-4 w-4 mr-2" />
                   Tạm nghỉ
@@ -260,10 +334,11 @@ export default function StudentDetailPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
+                    className={`${
+                      activeTab === tab.id
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
                   >
                     <tab.icon className="h-4 w-4 mr-2" />
                     {tab.label}
@@ -274,16 +349,20 @@ export default function StudentDetailPage() {
 
             {/* Nội dung thông tin chi tiết sinh viên*/}
             <div className="p-6">
-              {activeTab === 'info' && (
+              {activeTab === "info" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Thông tin học sinh</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Thông tin học sinh
+                    </h3>
                     <div className="space-y-4">
                       {/* Mã học sinh */}
                       <div className="flex items-center">
                         <GraduationCap className="h-5 w-5 text-gray-400 mr-3" />
                         <div>
-                          <p className="text-sm text-gray-500">Mã số học sinh</p>
+                          <p className="text-sm text-gray-500">
+                            Mã số học sinh
+                          </p>
                           <p className="font-medium">{student.studentId}</p>
                         </div>
                       </div>
@@ -310,7 +389,9 @@ export default function StudentDetailPage() {
 
                   {/* Thông tin phụ huynh */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Thông tin phụ huynh</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Thông tin phụ huynh
+                    </h3>
                     <div className="space-y-4">
                       {/* Tên phụ huynh */}
                       <div className="flex items-center">
@@ -334,7 +415,9 @@ export default function StudentDetailPage() {
 
                   {/* Thông tin đưa đón */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Thông tin đưa đón</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Thông tin đưa đón
+                    </h3>
                     <div className="space-y-4">
                       {/* Tuyến đường */}
                       <div className="flex items-center">
@@ -359,7 +442,9 @@ export default function StudentDetailPage() {
                         <Clock className="h-5 w-5 text-gray-400 mr-3" />
                         <div>
                           <p className="text-sm text-gray-500">Thời gian</p>
-                          <p className="font-medium">{student.pickupTime} - {student.dropoffTime}</p>
+                          <p className="font-medium">
+                            {student.pickupTime} - {student.dropoffTime}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -376,7 +461,9 @@ export default function StudentDetailPage() {
             <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
               <div className="mt-3">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Chỉnh sửa thông tin học sinh</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Chỉnh sửa thông tin học sinh
+                  </h3>
                   <button
                     onClick={() => setShowEditModal(false)}
                     className="absolute top-2 right-2 mt-2 mr-2 text-gray-400 hover:text-gray-600"
@@ -384,7 +471,7 @@ export default function StudentDetailPage() {
                     <X></X>
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   {/* Ô mã học sinh */}
                   <input
@@ -392,7 +479,12 @@ export default function StudentDetailPage() {
                     placeholder="Mã số học sinh"
                     disabled
                     value={editingStudent.studentId}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, studentId: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        studentId: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
@@ -401,14 +493,24 @@ export default function StudentDetailPage() {
                     type="text"
                     placeholder="Họ tên học sinh"
                     value={editingStudent.name}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        name: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
                   {/* Ô chọn lớp */}
                   <select
                     value={editingStudent.grade}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, grade: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        grade: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="1">Lớp 1</option>
@@ -433,7 +535,12 @@ export default function StudentDetailPage() {
                     type="text"
                     placeholder="Tên phụ huynh"
                     value={editingStudent.parentName}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, parentName: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        parentName: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
@@ -442,19 +549,31 @@ export default function StudentDetailPage() {
                     type="tel"
                     placeholder="Số điện thoại phụ huynh"
                     value={editingStudent.parentPhone}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, parentPhone: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        parentPhone: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
 
                   {/* Ô chọn tuyến */}
                   <select
                     value={editingStudent.route}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, route: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        route: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Chọn tuyến đường</option>
-                    {routes.map(route => (
-                      <option key={route.id} value={route.name}>{route.name}</option>
+                    {routes.map((route) => (
+                      <option key={route.id} value={route.name}>
+                        {route.name}
+                      </option>
                     ))}
                   </select>
 
@@ -462,7 +581,12 @@ export default function StudentDetailPage() {
                   <textarea
                     placeholder="Địa chỉ"
                     value={editingStudent.address}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, address: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        address: e.target.value,
+                      })
+                    }
                     className="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={2}
                   />
@@ -472,7 +596,12 @@ export default function StudentDetailPage() {
                     type="text"
                     placeholder="Điểm đón"
                     value={editingStudent.pickupPoint}
-                    onChange={(e) => setEditingStudent({ ...editingStudent, pickupPoint: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStudent({
+                        ...editingStudent,
+                        pickupPoint: e.target.value,
+                      })
+                    }
                     className="col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -498,5 +627,5 @@ export default function StudentDetailPage() {
         )}
       </div>
     </>
-  )
-};
+  );
+}

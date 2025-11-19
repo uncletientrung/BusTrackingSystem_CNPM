@@ -486,7 +486,7 @@ export default function UsersPage() {
                         <div className="flex items-center justify-end space-x-2">
                           {/* Nút xem chi tiết */}
                           <button
-                            onClick={() => navigate(`/users/${user.id}`)}
+                            onClick={() => navigate(`/users/${user.mand}`)}
                             className="text-gray-600 hover:text-gray-900"
                             title="Xem chi tiết"
                           >
