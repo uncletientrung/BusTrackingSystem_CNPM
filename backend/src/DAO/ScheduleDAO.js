@@ -43,6 +43,9 @@ const Schedule = sequelize.define('Schedule', {
 const ScheduleDAO = {
     async getAll() {
         return await Schedule.findAll();
+    },
+    async createSchedule(scheduleData, {transaction} ={}){
+        return Schedule.create(scheduleData, {transaction})
     }
 };
 
