@@ -43,16 +43,16 @@ export default function ScheduleDetail({ onClose, schedule, routes, buses, users
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="text-center p-6 bg-blue-50 rounded-xl">
               <p className="text-sm text-gray-600 mb-1">Tài xế</p>
-              <p className="text-2xl font-bold text-blue-600">{driver.hoten}</p>
+              <p className="text-1xl font-bold text-blue-600">{driver.hoten}</p>
             </div>
 
             <div className="text-center p-6 bg-blue-50 rounded-xl">
               <p className="text-sm text-gray-600 mb-1">Biển số xe</p>
-              <p className="text-2xl font-bold text-blue-600">{bus.bienso || "Chưa có"}</p>
+              <p className="text-1xl font-bold text-blue-600">{bus.bienso || "Chưa có"}</p>
             </div>
             <div className="text-center p-6 bg-blue-50 rounded-xl">
               <p className="text-sm text-gray-600 mb-1">Tuyến đướng</p>
-              <p className="text-2xl font-bold text-blue-600">{route.tentuyen || "Chưa có"}</p>
+              <p className="text-1xl font-bold text-blue-600">{route.tentuyen || "Chưa có"}</p>
             </div>
           </div>
 
