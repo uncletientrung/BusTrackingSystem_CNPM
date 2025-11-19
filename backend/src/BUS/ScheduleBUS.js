@@ -68,7 +68,7 @@ const ScheduleBUS = {
                 }));
                 await CTScheduleDAO.createCTSchedule(dsCTlichtrinh, { transaction: record });
             }
-            await record.commit
+            await record.commit();
             return new ScheduleDTO(malt,
                 scheduleData.matx,
                 scheduleData.matd,

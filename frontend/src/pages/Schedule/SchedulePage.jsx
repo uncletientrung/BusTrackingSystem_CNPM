@@ -15,20 +15,15 @@ export default function SchedulePage() {
   const [selectedDateEnd, setSelectedDateEnd] = useState(new Date().toISOString().split('T')[0]);
   // Lấy ngày giờ của Date, chuyển thành ISO là "2025-10-10T16:53:02.123Z", cắt từ T thành 2 item, lấy yyyy/MM/dd
   const [selectedRoute, setSelectedRoute] = useState("-1");
-
   const [users, setUsers] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [buses, setBuses] = useState([]);
 
   // Các trạng thái
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [isStudentSelectorOpen, setIsStudentSelectorOpen] = useState(false);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -109,7 +104,7 @@ export default function SchedulePage() {
 
   const handleViewDetail = (schedule) => {
     setSelectedSchedule(schedule);
-    setIsDetailOpen(true);
+    setIsModalDetailOpen(true);
   };
 
   const handleDelete = async (schedule) => {
@@ -126,11 +121,11 @@ export default function SchedulePage() {
   const handleSave = async (scheduleData) => {
     try {
       if (editingSchedule) {
-        console.log(scheduleData)
-        console.log(editingSchedule.malt);
-        
         const updateSchedule = await ScheduleAPI.updateSchedule(editingSchedule.malt, scheduleData);
         console.log(updateSchedule.schdule);
+        for (const key in updateSchedule.schdule) {
+          console.log(key, "=>", typeof updateSchedule.schdule[key]);
+        }
 
         setSchedules(schedules.map(
           lt => lt.malt == scheduleData.malt ? { ...lt, ...updateSchedule.schedule } : lt))
@@ -351,7 +346,7 @@ export default function SchedulePage() {
               <div className="text-center py-12">
                 <CalendarCheck className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-500">Không có lịch trình nào</p>
-                <button onClick={() => setIsCreateModalOpen(true)} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg">
+                <button onClick={() => handleAddSchedule} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg">
                   Tạo lịch trình mới
                 </button>
               </div>
@@ -368,19 +363,19 @@ export default function SchedulePage() {
           }}
           onSave={handleSave}
           schedule={editingSchedule}
-          isStudentSelectorOpen={isStudentSelectorOpen}
-          setIsStudentSelectorOpen={setIsStudentSelectorOpen}
         />
       )}
 
-      <ScheduleDetail
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        schedule={selectedSchedule}
-        routes={routes}
-        buses={buses}
-        users={users}
-      />
+      {isModalDetailOpen && (
+        <ScheduleDetail
+          onClose={() => setIsModalDetailOpen(false)}
+          schedule={selectedSchedule}
+          routes={routes}
+          buses={buses}
+          users={users}
+        />
+      )}
+
 
     </>
   );
