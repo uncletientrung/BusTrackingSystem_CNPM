@@ -125,6 +125,20 @@ const UserBUS = {
       throw error;
     }
   },
+
+  async deleteUser(mand) {
+    try {
+      const resultUser = await UserDAO.delete(mand);
+      const resultAccount = await AccountDAO.delete(mand);
+
+      if (resultUser == 0 || resultAccount == 0) {
+        throw new Error("Xóa thất bại");
+      }
+    } catch (error) {
+      console.error("Lỗi xóa user trong UserBUS:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = UserBUS;

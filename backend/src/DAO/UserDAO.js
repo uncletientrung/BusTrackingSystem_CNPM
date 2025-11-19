@@ -56,7 +56,15 @@ const UserDAO = {
   },
 
   async update(mand, userData) {
-    return await User.update(userData, { where: { mand } });
+    await User.update(userData, { where: { mand } });
+
+    const updatedUser = await User.findByPk(mand);
+
+    return updatedUser;
+    s;
+  },
+  async delete(mand) {
+    return await User.destroy({ where: { mand } });
   },
 };
 

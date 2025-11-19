@@ -3,6 +3,7 @@ import apiClient from "./api";
 export const UserAPI = {
   getAllUsers: () => apiClient.fetchAll("User"),
   createUser: (UsernAccountNEW) => apiClient.create("User", UsernAccountNEW),
+  deleteUser: (mand) => apiClient.deleteForm("User", mand),
   updateUser: (mand, userUpdateData) =>
     apiClient.update("User", mand, userUpdateData),
 };

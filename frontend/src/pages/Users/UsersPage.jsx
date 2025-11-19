@@ -95,8 +95,11 @@ export default function UsersPage() {
     // Filter theo trạng thái
     if (selectedStatus !== "all") {
       filtered = filtered.filter((user) => {
-        const statusMap = { 1: "active", 0: "inactive" };
-        return statusMap[user.trangthai] === selectedStatus;
+        const account = accounts.find((acc) => acc.matk === user.mand);
+        if (!account) return false;
+        return (
+          (account.trangthai === 1 ? "active" : "inactive") === selectedStatus
+        );
       });
     }
 
@@ -190,12 +193,14 @@ export default function UsersPage() {
       }
 
       setUsers((prev) =>
-        prev.map((u) => (u.mand === updatedUser.mand ? updatedUser : u))
+        prev.map((u) => (u.mand === updatedUser.mand ? { ...updatedUser } : u))
       );
 
       if (updatedAccount) {
         setAccounts((prev) =>
-          prev.map((a) => (a.matk === updatedAccount.matk ? updatedAccount : a))
+          prev.map((a) =>
+            a.matk === updatedAccount.matk ? { ...updatedAccount } : a
+          )
         );
       }
 
@@ -209,10 +214,24 @@ export default function UsersPage() {
     }
   };
 
-  const handleDeleteUser = (id) => {
-    // Hàm handle khi xóa User
-    if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
-      setUsers(users.filter((user) => user.id !== id));
+  const handleDeleteUser = async (mand) => {
+    if (
+      !window.confirm(
+        "Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác!"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await UserAPI.deleteUser(mand);
+      setUsers((prev) => prev.filter((u) => u.mand !== mand));
+      setAccounts((prev) => prev.filter((a) => a.matk !== mand));
+      setFilteredUsers((prev) => prev.filter((u) => u.mand !== mand));
+      alert("Xóa người dùng thành công!");
+    } catch (error) {
+      console.error("Lỗi xóa người dùng:", error);
+      alert("Xóa thất bại: " + (error.message || "Lỗi không xác định"));
     }
   };
 
@@ -253,13 +272,13 @@ export default function UsersPage() {
     },
     {
       name: "Đang hoạt động",
-      value: users.filter((u) => u.trangthai === 1).length,
+      value: accounts.filter((a) => a.trangthai === 1).length,
       icon: UserCheck,
       color: "bg-green-500",
     },
     {
       name: "Tạm khóa",
-      value: users.filter((u) => u.trangthai === 0).length,
+      value: accounts.filter((a) => a.trangthai === 0).length,
       icon: UserX,
       color: "bg-red-500",
     },
@@ -453,10 +472,12 @@ export default function UsersPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                            user.trangthai
+                            account ? account.trangthai : 1
                           )}`}
                         >
-                          {user.trangthai === 1 ? "Hoạt động" : "Tạm khóa"}
+                          {account && account.trangthai === 1
+                            ? "Hoạt động"
+                            : "Tạm khóa"}
                         </span>
                       </td>
 
@@ -465,7 +486,7 @@ export default function UsersPage() {
                         <div className="flex items-center justify-end space-x-2">
                           {/* Nút xem chi tiết */}
                           <button
-                            onClick={() => navigate(`/users/${user.id}`)}
+                            onClick={() => navigate(`/users/${user.mand}`)}
                             className="text-gray-600 hover:text-gray-900"
                             title="Xem chi tiết"
                           >
@@ -510,7 +531,7 @@ export default function UsersPage() {
 
                           {/* Nút xóa */}
                           <button
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(user.mand)}
                             className="text-red-600 hover:text-red-900"
                             title="Xóa"
                           >
@@ -973,7 +994,7 @@ export default function UsersPage() {
                     {/* Ô trạng thái */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Vai trò *
+                        Trạng thái *
                       </label>
                       <select
                         value={editingUser.status}
