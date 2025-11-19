@@ -44,6 +44,10 @@ const AccountDAO = {
     // accountData = { matk, tendangnhap, matkhau, manq, trangthai }
     return await Account.create(accountData);
   },
+
+  async update(matk, accountData) {
+    return await Account.update(accountData, { where: { matk } });
+  },
 };
 
 module.exports = AccountDAO;

@@ -62,6 +62,69 @@ const UserBUS = {
       throw error; // cho controller xử lý
     }
   },
+
+  async updateUser(mand, userData, accountData) {
+    try {
+      const userUpdateFields = {};
+      if (userData.name !== undefined) userUpdateFields.hoten = userData.name;
+      if (userData.birthday !== undefined)
+        userUpdateFields.ngaysinh = userData.birthday || null;
+      if (userData.phone !== undefined) userUpdateFields.sdt = userData.phone;
+      if (userData.email !== undefined) userUpdateFields.email = userData.email;
+      if (userData.address !== undefined)
+        userUpdateFields.diachi = userData.address;
+      if (userData.status !== undefined) {
+        const statusMap = { active: 1, inactive: 0 };
+        const statusValue = statusMap[userData.status];
+        userUpdateFields.trangthai = statusValue;
+      }
+
+      if (userData.sex !== undefined) {
+        const sexMap = { male: 1, female: 0 };
+        userUpdateFields.gioitinh = sexMap[userData.sex];
+        if (userUpdateFields.gioitinh === undefined)
+          throw new Error("Giới tính không hợp lệ");
+      }
+
+      // Map dữ liệu cho bảng taikhoan
+      const accountUpdateFields = {};
+      if (accountData.username !== undefined)
+        accountUpdateFields.tendangnhap = accountData.username;
+      if (
+        accountData.password !== undefined &&
+        accountData.password.trim() !== ""
+      )
+        accountUpdateFields.matkhau = accountData.password;
+      if (accountData.role !== undefined) {
+        const roleMap = { admin: 1, driver: 2, parent: 3 };
+        accountUpdateFields.manq = roleMap[accountData.role];
+        if (accountUpdateFields.manq === undefined)
+          throw new Error("Vai trò không hợp lệ");
+      }
+      if (accountData.trangthai !== undefined) {
+        accountUpdateFields.trangthai =
+          accountData.trangthai === "active" || accountData.trangthai === 1
+            ? 1
+            : 0;
+      }
+
+      // Cập nhật user và account
+      const updatedUser = await UserDAO.update(mand, userUpdateFields);
+
+      let updatedAccount = null;
+      if (Object.keys(accountUpdateFields).length > 0) {
+        updatedAccount = await AccountDAO.update(mand, accountUpdateFields);
+      }
+
+      return {
+        user: updatedUser,
+        account: updatedAccount || { message: "Không thay đổi tài khoản" },
+      };
+    } catch (error) {
+      console.error("Lỗi cập nhật user trong UserBUS:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = UserBUS;

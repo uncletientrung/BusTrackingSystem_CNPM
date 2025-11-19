@@ -1,54 +1,56 @@
-
-import apiClient from './api';
-
+import apiClient from "./api";
 
 export const UserAPI = {
-    getAllUsers: () => apiClient.fetchAll('User'),
-    createUser: (UsernAccountNEW) => apiClient.create('User', UsernAccountNEW)
-}
+  getAllUsers: () => apiClient.fetchAll("User"),
+  createUser: (UsernAccountNEW) => apiClient.create("User", UsernAccountNEW),
+  updateUser: (mand, userUpdateData) =>
+    apiClient.update("User", mand, userUpdateData),
+};
 
 export const StopAPI = {
-    getAllStops: () => apiClient.fetchAll('Stop'),
-    getStopById: (madd) => apiClient.fetchById('Stop', madd),
-    createStop: (newStop) => apiClient.create('Stop', newStop),
-    deleteStop: (madd) => apiClient.deleteForm('Stop', madd),
-    updateStop: (madd, stopData) => apiClient.update('Stop', madd, stopData)
-}
+  getAllStops: () => apiClient.fetchAll("Stop"),
+  getStopById: (madd) => apiClient.fetchById("Stop", madd),
+  createStop: (newStop) => apiClient.create("Stop", newStop),
+  deleteStop: (madd) => apiClient.deleteForm("Stop", madd),
+  updateStop: (madd, stopData) => apiClient.update("Stop", madd, stopData),
+};
 
 export const AccountAPI = {
-    getAllAccount: () => apiClient.fetchAll('Account'),
-    getAccountById: (matk) => apiClient.fetchById('Account', matk)
-}
+  getAllAccount: () => apiClient.fetchAll("Account"),
+  getAccountById: (matk) => apiClient.fetchById("Account", matk),
+};
 
 export const StudentAPI = {
-    getAllStudent: () => apiClient.fetchAll('Student'),
-    createStudent: (newStudent) => apiClient.create('Student', newStudent),
-    deleteStudent: (mahs) => apiClient.deleteForm('Student', mahs),
-    updateStudent: (mahs, updateStudent) => apiClient.update('Student', mahs, updateStudent)
-}
+  getAllStudent: () => apiClient.fetchAll("Student"),
+  createStudent: (newStudent) => apiClient.create("Student", newStudent),
+  deleteStudent: (mahs) => apiClient.deleteForm("Student", mahs),
+  updateStudent: (mahs, updateStudent) =>
+    apiClient.update("Student", mahs, updateStudent),
+};
 
 export const BusAPI = {
-    getAllBus: () => apiClient.fetchAll('Bus'),
-    createBus: (newBus) => apiClient.create('Bus', newBus),
-    deleteBus: (maxe) => apiClient.deleteForm('Bus', maxe),
-    updateBus: (maxe, updateBus) => apiClient.update('Bus', maxe, updateBus)
-}
+  getAllBus: () => apiClient.fetchAll("Bus"),
+  createBus: (newBus) => apiClient.create("Bus", newBus),
+  deleteBus: (maxe) => apiClient.deleteForm("Bus", maxe),
+  updateBus: (maxe, updateBus) => apiClient.update("Bus", maxe, updateBus),
+};
 
 export const RouteAPI = {
-    getAllRoute: () => apiClient.fetchAll('Route'),
-    createRoute: (newRoute) => apiClient.create('Route', newRoute),
-    deleteRoute: (matd) => apiClient.deleteForm('Route', matd),
-    updateRoute: (matd, updateRoute) => apiClient.update('Route', matd, updateRoute)
-}
+  getAllRoute: () => apiClient.fetchAll("Route"),
+  createRoute: (newRoute) => apiClient.create("Route", newRoute),
+  deleteRoute: (matd) => apiClient.deleteForm("Route", matd),
+  updateRoute: (matd, updateRoute) =>
+    apiClient.update("Route", matd, updateRoute),
+};
 
 export const ScheduleAPI = {
-    getAllSchedule: () => apiClient.fetchAll('Schedule')
-}
+  getAllSchedule: () => apiClient.fetchAll("Schedule"),
+};
 
 export const NotificationAPI = {
-    getAllNotification: () => apiClient.fetchAll('Notification')
-}
+  getAllNotification: () => apiClient.fetchAll("Notification"),
+};
 
 export const CTRouteAPI = {
-    getCTTTById: (matd) => apiClient.fetchById('CTRoute', matd)
-}
+  getCTTTById: (matd) => apiClient.fetchById("CTRoute", matd),
+};
