@@ -45,6 +45,8 @@ export const RouteAPI = {
 
 export const ScheduleAPI = {
   getAllSchedule: () => apiClient.fetchAll("Schedule"),
+  createSchedule: (newScheduleDayDu) =>
+    apiClient.create("Schedule", newScheduleDayDu),
 };
 
 export const NotificationAPI = {
