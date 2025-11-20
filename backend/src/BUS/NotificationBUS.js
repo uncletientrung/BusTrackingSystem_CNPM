@@ -79,6 +79,17 @@ const NotificationBUS = {
             await giaodich.rollback();
             throw error;
         }
+    },
+    async insertNhieuThongBaoBUS(dsThongBao) {
+        const record = await require('../config/connectDB').sequelize.transaction();
+        try {
+            const dsThongBaoNew = await NotificationDAO.insertNhieuThongBao(dsThongBao, { transaction: record })
+            await record.commit();
+            return dsThongBaoNew;
+        } catch (error) {
+            await record.rollback();
+            throw error;
+        }
     }
 }
 

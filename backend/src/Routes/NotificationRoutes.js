@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const NotificationController = require('../Controllers/NotificationController');
 
+router.post('/bulk', NotificationController.insertNhieu);
 router.get('/', NotificationController.getAll);
 router.post('/', NotificationController.create);
 router.delete('/:matb', NotificationController.delete);

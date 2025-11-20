@@ -56,6 +56,7 @@ export const NotificationAPI = {
   createNotification: (data) => apiClient.create("Notification", data),
   deleteNotification: (matb) => apiClient.deleteForm("Notification", matb),
   updateNotification: (matb, data) => apiClient.update("Notification", matb, data),
+  insertNhieuNotification: (dsFormThongBao) => apiClient.createBulk("Notification", dsFormThongBao)
 };
 
 export const CTRouteAPI = {

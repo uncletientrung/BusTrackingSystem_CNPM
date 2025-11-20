@@ -62,7 +62,7 @@ const NotificationController = {
             const {
                 matx,
                 maph,
-                
+
                 thoigiangui = null,
                 tieude,
                 noidung,
@@ -93,6 +93,43 @@ const NotificationController = {
                 return res.status(404).json({ message: error.message });
             }
             res.status(500).json({ message: error.message });
+        }
+    },
+    async insertNhieu(req, res) {
+        try {
+            // DEBUG: in ra xem body nhận được gì
+            console.log("Body nhận được:", req.body);
+
+            // Cách an toàn nhất – chấp nhận cả 2 kiểu gửi
+            let DSFormThongBao = req.body;
+
+            // Nếu frontend gửi kiểu { DSFormThongBao: [...] }
+            if (req.body.DSFormThongBao) {
+                DSFormThongBao = req.body.DSFormThongBao;
+            }
+
+            // Nếu vẫn không phải mảng → lỗi
+            if (!Array.isArray(DSFormThongBao)) {
+                return res.status(400).json({
+                    message: "Dữ liệu phải là một mảng thông báo!",
+                    received: req.body
+                });
+            }
+
+            if (DSFormThongBao.length === 0) {
+                return res.status(400).json({ message: "Danh sách thông báo rỗng!" });
+            }
+
+            const dsThongBaoNew = await NotificationBUS.insertNhieuThongBaoBUS(DSFormThongBao);
+            res.status(201).json({
+                message: 'Tạo nhiều thông báo thành công!',
+                count: dsThongBaoNew.length,
+                notifications: dsThongBaoNew
+            });
+
+        } catch (error) {
+            console.error('Lỗi tạo nhiều thông báo:', error);
+            res.status(500).json({ message: error.message || "Lỗi server" });
         }
     }
 };

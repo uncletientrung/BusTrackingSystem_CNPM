@@ -65,6 +65,9 @@ const NotificationDAO = {
             where: { matb },
             transaction
         });
+    },
+    async insertNhieuThongBao(listNotification, {transaction}= {}){
+        return await Notification.bulkCreate(listNotification, {transaction})
     }
 };
 

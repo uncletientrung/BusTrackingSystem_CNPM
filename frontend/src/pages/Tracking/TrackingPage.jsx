@@ -1,7 +1,7 @@
 import { CircleCheck, FlagTriangleRight, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import SimpleMap from "../../components/Map/SimpleMap";
-import { BusAPI, CTRouteAPI, RouteAPI, ScheduleAPI, StopAPI, UserAPI } from "../../api/apiServices";
+import { BusAPI, CTRouteAPI, CTScheduleAPI, NotificationAPI, RouteAPI, ScheduleAPI, StopAPI, StudentAPI, UserAPI } from "../../api/apiServices";
 
 export default function TrackingPage() {
   const [selectedTracking, setSelectedTracking] = useState(0); // lịch trình được theo dõi
@@ -11,17 +11,19 @@ export default function TrackingPage() {
   const [schedules, setSchedule] = useState([])
   const [stops, setStops] = useState([])
   const [buses, setBuses] = useState([])
+  const [students, setStudents] = useState([])
   const [dsTheoDoi, setDSTheoDoi] = useState([]) // Danh sách đầy các lịch trình có thể theo dõi
   const [selectedCTTD, setSelectedCTTD] = useState([]); // Danh sách đầy đủ các thông tin chi tiết
+  const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
   useEffect(() => {
     (async () => {
       try {
-        const [listUser, listRoute, listSchedule, listStop, listBus] = await Promise.all([
+        const [listUser, listRoute, listSchedule, listStop, listBus, listStudent] = await Promise.all([
           UserAPI.getAllUsers(), RouteAPI.getAllRoute(), ScheduleAPI.getAllSchedule(), StopAPI.getAllStops(),
-          BusAPI.getAllBus()]);
+          BusAPI.getAllBus(), StudentAPI.getAllStudent()]);
         setUsers(listUser); setRoutes(listRoute); setSchedule(listSchedule);
-        setStops(listStop); setBuses(listBus);
+        setStops(listStop); setBuses(listBus); setStudents(listStudent);
 
         const newDS = listSchedule.map(schedule => {
           const bus = listBus.find(b => b.maxe == schedule.maxe);
@@ -53,9 +55,11 @@ export default function TrackingPage() {
       const dsCTTDDayDu = listCTTD.map(ct => {
         const stop = stops.find(s => s.madd == ct.madd);
         return {
+          malt: malt,
           matd: ct.matd, madd: ct.madd, thutu: ct.thutu, trangthai: ct.trangthai,
           tendiemdung: stop.tendiemdung, vido: stop.vido, kinhdo: stop.kinhdo,
-          diachi: stop.diachi
+          diachi: stop.diachi,
+          thoigianbatdau: schedule.thoigianbatdau, thoigianketthuc: schedule.thoigianketthuc
         }
       });
       setSelectedCTTD(dsCTTDDayDu);
@@ -64,24 +68,40 @@ export default function TrackingPage() {
     }
   }
 
-  const demoStops = [
-    { id: 1, name: "Bến xe Bến Thành", lat: 10.8231, lng: 106.6297, confirmed: false },
-    { id: 2, name: "Chợ Tân Định", lat: 10.7890, lng: 106.6850, confirmed: true },
-    { id: 3, name: "Công viên Tao Đàn", lat: 10.7769, lng: 106.6909, confirmed: false },
-    { id: 4, name: "Sân bay Tân Sơn Nhất", lat: 10.8187, lng: 106.6519, confirmed: false }
-  ];
-
   const selectedBusData = dsTheoDoi.find(tracking => tracking.malt === selectedTracking);
 
-  const confirmStop = (stopId) => {
-    setConfirmedStops(prev => {
-      if (!prev.includes(stopId)) {
-        const stop = demoStops.find(s => s.id === stopId);
-        alert(`Đã xác nhận đến "${stop.name}"! Đang thông báo phụ huynh...`);
-        return [...prev, stopId];
+  const confirmStop = async (malt, thutu, tendiemdung) => {
+    try {
+      const schedule = schedules.find(sch => sch.malt == malt);
+      const CTSchedule = await CTScheduleAPI.getCTLTById(malt);
+      const listPHTrongSchedule = students.filter(std => CTSchedule.some(ct => ct.mahs === std.mahs))
+        .map(std => std.maph);
+      const now = new Date().toISOString();
+      const DSFormThongBao = listPHTrongSchedule.map(maph => ({
+        matx: currentUser.matk,
+        maph: maph,
+        thoigiantao: now,
+        thoigiangui: now,
+        tieude: thutu == 1 ? "Bắt đầu xuất phát chuyến đi" : `Đã đến ${tendiemdung}`,
+        noidung: thutu == 1 ? `Con đã được đón ở ${tendiemdung} và bắt đầu đi`
+          : `Đã đến trạm ${tendiemdung}, cha mẹ chú ý đưa/ đón con mình`,
+        loaithongbao: "Lịch trình",
+        mucdouutien: "Bình thường",
+        trangthai: 2
+      }));
+      if (window.confirm("Gửi thông báo này cho phụ huynh")) {
+        const thongBaoGui = await NotificationAPI.insertNhieuNotification({DSFormThongBao});
+        console.log(thongBaoGui.notifications);
+
       }
-      return prev;
-    });
+      console.log(DSFormThongBao  );
+
+    } catch (error) {
+      console.error('Lỗi khi tải dữ liệu chi tiết:', error);
+    }
+
+
+
   };
 
   const Markers = selectedCTTD.map((item) => {
@@ -92,6 +112,8 @@ export default function TrackingPage() {
       thutu: item.thutu,
       title: item.tendiemdung,
       diachi: item.diachi,
+      thoigianbatdau: item.thoigianbatdau,
+      thoigianketthuc: item.thoigianketthuc,
       popup: `
       <div style="font-family: Arial, sans-serif; min-width: 240px; padding: 4px;">
         <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">
@@ -170,6 +192,7 @@ export default function TrackingPage() {
           <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
             <div className="flex-1">
               <SimpleMap
+                key={selectedTracking}
                 center={[10.8231, 106.6297]}
                 zoom={12}
                 markers={Markers}
@@ -205,6 +228,7 @@ export default function TrackingPage() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {selectedCTTD.map((ct, index) => {
                 const isConfirmed = ct.trangthai == 1;
+                const text = (index + 1 == 1) ? "Bắt đầu chạy" : "Thông báo đã đến";
                 return (
                   <div
                     key={ct.madd}
@@ -221,11 +245,11 @@ export default function TrackingPage() {
 
                     {!isConfirmed ? (
                       <button
-                        onClick={() => confirmStop(ct.madd)}
+                        onClick={() => confirmStop(ct.malt, ct.thutu, ct.tendiemdung)}
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors flex items-center justify-center space-x-2"
                       >
-                        <FlagTriangleRight className="w-4 h-4" />
-                        <span>Xác nhận đã đến & Thông báo
+                        <span>
+                          {text}
                         </span>
                       </button>
                     ) : (

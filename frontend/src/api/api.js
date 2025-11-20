@@ -59,5 +59,22 @@ const update = async (endpoint, id, dataForm) => {
 
   return await res.json();
 };
-const apiClient = { fetchAll, fetchById, create, deleteForm, update };
+
+const createBulk = async (endpoint, data) => {
+  const res = await fetch(`${BASE_URL}/${endpoint}/bulk`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || `Lỗi gửi hàng loạt tại ${endpoint}/bulk`);
+  }
+
+  return await res.json();
+};
+const apiClient = { fetchAll, fetchById, create, deleteForm, update, createBulk };
 export default apiClient;
