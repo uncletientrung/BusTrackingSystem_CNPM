@@ -8,7 +8,8 @@ const CTRouteBUS = {
             ct => new CTRouteDTO(
                 ct.matd,
                 ct.madd,
-                ct.thutu
+                ct.thutu,
+                ct.trangthai
             )
         );
     },
@@ -19,7 +20,8 @@ const CTRouteBUS = {
             ct => new CTRouteDTO(
                 ct.matd,
                 ct.madd,
-                ct.thutu
+                ct.thutu,
+                ct.trangthai
             )
         );
     }

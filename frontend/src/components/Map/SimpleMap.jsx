@@ -1,88 +1,128 @@
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-// Fix for default markers
+// Fix icon mặc định của Leaflet khi dùng với React/Vite
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-const Map = ({
-  center = [10.8231, 106.6297], //Tọa độ trung tâm HCM
+export default function SimpleMap({
+  center = [10.8231, 106.6297],
   zoom = 13,
-  markers = [], // danh sách Marker
-  onMapClick, // callback khi click bản đồ.
-  className = "h-96"
-}) => {
-  const mapRef = useRef(null);  // div DOM để render bản đồ (mục đích để lưu giá trị khi render lại)
-  const mapInstance = useRef(null); // instance của Leaflet map
-  const markersLayer = useRef(null); // layer group chứa tất cả markers
+  markers = [],
+  className = "h-96",
+}) {
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markersLayerRef = useRef(null);
+  const routeLayerRef = useRef(null);
 
+  // Khởi tạo bản đồ chỉ một lần
   useEffect(() => {
-    if (mapRef.current && !mapInstance.current) { // Kiểm tra đã tồn tại mapref và chưa có bản đồ để tránh tạo nhiều
-      // Tạo bản đồ bằng L, gắn vào div mà mapRef trỏ tới.
-      // Đặt vị trí trung tâm (center) và mức phóng (zoom)
-      mapInstance.current = L.map(mapRef.current).setView(center, zoom);
+    if (!mapInstanceRef.current && mapRef.current) {
+      mapInstanceRef.current = L.map(mapRef.current).setView(center, zoom);
 
-      // Thêm lớp bản đồ nền từ OpenStreetMap.
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        // attribution: '© OpenStreetMap contributors',
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
-      }).addTo(mapInstance.current);
+      }).addTo(mapInstanceRef.current);
 
-      // Tạo một LayerGroup để chứa các marker (có thể thêm/xóa toàn bộ marker trong nhóm này)
-      markersLayer.current = L.layerGroup().addTo(mapInstance.current);
-
-      // Handle map click
-      if (onMapClick) {
-        mapInstance.current.on('click', (e) => {
-          onMapClick(e.latlng); // Trả về tọa đọ được Click
-        });
-      }
+      // Tạo layer group cho marker và tuyến đường
+      markersLayerRef.current = L.layerGroup().addTo(mapInstanceRef.current);
+      routeLayerRef.current = L.layerGroup().addTo(mapInstanceRef.current);
     }
 
-    return () => { // Nếu component bị hủy nó xóa map
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
     };
   }, []);
 
-  // Update markers khi markers trong danh sách thay đổi
   useEffect(() => {
-    if (markersLayer.current) {
-      markersLayer.current.clearLayers(); // Xóa hết marker cũ
-
-      markers.forEach((marker) => { // Duyệt qua mảng markers để tạo marker mới
-        const { lat, lng, title, popup } = marker;
-        const leafletMarker = L.marker([lat, lng]); // Tạo 1 marker tại vị trí (lat, lng)
-
-        if (title || popup) { // Nếu có title hoặc popup thì gắn popup hiển thị khi click marker
-          leafletMarker.bindPopup(popup || title);
-        }
-
-        leafletMarker.addTo(markersLayer.current); // Thêm marker này vào layerGroup
-      });
-    }
-  }, [markers]);
-
-  // Render mỗi khi đổi tọa độ center hoặc zoom
-  useEffect(() => {
-    if (mapInstance.current) {
-      mapInstance.current.setView(center, zoom);
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setView(center, zoom);
     }
   }, [center, zoom]);
 
+  useEffect(() => {
+    if (!mapInstanceRef.current || !markersLayerRef.current || !routeLayerRef.current || markers.length === 0) return;
+
+    // Xóa lớp cũ
+    markersLayerRef.current.clearLayers();
+    routeLayerRef.current.clearLayers();
+    markers.forEach((m) => { // Vẽ các marker điểm dừng
+      const isConfirmed = m.trangthai === 1;
+
+      const iconHtml = `
+        <div style="
+          background: ${isConfirmed ? '#10b981' : '#f59e0b'};
+          color: white;
+          width: 32px; height: 32px;
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-weight: bold; font-size: 14px;
+          border: 3px solid white;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        ">
+          ${m.thutu}
+        </div>
+      `;
+
+      const icon = L.divIcon({
+        html: iconHtml,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -10],
+      });
+
+      L.marker([m.vido, m.kinhdo], { icon })
+        .bindPopup(m.popup || m.title || `Điểm ${m.thutu}`, { minWidth: 240 })
+        .addTo(markersLayerRef.current);
+    });
+
+    // Gọi OSRM để lấy đường đi thực tế
+    const coordinates = markers.map(m => `${m.kinhdo},${m.vido}`).join(";");
+    // trước khi join thì trả  1 mảng kinh độ vĩ độ ['106.629700,10.823100', '106.685000,10.789000']
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`;
+    
+    fetch(osrmUrl)
+      .then(r => r.json()) //parse JSON trả về từ OSRM.
+      .then(data => {
+        if (data.routes && data.routes[0]) {
+          const route = data.routes[0].geometry; // Tuyến tốt nhất
+          // console.log(data.routes[0].geometry); // trả về mảng tọa độ hình học (geoJSON) của tọa bắt đầu đến kết thúc và type : "LineString"
+          L.geoJSON(route, { // Vẽ
+            style: {
+              color: "#1d4ed8",
+              weight: 6,
+              opacity: 0.9,
+            },
+          }).addTo(routeLayerRef.current);
+        }
+      })
+      .catch(err => {
+        console.warn("OSRM lỗi, vẽ đường thẳng thay thế", err);
+        const latlngs = markers.map(m => [m.vido, m.kinhdo]); // Nếu có lỗi thì nối thẳng
+        L.polyline(latlngs, {
+          color: "#64748b",
+          weight: 5,
+          dashArray: "10, 10",
+          opacity: 0.7,
+        }).addTo(routeLayerRef.current);
+      });
+  }, [markers]);
+
   return (
     <div
-      ref={mapRef} // khởi tạo bản đồ
-      className={`w-full ${className} border rounded-lg shadow-md`}
+      ref={mapRef}
+      className={`w-full rounded-xl shadow-lg border border-gray-200 ${className}`}
+      style={{ minHeight: "600px" }}
     />
   );
-};
-
-export default Map;
+}

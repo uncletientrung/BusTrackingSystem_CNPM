@@ -88,8 +88,6 @@ export default function SchedulePage() {
         return { text: "Trễ giờ", color: "bg-orange-100 text-orange-800" };
       }
     }
-
-    // Mặc định
     return "Không xác định";
   }
 

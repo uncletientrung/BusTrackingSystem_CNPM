@@ -15,6 +15,11 @@ const CTRoute = sequelize.define('CTRoute', {
     thutu: {
         type: DataTypes.INTEGER,
         allowNull: false,
+    },
+    trangthai: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }, {
     tableName: 'cttuyenduong',
