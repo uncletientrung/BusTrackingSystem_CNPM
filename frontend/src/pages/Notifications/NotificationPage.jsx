@@ -5,11 +5,12 @@ import toLocalString from "../../utils/DateFormated";
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState([]); // Tất cả thông báo 
-  const [filteredNotification, setFilteredNotification] = useState([]) // Danh sách học sinh sau lọc
+  const [filteredNotification, setFilteredNotification] = useState([]); // Danh sách sau lọc
   const [filter, setFilter] = useState('all'); // Kiểu lọc thông báo
-  const [selectedNotifications, setSelectedNotifications] = useState([]); // Thông báo được chọn
-  const [isCreating, setIsCreating] = useState(false); // Trạng thái tạo 
-  const [newNotification, setNewNotification] = useState({ // Giả lập dữ liệu khi tạo
+  const [selectedNotifications, setSelectedNotifications] = useState([]); // Các thông báo được chọn
+  const [isModalOpen, setIsModalOpen] = useState(false); // Mở modal tạo / sửa
+  const [editingNotification, setEditingNotification] = useState(null); // Nếu != null là đang sửa
+  const [formNotification, setFormNotification] = useState({
     title: '',
     message: '',
     type: 'info',
@@ -61,34 +62,22 @@ export default function NotificationPage() {
     );
   };
 
-  const handleDeleteSelected = () => { // Hàm xử lý xóa thông báo
+  const handleDeleteSelected = async () => { // Xóa nhiều thông báo
     if (selectedNotifications.length === 0) return;
-
-    if (confirm(`Bạn có chắc muốn xóa ${selectedNotifications.length} thông báo đã chọn?`)) {
-      setNotifications(prev => prev.filter(n => !selectedNotifications.includes(n.id)));
+    if (!confirm(`Bạn có chắc muốn xóa ${selectedNotifications.length} thông báo đã chọn?`)) return;
+    try {
+      await Promise.all(selectedNotifications.map(id => NotificationAPI.deleteNotification(id)));
+      setNotifications(prev => prev.filter(n => !selectedNotifications.includes(n.matb)));
       setSelectedNotifications([]);
       alert('Đã xóa thông báo thành công!');
+    } catch (err) {
+      console.error('Lỗi xóa thông báo:', err);
+      alert(err.message || 'Xóa thông báo thất bại');
     }
   };
 
-  const handleCreateNotification = () => { // Hàm xử lý tạo thông báo
-    if (!newNotification.title || !newNotification.message) {
-      alert('Vui lòng điền đầy đủ tiêu đề và nội dung!');
-      return;
-    }
-
-    const notification = {
-      id: Math.max(...notifications.map(n => n.id)) + 1,
-      ...newNotification,
-      createdAt: new Date().toISOString(),
-      status: newNotification.scheduledTime ? 'scheduled' : 'sent',
-      readBy: 0,
-      totalRecipients: newNotification.recipients === 'all' ? 25 : 1,
-      channel: ['app', 'sms']
-    };
-
-    setNotifications([notification, ...notifications]);
-    setNewNotification({
+  const resetForm = () => {
+    setFormNotification({
       title: '',
       message: '',
       type: 'info',
@@ -96,8 +85,86 @@ export default function NotificationPage() {
       priority: 'normal',
       scheduledTime: ''
     });
-    setIsCreating(false);
-    alert('Đã tạo thông báo thành công!');
+    setEditingNotification(null);
+  };
+
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (noti) => {
+    const reverseType = (t) => {
+      switch (t) {
+        case 'Đón học sinh': return 'pickup';
+        case 'Trả học sinh': return 'dropoff';
+        case 'Trễ giờ': return 'delay';
+        case 'Lịch trình': return 'schedule';
+        case 'Bảo trì': return 'maintenance';
+        case 'Khẩn cấp': return 'emergency';
+        default: return 'info';
+      }
+    };
+    const reversePriority = (p) => p === 'Cao' ? 'high' : 'normal';
+    setFormNotification({
+      title: noti.tieude,
+      message: noti.noidung,
+      type: reverseType(noti.loaithongbao),
+      recipients: 'all',
+      priority: reversePriority(noti.mucdouutien),
+      scheduledTime: noti.thoigiangui ? new Date(noti.thoigiangui).toISOString().slice(0,16) : ''
+    });
+    setEditingNotification(noti);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveNotification = async () => {
+    if (!formNotification.title || !formNotification.message) {
+      alert('Vui lòng điền đầy đủ tiêu đề và nội dung!');
+      return;
+    }
+    const mapType = (t) => {
+      switch (t) {
+        case 'pickup': return 'Đón học sinh';
+        case 'dropoff': return 'Trả học sinh';
+        case 'delay': return 'Trễ giờ';
+        case 'schedule': return 'Lịch trình';
+        case 'maintenance': return 'Bảo trì';
+        case 'emergency': return 'Khẩn cấp';
+        default: return 'Thông tin';
+      }
+    };
+    const mapPriority = (p) => p === 'high' ? 'Cao' : 'Bình thường';
+    const matx = currentUser?.manq === 2 ? Number(currentUser.matk) : 0;
+    const maph = currentUser?.manq === 3 ? Number(currentUser.matk) : 0;
+    const payload = {
+      matx,
+      maph,
+      tieude: formNotification.title,
+      noidung: formNotification.message,
+      loaithongbao: mapType(formNotification.type),
+      mucdouutien: mapPriority(formNotification.priority),
+      thoigiangui: formNotification.scheduledTime || null,
+      trangthai: formNotification.scheduledTime ? 1 : 2,
+    };
+    try {
+      if (editingNotification) {
+        const res = await NotificationAPI.updateNotification(editingNotification.matb, payload);
+        const updated = res.notification || res;
+        setNotifications(prev => prev.map(n => n.matb === updated.matb ? updated : n));
+        alert('Cập nhật thông báo thành công!');
+      } else {
+        const res = await NotificationAPI.createNotification(payload);
+        const created = res.notification || res;
+        setNotifications(prev => [created, ...prev]);
+        alert('Đã tạo thông báo thành công!');
+      }
+      resetForm();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Lỗi lưu thông báo:', err);
+      alert(err.message || (editingNotification ? 'Cập nhật thông báo thất bại' : 'Tạo thông báo thất bại'));
+    }
   };
 
   const getNotificationIcon = (type) => { // Lấy icon màu của thông báo
@@ -170,9 +237,8 @@ export default function NotificationPage() {
           </div>
           {/* Nút xóa khi tích chọn*/}
           {(currentUser.manq == 1 || currentUser.manq == 2) && (
-            <div div className="flex space-x-3">
-              {/* Nút xóa */}
-              {!selectedNotifications.length == 0 && (
+            <div className="flex space-x-3">
+              {selectedNotifications.length !== 0 && (
                 <button
                   onClick={handleDeleteSelected}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
@@ -181,14 +247,12 @@ export default function NotificationPage() {
                   <span>Xóa ({selectedNotifications.length})</span>
                 </button>
               )}
-
-              {/* Nút tạo thông báo */}
               <button
-                onClick={() => setIsCreating(true)}
+                onClick={openCreateModal}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
               >
                 <span><PlusCircle /></span>
-                <span>Tạo thông báo</span>
+                <span>{'Tạo thông báo'}</span>
               </button>
             </div>
           )}
@@ -325,6 +389,7 @@ export default function NotificationPage() {
                 <div
                   key={notification.matb}
                   className={`p-6 border-l-4 ${getNotificationColor(notification.loaithongbao, notification.mucdouutien)} hover:bg-gray-50 transition-colors`}
+                  onDoubleClick={() => (currentUser.manq == 1 || currentUser.manq == 2) && openEditModal(notification)}
                 >
                   <div className="flex items-start space-x-4">
                     {/* Ô tích thông báo */}
@@ -343,7 +408,10 @@ export default function NotificationPage() {
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                          <h4
+                            className="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:underline"
+                            onClick={() => (currentUser.manq == 1 || currentUser.manq == 2) && openEditModal(notification)}
+                          >
                             {notification.tieude}
                           </h4>
                           <p className="text-gray-700 mb-3 leading-relaxed">
@@ -394,15 +462,15 @@ export default function NotificationPage() {
           )}
         </div>
 
-        {/* Dialog tạo thông báo mới */}
-        {isCreating && (
+        {/* Modal tạo / sửa thông báo */}
+        {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
               {/* title và nút X */}
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Tạo thông báo mới</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{editingNotification ? 'Chỉnh sửa thông báo' : 'Tạo thông báo mới'}</h3>
                 <button
-                  onClick={() => setIsCreating(false)}
+                  onClick={() => { setIsModalOpen(false); resetForm(); }}
                   className="absolute top-2 right-2 mt-2 mr-2 text-gray-400 hover:text-gray-600"
                 >
                   <X></X>
@@ -416,8 +484,8 @@ export default function NotificationPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề *</label>
                   <input
                     type="text"
-                    value={newNotification.title}
-                    onChange={(e) => setNewNotification({ ...newNotification, title: e.target.value })}
+                    value={formNotification.title}
+                    onChange={(e) => setFormNotification({ ...formNotification, title: e.target.value })}
                     placeholder="Nhập tiêu đề thông báo..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
@@ -427,8 +495,8 @@ export default function NotificationPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung *</label>
                   <textarea
-                    value={newNotification.message}
-                    onChange={(e) => setNewNotification({ ...newNotification, message: e.target.value })}
+                    value={formNotification.message}
+                    onChange={(e) => setFormNotification({ ...formNotification, message: e.target.value })}
                     placeholder="Nhập nội dung thông báo..."
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -440,8 +508,8 @@ export default function NotificationPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Loại thông báo</label>
                     <select
-                      value={newNotification.type}
-                      onChange={(e) => setNewNotification({ ...newNotification, type: e.target.value })}
+                      value={formNotification.type}
+                      onChange={(e) => setFormNotification({ ...formNotification, type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="info">Thông tin</option>
@@ -458,8 +526,8 @@ export default function NotificationPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Mức độ ưu tiên</label>
                     <select
-                      value={newNotification.priority}
-                      onChange={(e) => setNewNotification({ ...newNotification, priority: e.target.value })}
+                      value={formNotification.priority}
+                      onChange={(e) => setFormNotification({ ...formNotification, priority: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="normal">Bình thường</option>
@@ -471,8 +539,8 @@ export default function NotificationPage() {
                 {/* Người nhận */}
                 <div>
                   <select
-                    value={newNotification.recipients}
-                    onChange={(e) => setNewNotification({ ...newNotification, recipients: e.target.value })}
+                    value={formNotification.recipients}
+                    onChange={(e) => setFormNotification({ ...formNotification, recipients: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="all">Tất cả phụ huynh</option>
@@ -487,8 +555,8 @@ export default function NotificationPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Lên lịch gửi (tùy chọn)</label>
                   <input
                     type="datetime-local"
-                    value={newNotification.scheduledTime}
-                    onChange={(e) => setNewNotification({ ...newNotification, scheduledTime: e.target.value })}
+                    value={formNotification.scheduledTime}
+                    onChange={(e) => setFormNotification({ ...formNotification, scheduledTime: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
                   <p className="text-xs text-gray-500 mt-1">Để trống để gửi ngay lập tức</p>
@@ -498,17 +566,17 @@ export default function NotificationPage() {
               {/* Nút hủy và nút gửi ngay/ lên lịch */}
               <div className="flex justify-end space-x-3 mt-6">
                 <button
-                  onClick={() => setIsCreating(false)}
+                  onClick={() => { setIsModalOpen(false); resetForm(); }}
                   className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors"
                 >
                   Hủy
                 </button>
 
                 <button
-                  onClick={handleCreateNotification}
+                  onClick={handleSaveNotification}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
                 >
-                  {newNotification.scheduledTime ? 'Lên lịch gửi' : 'Gửi ngay'}
+                  {editingNotification ? (formNotification.scheduledTime ? 'Cập nhật & Lên lịch' : 'Cập nhật ngay') : (formNotification.scheduledTime ? 'Lên lịch gửi' : 'Gửi ngay')}
                 </button>
               </div>
             </div>

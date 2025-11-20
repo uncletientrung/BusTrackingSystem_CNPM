@@ -15,6 +15,7 @@ const NotificationController = {
             const {
                 matx,
                 maph,
+                thoigiantao = null,
                 thoigiangui = null,
                 tieude,
                 noidung,
@@ -26,6 +27,7 @@ const NotificationController = {
             const notification = {
                 matx: parseInt(matx, 10),
                 maph: parseInt(maph, 10),
+                thoigiantao: thoigiantao ? new Date(thoigiantao) : new Date(),
                 thoigiangui: thoigiangui ? new Date(thoigiangui) : null,
                 tieude,
                 noidung,
@@ -60,6 +62,7 @@ const NotificationController = {
             const {
                 matx,
                 maph,
+                
                 thoigiangui = null,
                 tieude,
                 noidung,
