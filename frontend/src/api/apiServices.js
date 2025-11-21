@@ -61,6 +61,7 @@ export const NotificationAPI = {
 
 export const CTRouteAPI = {
   getCTTTById: (matd) => apiClient.fetchById("CTRoute", matd),
+  updateStatus: (matd, updateInfo) => apiClient.update("CTRoute", matd, updateInfo)
 };
 
 export const CTScheduleAPI = {

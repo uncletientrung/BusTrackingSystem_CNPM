@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/connectDB');
-const { DataTypes } = require('sequelize');
+const { DataTypes, where } = require('sequelize');
 
 const CTRoute = sequelize.define('CTRoute', {
     matd: {
@@ -47,6 +47,10 @@ const CTRouteDAO = {
     },
     async deleteByMaTd(matd, { transaction } = {}) {
         return await CTRoute.destroy({ where: { matd }, transaction });
+    },
+    async updateStatus(matd, madd, thutu, trangthai) {
+        return await CTRoute.update({ trangthai: trangthai },
+            { where: { matd, madd, thutu } })
     }
 
 };

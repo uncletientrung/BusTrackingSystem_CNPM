@@ -24,7 +24,13 @@ const CTRouteBUS = {
                 ct.trangthai
             )
         );
+    },
+    async updateStatus(matd, madd, thutu, trangthai) {
+        const updateCount = await CTRouteDAO.updateStatus(matd, madd, thutu, trangthai);
+        return updateCount;
     }
+
+
 };
 
 module.exports = CTRouteBUS;

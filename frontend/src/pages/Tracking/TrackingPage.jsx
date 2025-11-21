@@ -63,6 +63,7 @@ export default function TrackingPage() {
         }
       });
       setSelectedCTTD(dsCTTDDayDu);
+      
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
     }
@@ -70,10 +71,10 @@ export default function TrackingPage() {
 
   const selectedBusData = dsTheoDoi.find(tracking => tracking.malt === selectedTracking);
 
-  const confirmStop = async (malt, thutu, tendiemdung) => {
+  const confirmStop = async (malt, thutu, tendiemdung, matd, madd) => {
     try {
       const schedule = schedules.find(sch => sch.malt == malt);
-      const CTSchedule = await CTScheduleAPI.getCTLTById(malt);
+      const CTSchedule = await CTScheduleAPI.getCTLTById(malt);  // Xử lý gửi thông báo
       const listPHTrongSchedule = students.filter(std => CTSchedule.some(ct => ct.mahs === std.mahs))
         .map(std => std.maph);
       const now = new Date().toISOString();
@@ -90,11 +91,17 @@ export default function TrackingPage() {
         trangthai: 2
       }));
       if (window.confirm("Gửi thông báo này cho phụ huynh")) {
-        const thongBaoGui = await NotificationAPI.insertNhieuNotification({DSFormThongBao});
-        console.log(thongBaoGui.notifications);
-
+        await NotificationAPI.insertNhieuNotification({DSFormThongBao});
+        // Xử lý cập nhật tuyến đã đến
+        const updateStatus = { matd: matd, madd: madd, thutu: thutu, trangthai: 1 };
+        await CTRouteAPI.updateStatus(matd, updateStatus);
+        setSelectedCTTD(prev => prev.map(item =>
+            item.matd === matd && item.madd === madd && item.thutu === thutu && malt == malt
+              ? { ...item, trangthai: 1 }
+              : item
+          )
+        );
       }
-      console.log(DSFormThongBao  );
 
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
@@ -245,7 +252,7 @@ export default function TrackingPage() {
 
                     {!isConfirmed ? (
                       <button
-                        onClick={() => confirmStop(ct.malt, ct.thutu, ct.tendiemdung)}
+                        onClick={() => confirmStop(ct.malt, ct.thutu, ct.tendiemdung, ct.matd, ct.madd)}
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors flex items-center justify-center space-x-2"
                       >
                         <span>

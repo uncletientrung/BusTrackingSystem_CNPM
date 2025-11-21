@@ -97,29 +97,9 @@ const NotificationController = {
     },
     async insertNhieu(req, res) {
         try {
-            // DEBUG: in ra xem body nhận được gì
-            console.log("Body nhận được:", req.body);
 
             // Cách an toàn nhất – chấp nhận cả 2 kiểu gửi
-            let DSFormThongBao = req.body;
-
-            // Nếu frontend gửi kiểu { DSFormThongBao: [...] }
-            if (req.body.DSFormThongBao) {
-                DSFormThongBao = req.body.DSFormThongBao;
-            }
-
-            // Nếu vẫn không phải mảng → lỗi
-            if (!Array.isArray(DSFormThongBao)) {
-                return res.status(400).json({
-                    message: "Dữ liệu phải là một mảng thông báo!",
-                    received: req.body
-                });
-            }
-
-            if (DSFormThongBao.length === 0) {
-                return res.status(400).json({ message: "Danh sách thông báo rỗng!" });
-            }
-
+            const {DSFormThongBao} = req.body;
             const dsThongBaoNew = await NotificationBUS.insertNhieuThongBaoBUS(DSFormThongBao);
             res.status(201).json({
                 message: 'Tạo nhiều thông báo thành công!',

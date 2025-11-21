@@ -23,6 +23,19 @@ const CTRouteController = {
             console.error('Lỗi getByMatd từ CTRouteController:', error);
             res.status(500).json({ message: error.message });
         }
+    },
+    async updateStatus(req, res) {
+        try {
+            const { matd, madd, thutu, trangthai } = req.body;
+            const updateStopStatusCount = await CTRouteBUS.updateStatus(matd, madd, thutu, trangthai);
+            res.json({
+                message: 'Cập nhật trạng thái chi tiết tuyến đường thành công!',
+                updateCount: updateStopStatusCount
+            });
+        } catch (error) {
+            console.error('Lỗi updateStatus từ CTRouteController:', error);
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 
