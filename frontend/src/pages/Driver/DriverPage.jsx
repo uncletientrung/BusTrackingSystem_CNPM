@@ -141,7 +141,7 @@ export default function DriverPage() {
         //lay ngay hom nay
         const today = new Date().toISOString().slice(0, 10);
 
-        // 4. loc ra cac lich trinh co thoi gian bat dau trong ngay hom nay
+        //loc ra cac lich trinh co thoi gian bat dau trong ngay hom nay
         const todaySchedules = driverSchedules.filter((sch) =>
           sch.thoigianbatdau.startsWith(today)
         );
@@ -243,11 +243,14 @@ export default function DriverPage() {
 
         // tim chuyen hien tai dang dien ra
         const now = new Date();
-        const currentMins = now.getHours() * 60 + now.getMinutes();
+        const currentMins = now.getHours() * 60 + now.getMinutes(); // lay gio va phut hien tai chuyen sang phut
         const currentShift = shifts.find((shift) => {
-          const [sh, sm] = shift.startTime.split(":").map(Number);
-          const [eh, em] = shift.endTime.split(":").map(Number);
-          return currentMins >= sh * 60 + sm && currentMins <= eh * 60 + em;
+          const [giobd, phutbd] = shift.startTime.split(":").map(Number); //lay gio va phut cua gio bat dau cua ca truc
+          const [giokt, phutkt] = shift.endTime.split(":").map(Number);
+          return (
+            currentMins >= giobd * 60 + phutbd &&
+            currentMins <= giokt * 60 + phutkt
+          ); //kiem tra coi phut hien tai co nam trong khonag thoi gian cua ca khong
         });
 
         // cap nhat
