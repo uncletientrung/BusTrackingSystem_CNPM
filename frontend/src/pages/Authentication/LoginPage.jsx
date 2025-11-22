@@ -1,9 +1,9 @@
-import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react' // Thư viện Icon trạng thái đăng nhập, xuất
-import { Link, useNavigate } from 'react-router-dom' // Thư viện Thẻ link 
-import { useEffect, useState } from 'react'
+import { Eye, EyeOff, LogIn, Mail, Lock } from "lucide-react"; // Thư viện Icon trạng thái đăng nhập, xuất
+import { Link, useNavigate } from "react-router-dom"; // Thư viện Thẻ link
+import { useEffect, useState } from "react";
 // import { auth } from '../../hooks/auth'
-import './LoginPage.css'
-import { AccountAPI } from '../../api/apiServices'
+import "./LoginPage.css";
+import { AccountAPI } from "../../api/apiServices";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -16,12 +16,11 @@ export default function LoginPage() {
   // Lấy toàn bộ tài khoản từ API
   useEffect(() => {
     AccountAPI.getAllAccount()
-      .then(listAccount => {
-        setAccount(listAccount)
-      }
-      )
-      .catch(err => console.error(err));
-  }, [])
+      .then((listAccount) => {
+        setAccount(listAccount);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -29,11 +28,19 @@ export default function LoginPage() {
 
     // Giả lập đăng nhập lâu
     setTimeout(() => {
-      const user = accounts.find(acc => acc.tendangnhap == username && acc.matkhau == password);
+      const user = accounts.find(
+        (acc) => acc.tendangnhap == username && acc.matkhau == password
+      );
       if (user) {
         sessionStorage.setItem("currentUser", JSON.stringify(user)); //lưu toàn bộ thông tin user, bao gồm quyền
         sessionStorage.setItem("isLoggedIn", "true");
-        navigate("/dashboard");
+        const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+        if (currentUser.trangthai === 0) {
+          alert("Tài khoản đã bị khóa");
+          return;
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         alert("Sai tài khoản hoặc mật khẩu!");
       }
@@ -51,8 +58,10 @@ export default function LoginPage() {
             <div className="login-logo-wrapper">
               <img src="/bus-logo.svg" alt="Bus Logo" className="login-logo" />
             </div>
-            <h2 className='login-title'>Chào Mừng Trở Lại!</h2>
-            <p className="login-subtitle">Đăng nhập vào Hệ Thống Theo Dõi Xe Buýt</p>
+            <h2 className="login-title">Chào Mừng Trở Lại!</h2>
+            <p className="login-subtitle">
+              Đăng nhập vào Hệ Thống Theo Dõi Xe Buýt
+            </p>
           </div>
 
           <form className="login-form" onSubmit={handleLogin}>
@@ -61,34 +70,44 @@ export default function LoginPage() {
                 <Mail className="label-icon" />
                 Tên đăng nhập
               </label>
-              <input id="email"
+              <input
+                id="email"
                 type="text"
-                autoComplete='email'
-                placeholder='Nhập email của bạn'
+                autoComplete="email"
+                placeholder="Nhập email của bạn"
                 className="input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                required />
+                required
+              />
             </div>
 
-            <div className='input-group'>
+            <div className="input-group">
               <label htmlFor="password" className="input-label">
                 <Lock className="label-icon" />
                 Mật khẩu
               </label>
               <div className="password-input-wrapper">
-                <input id='password'
+                <input
+                  id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder='Nhập mật khẩu của bạn'
+                  placeholder="Nhập mật khẩu của bạn"
                   className="input password-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required />
+                  required
+                />
                 {/* Show mật khẩu */}
-                <button type='button'
-                  className='password-toggle'
-                  onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <EyeOff className='password-icon' /> : <Eye className='password-icon' />}
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="password-icon" />
+                  ) : (
+                    <Eye className="password-icon" />
+                  )}
                 </button>
               </div>
             </div>
@@ -100,9 +119,7 @@ export default function LoginPage() {
               </label>
             </div>
 
-            <button type='submit'
-              className='btn-primary'
-              disabled={isLoading}>
+            <button type="submit" className="btn-primary" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="spinner"></div>
@@ -119,5 +136,5 @@ export default function LoginPage() {
         </div>
       </div>
     </>
-  )
-};
+  );
+}
