@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { X, UserPlus, CheckCircle, Users } from "lucide-react";
-import { AccountAPI, BusAPI, CTScheduleAPI, RouteAPI, ScheduleAPI, StudentAPI, UserAPI } from "../../api/apiServices";
+import { AccountAPI, BusAPI, CTRouteAPI, CTScheduleAPI, RouteAPI, ScheduleAPI, StudentAPI, UserAPI } from "../../api/apiServices";
 import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSelector";
 
 export default function ScheduleModal({ onClose, onSave, schedule }) {
@@ -23,6 +23,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     thoigianketthuc: "",
     trangthai: 1,
     students: [],
+    trackings: []
   });
 
   useEffect(() => {
@@ -62,7 +63,8 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
           thoigianbatdau: schedule.thoigianbatdau?.slice(0, 16) || "",
           thoigianketthuc: schedule.thoigianketthuc?.slice(0, 16) || "",
           trangthai: schedule.trangthai ?? 1,
-          students: listCTLTDayDu
+          students: listCTLTDayDu,
+          trackings: []
         });
 
       } else {
@@ -75,6 +77,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
           thoigianketthuc: "",
           trangthai: 1,
           students: [],
+          trackings: []
         });
       }
     })();
@@ -89,7 +92,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     const end = new Date(formData.thoigianketthuc);
 
     const DSLTTrung = schedules.filter(s => {
-      if (isEdit && s.malt === schedule.malt) return false; 
+      if (isEdit && s.malt === schedule.malt) return false;
       const sStart = new Date(s.thoigianbatdau);
       const sEnd = new Date(s.thoigianketthuc);
       return start < sEnd && end > sStart; // True là trùng
@@ -110,7 +113,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
         ...prev,
         [name]: value,
         maxe: "", matd: "", matx: "",
-        students: []
+        students: [],
       }));
     }
     else {
@@ -158,15 +161,20 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e?.preventDefault();
     if (!validate()) return;
-
+    const CTTD = await CTRouteAPI.getCTTTById(formData.matd);
+    const trackingFinal = CTTD.map(ct => ({
+      matd: formData.matd, madd: ct.madd, thutu: ct.thutu,
+      trangthai: 0, hocsinhconlai: formData.students.length
+    }))
     const finalData = {
       ...formData,
       tonghocsinh: formData.students.length,
       thoigianbatdau: formData.thoigianbatdau,
-      thoigianketthuc: formData.thoigianketthuc
+      thoigianketthuc: formData.thoigianketthuc,
+      trackings: trackingFinal
     };
 
     onSave(finalData);

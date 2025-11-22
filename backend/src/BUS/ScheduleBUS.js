@@ -1,6 +1,7 @@
 const ScheduleDAO = require('../DAO/ScheduleDAO');
 const ScheduleDTO = require('../DTO/ScheduleDTO');
 const CTScheduleDAO = require('../DAO/CTScheduleDAO')
+const TrackingDAO = require('../DAO/TrackingDAO');
 
 const ScheduleBUS = {
     async getAll() {
@@ -19,7 +20,7 @@ const ScheduleBUS = {
         );
         return result;
     },
-    async create(scheduleData, dsCTSchedule) {
+    async create(scheduleData, dsCTSchedule, dsTracking) {
         const record = await require('../config/connectDB').sequelize.transaction();
         try {
             const lichtrinh = await ScheduleDAO.createSchedule(scheduleData, { transaction: record });
@@ -28,7 +29,13 @@ const ScheduleBUS = {
                 mahs: CTSchedule.mahs,
                 trangthai: 0
             }))
+            const dsTheoDoi = dsTracking.map((tracking) => ({
+                malt: lichtrinh.malt, matd: tracking.matd, madd: tracking.madd,
+                thutu: tracking.thutu, hocsinhconlai: tracking.hocsinhconlai, thoigianden: tracking.thoigianden,
+                trangthai: tracking.trangthai
+            }))
             await CTScheduleDAO.createCTSchedule(dsCTlichtrinh, { transaction: record })
+            await TrackingDAO.create(dsTheoDoi, { transaction: record })
             await record.commit()
             return new ScheduleDTO(lichtrinh.malt,
                 lichtrinh.matx,
@@ -46,6 +53,7 @@ const ScheduleBUS = {
     async delete(malt) {
         const record = await require('../config/connectDB').sequelize.transaction();
         try {
+            await TrackingDAO.delete(malt, { transaction: record })
             await CTScheduleDAO.deleteCTSchedule(malt, { transaction: record });
             const result = ScheduleDAO.deleteSchedule(malt, { transaction: record });
             if (result == 0) {
@@ -57,16 +65,25 @@ const ScheduleBUS = {
             throw error;
         }
     },
-    async update(malt, scheduleData, dsCTSchedule) {
+    async update(malt, scheduleData, dsCTSchedule, dsTracking) {
         const record = await require('../config/connectDB').sequelize.transaction();
         try {
             await CTScheduleDAO.deleteCTSchedule(malt, { transaction: record })
+            await TrackingDAO.delete(malt, { transaction: record })
             await ScheduleDAO.updateSchedule(malt, scheduleData, { transaction: record });
             if (dsCTSchedule.length > 0) {
                 const dsCTlichtrinh = dsCTSchedule.map(ct => ({
                     malt, mahs: ct.mahs, trangthai: ct.trangthai
                 }));
                 await CTScheduleDAO.createCTSchedule(dsCTlichtrinh, { transaction: record });
+            }
+            if (dsTracking.length > 0) {
+                const dsTheoDoi = dsTracking.map(tracking => ({
+                    malt: malt, matd: tracking.matd, madd: tracking.madd,
+                    thutu: tracking.thutu, hocsinhconlai: tracking.hocsinhconlai,
+                    trangthai: tracking.trangthai
+                }))
+                await TrackingDAO.create(dsTheoDoi, { transaction: record });
             }
             await record.commit();
             return new ScheduleDTO(malt,
