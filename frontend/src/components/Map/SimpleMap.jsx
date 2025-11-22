@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+// Fix icon mặc định của Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -14,12 +15,36 @@ export default function SimpleMap({
   zoom = 13,
   markers = [],
   className = "h-96",
+  selectedTrackingId,        // Thêm prop này để reset xe khi đổi lịch trình
+  onArriveAtStop,            // Callback khi xe đến điểm dừng (tùy chọn)
 }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersLayerRef = useRef(null);
   const routeLayerRef = useRef(null);
+  const busMarkerRef = useRef(null);
   const abortControllerRef = useRef(null);
+
+  // Vị trí xe buýt hiện tại (giả lập)
+  const [busPosition, setBusPosition] = useState(null);
+  const routeCoordinates = useRef([]); // Lưu toàn bộ tọa độ tuyến đường từ OSRM
+
+  // Icon xe buýt cố định (không xoay hướng)
+  const busIcon = L.divIcon({
+    html: `
+      <div style="
+        background: #3b82f6; color: white; width: 40px; height: 40px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 16px; border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      ">
+        BUS
+      </div>
+    `,
+    className: "",
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+  });
 
   useEffect(() => {
     if (!mapInstanceRef.current && mapRef.current) {
@@ -60,6 +85,12 @@ export default function SimpleMap({
 
     markersLayerRef.current.clearLayers();
     routeLayerRef.current.clearLayers();
+    if (busMarkerRef.current) {
+      mapInstanceRef.current.removeLayer(busMarkerRef.current);
+      busMarkerRef.current = null;
+    }
+    setBusPosition(null);
+    routeCoordinates.current = [];
 
     markers.forEach((marker) => {
       const isConfirmed = marker.trangthai === 1;
@@ -95,7 +126,6 @@ export default function SimpleMap({
 
     // Gọi OSRM để lấy đường đi thực tế
     const toaDoTuDauDenDich = markers.map(m => `${m.kinhdo},${m.vido}`).join(";");
-    // trước khi join thì trả về mảng kinh độ vĩ độ ['106.629700,10.823100', '106.685000,10.789000']
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${toaDoTuDauDenDich}?overview=full&geometries=geojson`;
 
     fetch(osrmUrl, { signal: controller.signal })
@@ -104,12 +134,13 @@ export default function SimpleMap({
         return r.json();
       })
       .then(data => {
-        // Nếu request đã bị hủy (do đổi lịch trình) → bỏ qua
         if (controller.signal.aborted) return;
 
         if (data.routes && data.routes[0]) {
-          const route = data.routes[0].geometry; // Tuyến tốt nhất
-          // console.log(data.routes[0].geometry); // trả về geoJSON LineString
+          const route = data.routes[0].geometry;
+          routeCoordinates.current = route.coordinates.map(coord => [coord[1], coord[0]]); // [lat, lng]
+
+          // Vẽ đường đi
           L.geoJSON(route, {
             style: {
               color: "#1d4ed8",
@@ -117,10 +148,44 @@ export default function SimpleMap({
               opacity: 0.9,
             },
           }).addTo(routeLayerRef.current);
+
+          // BẮT ĐẦU GIẢ LẬP XE CHẠY TỪ ĐÂY
+          let index = 0;
+          const totalPoints = routeCoordinates.current.length;
+          const speedKmh = 50; // Tốc độ giả lập: 50 km/h
+          const msPerPoint = 100; // Càng nhỏ càng mượt (50-150 là đẹp)
+
+          const moveBus = () => {
+            if (index >= totalPoints) {
+              clearInterval(timer);
+              return;
+            }
+
+            const [lat, lng] = routeCoordinates.current[index];
+            setBusPosition({ lat, lng });
+
+            // Kiểm tra xe đã gần điểm dừng chưa (khoảng 50m)
+            markers.forEach((stop) => {
+              const distance = mapInstanceRef.current.distance(
+                [lat, lng],
+                [stop.vido, stop.kinhdo]
+              );
+              if (distance < 50 && stop.trangthai !== 1) {
+                onArriveAtStop?.(stop.malt, stop.thutu, stop.tendiemdung, stop.matd, stop.madd);
+              }
+            });
+
+            index += Math.max(1, Math.floor(speedKmh / 50)); // Tăng tốc độ điểm nhảy
+          };
+
+          const timer = setInterval(moveBus, msPerPoint);
+          moveBus(); // Chạy ngay lập tức frame đầu
+
+          // Cleanup khi đổi lịch trình
+          return () => clearInterval(timer);
         }
       })
       .catch(err => {
-        // Nếu bị hủy do abort thì ngắt
         if (err.name === "AbortError") return;
         console.error("OSRM lỗi vẽ đường thẳng thay thế", err);
         const latlngs = markers.map(m => [m.vido, m.kinhdo]);
@@ -137,7 +202,22 @@ export default function SimpleMap({
         abortControllerRef.current.abort();
       }
     };
-  }, [markers]); 
+  }, [markers, selectedTrackingId]); // selectedTrackingId để reset khi đổi chuyến
+
+  // Di chuyển marker xe buýt theo vị trí giả lập
+  useEffect(() => {
+    if (!mapInstanceRef.current || !busPosition) return;
+
+    if (busMarkerRef.current) {
+      busMarkerRef.current.setLatLng([busPosition.lat, busPosition.lng]);
+    } else {
+      busMarkerRef.current = L.marker([busPosition.lat, busPosition.lng], {
+        icon: busIcon,
+        zIndexOffset: 1000,
+      }).addTo(mapInstanceRef.current);
+    }
+
+  }, [busPosition]);
 
   return (
     <div

@@ -45,6 +45,13 @@ const TrackingDAO = {
     },
     async delete(malt, { transaction } = {}) {
         return await Tracking.destroy({ where: { malt } }, { transaction })
+    },
+    async getTrackingByIdLT(malt) {
+        return await Tracking.findAll({ where: { malt }, order: [['thutu', 'ASC']] })
+    },
+    async updateStatus(malt, matd, madd, trangthai){
+        return await Tracking.update({trangthai : trangthai}, 
+            {where : {malt, matd, madd}})
     }
 };
 

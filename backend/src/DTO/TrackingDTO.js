@@ -1,10 +1,10 @@
 class TrackingDTO {
-    constructor(malt, matd, madd, thutu, trangthai, hocsinconlai, thoigianden) {
+    constructor(malt, matd, madd, thutu, trangthai, hocsinhconlai, thoigianden) {
         this.malt = malt
         this.matd = matd;
         this.madd = madd;
         this.thutu = thutu;
-        this.hocsinconlai = hocsinconlai;
+        this.hocsinhconlai = hocsinhconlai;
         this.thoigianden = thoigianden;
         this.trangthai = trangthai;
     }

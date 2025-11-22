@@ -69,7 +69,6 @@ const ScheduleBUS = {
         const record = await require('../config/connectDB').sequelize.transaction();
         try {
             await CTScheduleDAO.deleteCTSchedule(malt, { transaction: record })
-            await TrackingDAO.delete(malt, { transaction: record })
             await ScheduleDAO.updateSchedule(malt, scheduleData, { transaction: record });
             if (dsCTSchedule.length > 0) {
                 const dsCTlichtrinh = dsCTSchedule.map(ct => ({
@@ -77,13 +76,16 @@ const ScheduleBUS = {
                 }));
                 await CTScheduleDAO.createCTSchedule(dsCTlichtrinh, { transaction: record });
             }
-            if (dsTracking.length > 0) {
+            if (dsTracking.length > 0 && scheduleData.matd !== dsTracking[0].matd) {
+                await TrackingDAO.delete(malt, { transaction: record })
                 const dsTheoDoi = dsTracking.map(tracking => ({
                     malt: malt, matd: tracking.matd, madd: tracking.madd,
                     thutu: tracking.thutu, hocsinhconlai: tracking.hocsinhconlai,
                     trangthai: tracking.trangthai
                 }))
-                await TrackingDAO.create(dsTheoDoi, { transaction: record });
+                if (dsTracking.length > 0) {
+                    await TrackingDAO.create(dsTheoDoi, { transaction: record });
+                }
             }
             await record.commit();
             return new ScheduleDTO(malt,

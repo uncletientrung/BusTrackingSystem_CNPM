@@ -1,11 +1,10 @@
 import { CircleCheck, FlagTriangleRight, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import SimpleMap from "../../components/Map/SimpleMap";
-import { BusAPI, CTRouteAPI, CTScheduleAPI, NotificationAPI, RouteAPI, ScheduleAPI, StopAPI, StudentAPI, UserAPI } from "../../api/apiServices";
+import { BusAPI, CTRouteAPI, CTScheduleAPI, NotificationAPI, RouteAPI, ScheduleAPI, StopAPI, StudentAPI, TrackingAPI, UserAPI } from "../../api/apiServices";
 
 export default function TrackingPage() {
-  const [selectedTracking, setSelectedTracking] = useState(0); // lịch trình được theo dõi
-  const [confirmedStops, setConfirmedStops] = useState([]);
+  const [selectedTrackingId, setSelectedTrackingId] = useState(0); // lịch trình được theo dõi
   const [users, setUsers] = useState([])
   const [routes, setRoutes] = useState([])
   const [schedules, setSchedule] = useState([])
@@ -13,7 +12,7 @@ export default function TrackingPage() {
   const [buses, setBuses] = useState([])
   const [students, setStudents] = useState([])
   const [dsTheoDoi, setDSTheoDoi] = useState([]) // Danh sách đầy các lịch trình có thể theo dõi
-  const [selectedCTTD, setSelectedCTTD] = useState([]); // Danh sách đầy đủ các thông tin chi tiết
+  const [selectedTracking, setSelectedTracking] = useState([]); // Danh sách đầy đủ các thông tin chi tiết
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
   useEffect(() => {
@@ -48,32 +47,30 @@ export default function TrackingPage() {
   }, []);
 
   const handleSelecteTracking = async (malt) => {
-    setSelectedTracking(malt);
+    setSelectedTrackingId(malt);
     const schedule = schedules.find(sch => sch.malt == malt)
     try {
-      const listCTTD = await CTRouteAPI.getCTTTById(schedule.matd);
-      const dsCTTDDayDu = listCTTD.map(ct => {
-        const stop = stops.find(s => s.madd == ct.madd);
+      const listTracking = await TrackingAPI.getTrackingByIdLT(malt)
+      const dsTrackingDayDu = listTracking.map(tracking => {
+        const stop = stops.find(s => s.madd == tracking.madd);
         return {
           malt: malt,
-          matd: ct.matd, madd: ct.madd, thutu: ct.thutu, trangthai: ct.trangthai,
+          matd: tracking.matd, madd: tracking.madd, thutu: tracking.thutu, trangthai: tracking.trangthai,
           tendiemdung: stop.tendiemdung, vido: stop.vido, kinhdo: stop.kinhdo,
           diachi: stop.diachi,
           thoigianbatdau: schedule.thoigianbatdau, thoigianketthuc: schedule.thoigianketthuc
         }
       });
-      setSelectedCTTD(dsCTTDDayDu);
-      
+      setSelectedTracking(dsTrackingDayDu);
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
     }
   }
 
-  const selectedBusData = dsTheoDoi.find(tracking => tracking.malt === selectedTracking);
+  const selectedBusData = dsTheoDoi.find(tracking => tracking.malt === selectedTrackingId);
 
   const confirmStop = async (malt, thutu, tendiemdung, matd, madd) => {
     try {
-      const schedule = schedules.find(sch => sch.malt == malt);
       const CTSchedule = await CTScheduleAPI.getCTLTById(malt);  // Xử lý gửi thông báo
       const listPHTrongSchedule = students.filter(std => CTSchedule.some(ct => ct.mahs === std.mahs))
         .map(std => std.maph);
@@ -91,33 +88,31 @@ export default function TrackingPage() {
         trangthai: 2
       }));
       if (window.confirm("Gửi thông báo này cho phụ huynh")) {
-        await NotificationAPI.insertNhieuNotification({DSFormThongBao});
+        await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
         // Xử lý cập nhật tuyến đã đến
-        const updateStatus = { matd: matd, madd: madd, thutu: thutu, trangthai: 1 };
-        await CTRouteAPI.updateStatus(matd, updateStatus);
-        setSelectedCTTD(prev => prev.map(item =>
-            item.matd === matd && item.madd === madd && item.thutu === thutu && malt == malt
-              ? { ...item, trangthai: 1 }
-              : item
-          )
+        const updateStatus = { matd: matd, madd: madd, trangthai: 1 };
+        await TrackingAPI.updateStatus(malt, updateStatus);
+        setSelectedTracking(prev => prev.map(item =>
+          item.matd === matd && item.madd === madd && item.malt == malt
+            ? { ...item, trangthai: 1 }
+            : item
+        )
         );
       }
 
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
     }
-
-
-
   };
 
-  const Markers = selectedCTTD.map((item) => {
+  const Markers = selectedTracking.map((item) => {
     const xacNhan = item.trangthai == 1;
     return {
       vido: item.vido,
       kinhdo: item.kinhdo,
       thutu: item.thutu,
       title: item.tendiemdung,
+      trangthai: item.trangthai,
       diachi: item.diachi,
       thoigianbatdau: item.thoigianbatdau,
       thoigianketthuc: item.thoigianketthuc,
@@ -165,7 +160,7 @@ export default function TrackingPage() {
           <div className="flex items-center space-x-3">
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Chọn theo dõi:</label>
             <select
-              value={selectedTracking}
+              value={selectedTrackingId}
               onChange={(e) => handleSelecteTracking(Number(e.target.value))}
               className="w-full max-w-md px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all shadow-sm"
               style={{ appearance: 'none' }}
@@ -199,10 +194,12 @@ export default function TrackingPage() {
           <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
             <div className="flex-1">
               <SimpleMap
-                key={selectedTracking}
+                key={selectedTrackingId}
                 center={[10.8231, 106.6297]}
-                zoom={12}
+                zoom={13}
                 markers={Markers}
+                selectedTrackingId={selectedTrackingId}        // Thêm dòng này
+                onArriveAtStop={confirmStop}                   // Tự động xác nhận khi xe đến gần (tùy chọn)
                 className="w-full h-full rounded-b-xl"
               />
             </div>
@@ -219,21 +216,23 @@ export default function TrackingPage() {
             <div className="p-4 bg-gray-50 border-b">
               <div className="text-center mb-3">
                 <span className="text-2xl font-bold text-blue-600">
-                  {selectedCTTD.filter(ct => ct.trangthai == 1).length}
+                  {selectedTracking.filter(ct => ct.trangthai == 1).length}
                 </span>
-                <span className="text-gray-500"> / {selectedCTTD.length}</span>
-                <p className="text-sm text-gray-600">Điểm đã hoàn thành</p>
+                <span className="text-gray-500"> / {selectedTracking.length}</span>
+                <p className="text-sm text-gray-600">
+                  Điểm đã hoàn thành
+                </p>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
                   className="bg-blue-500 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${(selectedCTTD.filter(ct => ct.trangthai == 1).length / selectedCTTD.length) * 100}%` }}
+                  style={{ width: `${(selectedTracking.filter(ct => ct.trangthai == 1).length / selectedTracking.length) * 100}%` }}
                 />
               </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {selectedCTTD.map((ct, index) => {
+              {selectedTracking.map((ct, index) => {
                 const isConfirmed = ct.trangthai == 1;
                 const text = (index + 1 == 1) ? "Bắt đầu chạy" : "Thông báo đã đến";
                 return (
