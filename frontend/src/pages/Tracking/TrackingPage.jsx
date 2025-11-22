@@ -88,7 +88,7 @@ export default function TrackingPage() {
         trangthai: 2
       }));
       if (window.confirm("Gửi thông báo này cho phụ huynh")) {
-        await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
+        // await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
         // Xử lý cập nhật tuyến đã đến
         const updateStatus = { matd: matd, madd: madd, trangthai: 1 };
         await TrackingAPI.updateStatus(malt, updateStatus);
