@@ -49,9 +49,9 @@ const TrackingDAO = {
     async getTrackingByIdLT(malt) {
         return await Tracking.findAll({ where: { malt }, order: [['thutu', 'ASC']] })
     },
-    async updateStatus(malt, matd, madd, trangthai){
-        return await Tracking.update({trangthai : trangthai}, 
-            {where : {malt, matd, madd}})
+    async updateStatus(malt, matd, madd, trangthai, soHSCanCapNhat) {
+        return await Tracking.update({ trangthai: trangthai, hocsinhconlai: soHSCanCapNhat },
+            { where: { malt, matd, madd } })
     }
 };
 

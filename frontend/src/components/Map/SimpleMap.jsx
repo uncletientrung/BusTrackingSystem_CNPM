@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// GPT CODE ĐỪNG CHECK
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -15,8 +14,7 @@ export default function SimpleMap({
   zoom = 13,
   markers = [],
   className = "h-96",
-  selectedTrackingId, // Thêm prop này để reset xe khi đổi lịch trình
-  onArriveAtStop, // Callback khi xe đến điểm dừng (tùy chọn)
+  selectedTrackingId,
 }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -24,14 +22,11 @@ export default function SimpleMap({
   const routeLayerRef = useRef(null);
   const busMarkerRef = useRef(null);
   const abortControllerRef = useRef(null);
-  const moveTimerRef = useRef(null); // Timer di chuyển xe
+  const moveTimerRef = useRef(null); // time di chuyển
 
-  // Vị trí xe buýt hiện tại (giả lập)
   const [busPosition, setBusPosition] = useState(null);
-  const fullRouteCoordinates = useRef([]); // Lưu toàn bộ tọa độ tuyến đường (để vẽ đầy đủ)
-  const allowedCoordinates = useRef([]); // Chỉ những tọa độ xe được phép chạy đến (đến điểm đã xác nhận)
-
-  // Icon xe buýt cố định (không xoay hướng)
+  const fullRouteCoordinates = useRef([]);
+  const allowedCoordinates = useRef([]);
   const busIcon = L.divIcon({
     html: `
       <div style="
@@ -52,30 +47,29 @@ export default function SimpleMap({
     if (markers.length === 0) return;
 
     // Tìm điểm đã xác nhận cuối cùng
-    const lastConfirmedIndex = markers.slice().reverse().findIndex(m => m.trangthai === 1);
-    const lastConfirmedRealIndex = lastConfirmedIndex >= 0 ? markers.length - 1 - lastConfirmedIndex : -1;
+    let DDXacNhanCuoi = -1;
+    markers.forEach(marker => {
+      if (marker.trangthai === 1 && marker.thutu > DDXacNhanCuoi) {
+        DDXacNhanCuoi = marker.thutu;
+      }
+    });
+    const lastConfirmedRealIndex = DDXacNhanCuoi >= 0 ? DDXacNhanCuoi - 1 : -1;
 
-    // Nếu chưa có điểm nào xác nhận → xe đứng ở điểm đầu
     if (lastConfirmedRealIndex === -1) {
       const first = markers[0];
       setBusPosition({ lat: first.vido, lng: first.kinhdo });
       allowedCoordinates.current = [[first.vido, first.kinhdo]];
       return;
     }
-
-    // Xe được chạy đến điểm kế tiếp sau điểm đã xác nhận cuối cùng
-    const nextStopIndex = lastConfirmedRealIndex + 1;
-    if (nextStopIndex >= markers.length) {
-      // Đã xác nhận hết → xe dừng ở điểm cuối
+    const DDTiepTheo = lastConfirmedRealIndex + 1;
+    if (DDTiepTheo >= markers.length) { // Hết điểm kế tiếp
       const last = markers[markers.length - 1];
       setBusPosition({ lat: last.vido, lng: last.kinhdo });
       return;
     }
 
-    // Lấy tọa độ từ đầu đến điểm kế tiếp (để chạy mượt)
-    const stopsUpToNext = markers.slice(0, nextStopIndex + 1);
+    const stopsUpToNext = markers.slice(0, DDTiepTheo + 1); // Tọa độ từ đầu đến kế tiếp
     const coordsStr = stopsUpToNext.map(m => `${m.kinhdo},${m.vido}`).join(";");
-
     try {
       const response = await fetch(
         `https://router.project-osrm.org/route/v1/driving/${coordsStr}?overview=full&geometries=geojson`,
@@ -196,7 +190,7 @@ export default function SimpleMap({
         L.geoJSON(data.routes[0].geometry, {
           style: { color: "#1d4ed8", weight: 6, opacity: 0.9 },
         }).addTo(routeLayerRef.current);
-        await updateAllowedRoute(); 
+        await updateAllowedRoute();
       } catch (err) {
         if (err.name === "AbortError") return;
         console.error("OSRM lỗi, vẽ đường thẳng");

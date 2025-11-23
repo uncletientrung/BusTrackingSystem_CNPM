@@ -6,13 +6,11 @@ import toLocalString from "../../utils/DateFormated";
 
 export default function TrackingPage() {
   const [selectedTrackingId, setSelectedTrackingId] = useState(0); // lịch trình được theo dõi
-  const [users, setUsers] = useState([])
-  const [routes, setRoutes] = useState([])
+  const [soLuongHSTrenLT, setSoLuongHSTrenLT] = useState(0);
   const [schedules, setSchedule] = useState([])
   const [stops, setStops] = useState([])
-  const [buses, setBuses] = useState([])
   const [students, setStudents] = useState([])
-  const [dsTheoDoi, setDSTheoDoi] = useState([]) // Danh sách đầy các lịch trình có thể theo dõi
+  const [dsTheoDoi, setDSTheoDoi] = useState([]) // Danh sách đầy đủ tt các lịch trình có thể theo dõi
   const [selectedTracking, setSelectedTracking] = useState([]); // Danh sách đầy đủ các thông tin chi tiết
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
@@ -22,10 +20,12 @@ export default function TrackingPage() {
         const [listUser, listRoute, listSchedule, listStop, listBus, listStudent] = await Promise.all([
           UserAPI.getAllUsers(), RouteAPI.getAllRoute(), ScheduleAPI.getAllSchedule(), StopAPI.getAllStops(),
           BusAPI.getAllBus(), StudentAPI.getAllStudent()]);
-        setUsers(listUser); setRoutes(listRoute); setSchedule(listSchedule);
-        setStops(listStop); setBuses(listBus); setStudents(listStudent);
 
-        const newDS = listSchedule.map(schedule => {
+        const filteredSchedule = await filterLTTheoTk(listSchedule, listStudent, currentUser);
+        setSchedule(filteredSchedule);
+        setStops(listStop); setStudents(listStudent);
+
+        const newDS = filteredSchedule.map(schedule => {
           const bus = listBus.find(b => b.maxe == schedule.maxe);
           const route = listRoute.find(r => r.matd == schedule.matd);
           const driver = listUser.find(u => u.mand == schedule.matx);
@@ -47,6 +47,36 @@ export default function TrackingPage() {
     })();
   }, []);
 
+  async function filterLTTheoTk(listSchedule, students, currentUser) {
+    const today = new Date().toISOString().split("T")[0];
+    if (currentUser.manq === 1) {
+      return listSchedule;
+    }
+    if (currentUser.manq === 2) {
+      return listSchedule.filter(sch =>
+        sch.thoigianbatdau.split("T")[0] === today &&
+        sch.matx === currentUser.matk
+      );
+    }
+    if (currentUser.manq === 3) {
+      const result = [];
+      for (const sch of listSchedule) {
+        const ngayBD = sch.thoigianbatdau.split("T")[0];
+        if (ngayBD !== today) continue;
+        const cTLT = await CTScheduleAPI.getCTLTById(sch.malt);
+        const isParentChildInThisRoute = students.some(std =>
+          std.maph === currentUser.matk &&
+          cTLT.some(ct => ct.mahs === std.mahs)
+        );
+        if (isParentChildInThisRoute) {
+          result.push(sch);
+        }
+      }
+      return result;
+    }
+    return [];
+  }
+
   const handleSelecteTracking = async (malt) => {
     setSelectedTrackingId(malt);
     const schedule = schedules.find(sch => sch.malt == malt)
@@ -63,6 +93,7 @@ export default function TrackingPage() {
           thoigianden: tracking.thoigianden, hocsinhconlai: tracking.hocsinhconlai
         }
       });
+      setSoLuongHSTrenLT(schedule.tonghocsinh);
       setSelectedTracking(dsTrackingDayDu);
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
@@ -90,16 +121,35 @@ export default function TrackingPage() {
         trangthai: 2
       }));
       if (window.confirm("Gửi thông báo này cho phụ huynh")) {
+        console.log(DSFormThongBao);
+        
         // await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
+        // Xử lý trừ số học sinh trên xe
+        const listDDTrongSchedule = students.filter(std => CTSchedule.some(ct => ct.mahs === std.mahs))
+          .map(std => std.diemdung).filter(diem => diem === madd);
+        let soHSCanCapNhat = 0;
+        const listTracking = await TrackingAPI.getTrackingByIdLT(malt);
+        listTracking.forEach(tracking => {
+          if (tracking.matd == matd && tracking.madd == madd && tracking.malt == malt && tracking.thutu == thutu) {
+            if (tracking.thutu == 1) {
+              soHSCanCapNhat = tracking.hocsinhconlai - listDDTrongSchedule.length;
+            } else {
+              soHSCanCapNhat = listTracking[thutu - 2].hocsinhconlai - listDDTrongSchedule.length;
+            }
+          }
+        });
+
         // Xử lý cập nhật tuyến đã đến
-        const updateStatus = { matd: matd, madd: madd, trangthai: 1 };
+        const updateStatus = { matd: matd, madd: madd, trangthai: 1, soHSCanCapNhat: soHSCanCapNhat };
         await TrackingAPI.updateStatus(malt, updateStatus);
         setSelectedTracking(prev => prev.map(item =>
           item.matd === matd && item.madd === madd && item.malt == malt
-            ? { ...item, trangthai: 1 }
+            ? { ...item, trangthai: 1, hocsinhconlai: soHSCanCapNhat }
             : item
         )
         );
+
+
       }
 
     } catch (error) {
@@ -129,7 +179,7 @@ export default function TrackingPage() {
               <div>
                 <div style="color:#64748b;">Học sinh còn lại</div>
                 <div style="font-weight:700; font-size:14px; color:${xacNhan ? '#10b981' : '#92400e'};">
-                  ${xacNhan ? item.hocsinhconlai : "Chưa cập nhật"}
+                  ${xacNhan ? item.hocsinhconlai + "/" + soLuongHSTrenLT : "Chưa cập nhật"}
                 </div>
               </div>
               <div style="text-align:right;">
@@ -145,7 +195,7 @@ export default function TrackingPage() {
           </div>
 
           <div style="padding:12px 16px; background:${xacNhan ? '#10b981' : '#f59e0b'}; color:white; font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px;">
-            ${xacNhan ? 'Đã xác nhận đón học sinh' : 'Xe đang trên đường'}
+            ${xacNhan ? 'Đã xác nhận đi qua' : 'Xe đang trên đường'}
           </div>
         </div>
         `
@@ -196,8 +246,6 @@ export default function TrackingPage() {
 
       {/* Map */}
       {selectedTrackingId != 0 ? (
-
-
         <div className="flex flex-col lg:flex-row flex-1 p-4 gap-4">
           <div className="flex-1">
             <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
@@ -208,7 +256,6 @@ export default function TrackingPage() {
                   zoom={13}
                   markers={Markers}
                   selectedTrackingId={selectedTrackingId}
-                  onArriveAtStop={confirmStop}
                   className="w-full h-full rounded-b-xl"
                 />
               </div>
@@ -256,22 +303,41 @@ export default function TrackingPage() {
                           : 'bg-gray-50 border-gray-200 opacity-70'
                         }`}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex flex-col space-y-1">
-                          <div className="flex items-center space-x-2">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex flex-col space-y-1.5">
+                          <div className="flex items-center space-x-2.5">
                             <div
-                              className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm ${xacNhan ? 'bg-green-500' : canConfirm ? 'bg-blue-500' : 'bg-gray-400'
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md transition-all ${xacNhan ? 'bg-green-500 scale-105' : canConfirm ? 'bg-blue-500' : 'bg-gray-400'
                                 }`}
                             >
                               {index + 1}
                             </div>
-                            <span className={`font-medium text-sm ${xacNhan ? 'text-gray-800' : 'text-gray-700'}`}>
+                            <span className={`font-semibold text-base ${xacNhan ? 'text-gray-900' : 'text-gray-700'}`}>
                               {ct.tendiemdung}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-500 ml-9">
+                          <span className="text-xs text-gray-500 ml-10 pl-0.5">
                             {ct.diachi || 'Không có địa chỉ'}
                           </span>
+                        </div>
+
+                        <div className="flex flex-col items-end">
+                          <div className="text-xs text-gray-500 font-medium mb-0.5">Còn lại trên xe</div>
+                          {xacNhan ? (
+                            <div className="flex items-baseline gap-1.5 bg-green-50 px-4 py-2 rounded-xl border border-green-200 shadow-sm">
+                              <span className="text-2xl font-bold text-green-600">
+                                {ct.hocsinhconlai}
+                              </span>
+                              <span className="text-lg text-green-600 font-medium">/</span>
+                              <span className="text-xl text-gray-600 font-semibold">
+                                {soLuongHSTrenLT}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="text-sm text-gray-400 italic bg-gray-50 px-4 py-2 rounded-lg">
+                              Chưa cập nhật
+                            </div>
+                          )}
                         </div>
                       </div>
                       {!xacNhan && canConfirm ? (
