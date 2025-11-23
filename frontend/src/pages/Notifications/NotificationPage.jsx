@@ -113,11 +113,18 @@ export default function NotificationPage() {
       }
     };
     const reversePriority = (p) => p === 'Cao' ? 'high' : 'normal';
+    const recipientsFromNoti = () => {
+      const numericMaph = Number(noti.maph);
+      if (numericMaph === 0) { // all parents
+        return parents.map(p => p.matk);
+      }
+      return numericMaph ? [numericMaph] : [];
+    };
     setFormNotification({
       title: noti.tieude,
       message: noti.noidung,
       type: reverseType(noti.loaithongbao),
-      recipients: [],
+      recipients: recipientsFromNoti(),
       priority: reversePriority(noti.mucdouutien),
       scheduledTime: noti.thoigiangui ? new Date(noti.thoigiangui).toISOString().slice(0,16) : ''
     });
@@ -147,33 +154,43 @@ export default function NotificationPage() {
     };
     const mapPriority = (p) => p === 'high' ? 'Cao' : 'Bình thường';
     const matx = currentUser?.manq === 2 ? Number(currentUser.matk) : 0;
-    
-    // Nếu chọn tất cả phụ huynh thì maph = "0", nếu không thì join bằng dấu cách
-    const maph = formNotification.recipients.length === parents.length && parents.length > 0
-      ? "0"
-      : formNotification.recipients.join(' ');
-    
-    const payload = {
+    const allSelected = formNotification.recipients.length === parents.length && parents.length > 0;
+    const buildPayload = (maphValue) => ({
       matx,
-      maph,
+      maph: Number(maphValue),
       tieude: formNotification.title,
       noidung: formNotification.message,
       loaithongbao: mapType(formNotification.type),
       mucdouutien: mapPriority(formNotification.priority),
       thoigiangui: formNotification.scheduledTime || null,
       trangthai: formNotification.scheduledTime ? 1 : 2,
-    };
+    });
     try {
       if (editingNotification) {
-        const res = await NotificationAPI.updateNotification(editingNotification.matb, payload);
+        // For edit: if previously all parents (maph==0) and still all selected -> keep 0.
+        // If single or multiple selected now:
+        //  - allSelected -> store 0
+        //  - multiple (not all) -> take first recipient (cannot store list in int); suggest bulk create pattern but edit only updates one row.
+        const maphToUse = allSelected ? 0 : Number(formNotification.recipients[0]);
+        const res = await NotificationAPI.updateNotification(editingNotification.matb, buildPayload(maphToUse));
         const updated = res.notification || res;
         setNotifications(prev => prev.map(n => n.matb === updated.matb ? updated : n));
         alert('Cập nhật thông báo thành công!');
       } else {
-        const res = await NotificationAPI.createNotification(payload);
-        const created = res.notification || res;
-        setNotifications(prev => [created, ...prev]);
-        alert('Đã tạo thông báo thành công!');
+        if (!allSelected && formNotification.recipients.length > 1) {
+          // Bulk create one notification per parent ID
+            const listPayload = formNotification.recipients.map(id => buildPayload(id));
+            const res = await NotificationAPI.insertNhieuNotification({ DSFormThongBao: listPayload });
+            const createdList = res.notifications || [];
+            setNotifications(prev => [...createdList, ...prev]);
+            alert('Đã tạo thông báo cho nhiều phụ huynh!');
+        } else {
+          const maphValue = allSelected ? 0 : Number(formNotification.recipients[0]);
+          const res = await NotificationAPI.createNotification(buildPayload(maphValue));
+          const created = res.notification || res;
+          setNotifications(prev => [created, ...prev]);
+          alert('Đã tạo thông báo thành công!');
+        }
       }
       resetForm();
       setIsModalOpen(false);
@@ -397,13 +414,9 @@ export default function NotificationPage() {
                   return notification.matx === currentUser.matk;
                 }
                 if (currentUser.manq === 3) {
-                  // Nếu maph = "0" thì hiển thị cho tất cả phụ huynh
-                  // Nếu không thì kiểm tra xem matk của user có trong danh sách maph không
-                  if (notification.maph === "0" || notification.maph === 0) {
-                    return true;
-                  }
-                  const parentIds = String(notification.maph).split(' ').map(id => Number(id.trim()));
-                  return parentIds.includes(currentUser.matk);
+                  const maphNumeric = Number(notification.maph);
+                  if (maphNumeric === 0) return true; // all parents
+                  return maphNumeric === Number(currentUser.matk); // only show if maph matches current parent's matk
                 }
                 return false;
               })

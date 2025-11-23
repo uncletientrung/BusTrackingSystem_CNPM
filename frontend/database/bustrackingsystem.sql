@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 23, 2025 lúc 08:38 AM
+-- Thời gian đã tạo: Th10 23, 2025 lúc 03:37 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.2.12
+-- Phiên bản PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -266,6 +266,36 @@ INSERT INTO `lichtrinh` (`malt`, `matx`, `matd`, `maxe`, `thoigianbatdau`, `thoi
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(50) NOT NULL,
+  `sender_id` int(50) NOT NULL COMMENT 'ID người gửi (mand hoặc matx)',
+  `receiver_id` int(50) NOT NULL COMMENT 'ID người nhận (mand hoặc matx)',
+  `sender_role` varchar(20) NOT NULL COMMENT 'Vai trò người gửi: admin hoặc taixe',
+  `receiver_role` varchar(20) NOT NULL COMMENT 'Vai trò người nhận: admin hoặc taixe',
+  `content` text NOT NULL COMMENT 'Nội dung tin nhắn',
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Thời gian gửi tin nhắn',
+  `is_read` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: chưa đọc, 1: đã đọc'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Bảng lưu lịch sử tin nhắn chat realtime';
+
+--
+-- Đang đổ dữ liệu cho bảng `messages`
+--
+
+INSERT INTO `messages` (`id`, `sender_id`, `receiver_id`, `sender_role`, `receiver_role`, `content`, `timestamp`, `is_read`) VALUES
+(1, 1, 4, 'admin', 'taixe', 'Chào anh Lê Văn Cường, hôm nay chuyến đi có suôn sẻ không?', '2025-11-23 08:00:00', 1),
+(2, 4, 1, 'taixe', 'admin', 'Dạ chào admin, mọi thứ đều ổn, xe đang đi đúng lịch trình ạ.', '2025-11-23 08:05:00', 1),
+(3, 1, 4, 'admin', 'taixe', 'Tốt lắm! Nhớ thông báo nếu có vấn đề gì nhé.', '2025-11-23 08:10:00', 1),
+(4, 4, 1, 'taixe', 'admin', 'Dạ vâng, em sẽ báo cáo ngay nếu có sự cố.', '2025-11-23 08:15:00', 0),
+(5, 1, 8, 'admin', 'taixe', 'Chị Lê Thị Giang, hôm nay xe có bị trễ không?', '2025-11-23 09:00:00', 1),
+(6, 8, 1, 'taixe', 'admin', 'Dạ không ạ, xe đang đi đúng giờ, học sinh đã lên xe đầy đủ.', '2025-11-23 09:10:00', 1),
+(7, 1, 8, 'admin', 'taixe', 'Được rồi, cảm ơn chị nhé!', '2025-11-23 09:15:00', 0);
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `nguoidung`
 --
 
@@ -375,7 +405,7 @@ INSERT INTO `taixe` (`matx`, `hoten`, `ngaysinh`, `gioitinh`, `email`, `sdt`, `d
 --
 
 CREATE TABLE `thongbao` (
-  `matb` int(50) NOT NULL,
+  `matb` int(11) NOT NULL,
   `matx` int(50) NOT NULL,
   `maph` int(50) NOT NULL,
   `thoigiantao` datetime NOT NULL DEFAULT current_timestamp(),
@@ -392,11 +422,11 @@ CREATE TABLE `thongbao` (
 --
 
 INSERT INTO `thongbao` (`matb`, `matx`, `maph`, `thoigiantao`, `thoigiangui`, `tieude`, `noidung`, `loaithongbao`, `mucdouutien`, `trangthai`) VALUES
-(1, 4, 2, '2025-11-11 09:00:00', '2025-11-11 09:15:00', 'Hoàn thành chuyến đi an toàn', 'Con bạn đã được trả an toàn tại điểm Trường THCS ABC lúc 7:45 AM. Cảm ơn quý phụ huynh đã tin tưởng dịch vụ.', 'Lịch trình', 'Bình thường', 1),
-(2, 9, 10, '2025-11-11 10:30:00', NULL, 'Xe buýt BUS-002 bị trễ 15 phút', 'Xe buýt BUS-002 đang bị trễ 15 phút do tắc đường. Dự kiến đến điểm đón lúc 7:45 AM.', 'Khẩn cấp', 'Cao', 2),
-(3, 9, 3, '2025-11-11 11:00:00', NULL, 'Xe buýt BUS-001 đã đến điểm Bến Thành', 'Con bạn đã được đón tại điểm Bến xe Bến Thành lúc 7:15 AM. Xe đang trên đường đến trường.', 'Thông tin', 'Bình thường', 2),
-(4, 8, 6, '2025-11-11 12:15:00', NULL, 'Thông báo thay đổi lịch trình', 'Do sửa chữa đường, tuyến Quận 1 - Quận 7 sẽ thay đổi lộ trình từ ngày mai. Thời gian đón trả không đổi.', 'Thông tin', 'Bình thường', 1),
-(5, 0, 0, '2025-11-20 05:08:12', NULL, 'aa', 'aa', 'Thông tin', 'Bình thường', 2);
+(10, 0, 2, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(11, 0, 3, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(12, 0, 10, '2025-11-23 14:33:19', '2025-11-23 07:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(13, 0, 6, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(14, 0, 7, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1);
 
 -- --------------------------------------------------------
 
@@ -511,38 +541,6 @@ INSERT INTO `xe` (`maxe`, `bienso`, `hangxe`, `soghe`, `vantoctrungbinh`, `trang
 (35, 'test11', 'Mercedes', 40, 50, 2, 2023),
 (36, 'test5', 'Toyota', 40, 50, 0, 2000);
 
-
--- Tạo bảng messages để lưu lịch sử tin nhắn
--- Sử dụng cho hệ thống chat realtime giữa Admin và Tài xế
-
-CREATE TABLE `messages` (
-  `id` int(50) NOT NULL AUTO_INCREMENT,
-  `sender_id` int(50) NOT NULL COMMENT 'ID người gửi (mand hoặc matx)',
-  `receiver_id` int(50) NOT NULL COMMENT 'ID người nhận (mand hoặc matx)',
-  `sender_role` varchar(20) NOT NULL COMMENT 'Vai trò người gửi: admin hoặc taixe',
-  `receiver_role` varchar(20) NOT NULL COMMENT 'Vai trò người nhận: admin hoặc taixe',
-  `content` text NOT NULL COMMENT 'Nội dung tin nhắn',
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Thời gian gửi tin nhắn',
-  `is_read` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: chưa đọc, 1: đã đọc',
-  PRIMARY KEY (`id`),
-  KEY `idx_sender` (`sender_id`, `sender_role`),
-  KEY `idx_receiver` (`receiver_id`, `receiver_role`),
-  KEY `idx_timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Bảng lưu lịch sử tin nhắn chat realtime';
-
--- Dữ liệu mẫu cho bảng messages
--- sender_id và receiver_id đều dùng mand từ bảng nguoidung
--- Admin (mand=1) nhắn với Tài xế Lê Văn Cường (mand=4), mand=8
-INSERT INTO `messages` (`sender_id`, `receiver_id`, `sender_role`, `receiver_role`, `content`, `timestamp`, `is_read`) VALUES
-(1, 4, 'admin', 'taixe', 'Chào anh Lê Văn Cường, hôm nay chuyến đi có suôn sẻ không?', '2025-11-23 08:00:00', 1),
-(4, 1, 'taixe', 'admin', 'Dạ chào admin, mọi thứ đều ổn, xe đang đi đúng lịch trình ạ.', '2025-11-23 08:05:00', 1),
-(1, 4, 'admin', 'taixe', 'Tốt lắm! Nhớ thông báo nếu có vấn đề gì nhé.', '2025-11-23 08:10:00', 1),
-(4, 1, 'taixe', 'admin', 'Dạ vâng, em sẽ báo cáo ngay nếu có sự cố.', '2025-11-23 08:15:00', 0),
-
-(1, 8, 'admin', 'taixe', 'Chị Lê Thị Giang, hôm nay xe có bị trễ không?', '2025-11-23 09:00:00', 1),
-(8, 1, 'taixe', 'admin', 'Dạ không ạ, xe đang đi đúng giờ, học sinh đã lên xe đầy đủ.', '2025-11-23 09:10:00', 1),
-(1, 8, 'admin', 'taixe', 'Được rồi, cảm ơn chị nhé!', '2025-11-23 09:15:00', 0);
-
 --
 -- Chỉ mục cho các bảng đã đổ
 --
@@ -572,6 +570,15 @@ ALTER TABLE `lichtrinh`
   ADD PRIMARY KEY (`malt`);
 
 --
+-- Chỉ mục cho bảng `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_sender` (`sender_id`,`sender_role`),
+  ADD KEY `idx_receiver` (`receiver_id`,`receiver_role`),
+  ADD KEY `idx_timestamp` (`timestamp`);
+
+--
 -- Chỉ mục cho bảng `nguoidung`
 --
 ALTER TABLE `nguoidung`
@@ -588,15 +595,6 @@ ALTER TABLE `nhomquyen`
 --
 ALTER TABLE `taikhoan`
   ADD PRIMARY KEY (`matk`);
-
---
--- Chỉ mục cho bảng `messages`
---
-ALTER TABLE `messages`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_sender` (`sender_id`, `sender_role`),
-  ADD KEY `idx_receiver` (`receiver_id`, `receiver_role`),
-  ADD KEY `idx_timestamp` (`timestamp`);
 
 --
 -- Chỉ mục cho bảng `taixe`
@@ -645,64 +643,16 @@ ALTER TABLE `diemdung`
   MODIFY `madd` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT cho bảng `hocsinh`
---
-ALTER TABLE `hocsinh`
-  MODIFY `mahs` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
-
---
--- AUTO_INCREMENT cho bảng `lichtrinh`
---
-ALTER TABLE `lichtrinh`
-  MODIFY `malt` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
-
---
 -- AUTO_INCREMENT cho bảng `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT cho bảng `nguoidung`
---
-ALTER TABLE `nguoidung`
-  MODIFY `mand` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT cho bảng `nhomquyen`
---
-ALTER TABLE `nhomquyen`
-  MODIFY `manq` int(50) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `taikhoan`
---
-ALTER TABLE `taikhoan`
-  MODIFY `matk` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT cho bảng `taixe`
---
-ALTER TABLE `taixe`
-  MODIFY `matx` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `thongbao`
 --
 ALTER TABLE `thongbao`
-  MODIFY `matb` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
-
---
--- AUTO_INCREMENT cho bảng `tuyenduong`
---
-ALTER TABLE `tuyenduong`
-  MODIFY `matd` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT cho bảng `xe`
---
-ALTER TABLE `xe`
-  MODIFY `maxe` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `matb` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

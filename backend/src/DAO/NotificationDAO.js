@@ -12,7 +12,7 @@ const Notification = sequelize.define('Notification', {
         allowNull: false,
     },
     maph: {
-        type: DataTypes.TEXT,
+        type: DataTypes.INTEGER,
         allowNull: true,
         defaultValue: null,
     },
@@ -56,7 +56,10 @@ const NotificationDAO = {
         return await Notification.findAll();
     },
     async insertNotificationDAO(notification, {transaction} = {}){
-        return await Notification.create(notification, {transaction});
+        // Rely on AUTO_INCREMENT: do not set matb manually
+        const payload = { ...notification };
+        delete payload.matb; // ensure Sequelize doesn't try to insert a fixed value
+        return await Notification.create(payload, {transaction});
     },
     async deleteNotificationDAO(matb, {transaction} = {}){
         return await Notification.destroy({ where: { matb }, transaction });
@@ -68,7 +71,13 @@ const NotificationDAO = {
         });
     },
     async insertNhieuThongBao(listNotification, {transaction}= {}){
-        return await Notification.bulkCreate(listNotification, {transaction})
+        // Bulk create; let DB assign AUTO_INCREMENT matb for each
+        const sanitized = listNotification.map(item => {
+            const clone = { ...item };
+            delete clone.matb;
+            return clone;
+        });
+        return await Notification.bulkCreate(sanitized, {transaction});
     }
 };
 
