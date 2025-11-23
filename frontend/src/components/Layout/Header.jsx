@@ -1,10 +1,18 @@
 import { Bell, LogOut, Menu, User } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom'
+import { getRoleFromMaNq } from "../../utils/AccountRole"
 
 export default function Header({onMenuClick}) {
     const navigate = useNavigate(); // Giả lập đăng xuất
     const [showDropMenu, setShowDropMenu] =useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+    
+    useEffect(() => {
+        const user = JSON.parse(sessionStorage.getItem("currentUser"));
+        setCurrentUser(user);
+    }, []);
+
     const getRoleColor = (role) => { // Chỉnh sửa màu role 
         const colors = {
         admin: 'bg-red-100 text-red-800',
@@ -14,11 +22,30 @@ export default function Header({onMenuClick}) {
         }
         return colors[role] || 'bg-gray-100 text-gray-800'
     }
+
+    const getRoleLabel = (manq) => {
+        const roleLabels = {
+            1: 'Quản trị viên',
+            2: 'Tài xế',
+            3: 'Phụ huynh'
+        };
+        return roleLabels[manq] || 'Người dùng';
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'U';
+        const names = name.trim().split(' ');
+        if (names.length === 1) return names[0].charAt(0).toUpperCase();
+        return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+    };
+
     const handleLogout = () => {
         sessionStorage.removeItem("isLoggedIn"); // xóa trạng thái đăng nhập
         sessionStorage.removeItem('currentUser');
         navigate("/login");
     };
+
+    const userRole = currentUser ? getRoleFromMaNq(currentUser.manq) : null;
    return (
       <>
         <header className="bg-white shadow-sm border-b border-gray-200">
@@ -64,18 +91,18 @@ export default function Header({onMenuClick}) {
                                     <div className="h-8 w-8 bg-primary-600 rounded-full flex items-center 
                                                     justify-center">
                                         <span className="text-sm font-medium text-white">
-                                            FL {/* Tên viết tắt */}
+                                            {currentUser ? getInitials(currentUser.tendangnhap) : 'U'}
                                         </span>
                                     </div>
                                 </div>
 
                                 <div className="hidden md:block text-left">
                                     <p className="text-sm font-medium text-gray-900">
-                                        First Name, Last Name {/* Tên */}
+                                        {currentUser?.tendangnhap || 'Người dùng'}
                                     </p>
                                     <span className={`inline-flex items-center px-2 py-1 rounded-full 
-                                        text-xs font-medium capitalize ${getRoleColor("admin")}`}>
-                                        Role {/* Chức năng */}
+                                        text-xs font-medium ${getRoleColor(userRole)}`}>
+                                        {currentUser ? getRoleLabel(currentUser.manq) : 'Người dùng'}
                                     </span>
                                 </div>
                             </button>
@@ -85,7 +112,7 @@ export default function Header({onMenuClick}) {
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md 
                                                 shadow-lg py-1 z-50 border border-gray-200">
                                     <div className="px-4 py-2 border-b border-gray-100">
-                                        <p className="text-sm text-gray-500"> admin@gmail.com</p>
+                                        <p className="text-sm text-gray-500">{currentUser?.tendangnhap || 'Không có thông tin'}</p>
                                     </div>
 
                                     <a href="/profile" 
