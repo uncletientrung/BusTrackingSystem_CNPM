@@ -122,8 +122,8 @@ export default function TrackingPage() {
       }));
       if (window.confirm("Gửi thông báo này cho phụ huynh")) {
         console.log(DSFormThongBao);
-        
-        // await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
+
+        await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
         // Xử lý trừ số học sinh trên xe
         const listDDTrongSchedule = students.filter(std => CTSchedule.some(ct => ct.mahs === std.mahs))
           .map(std => std.diemdung).filter(diem => diem === madd);

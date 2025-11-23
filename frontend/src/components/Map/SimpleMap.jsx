@@ -22,15 +22,17 @@ export default function SimpleMap({
   const routeLayerRef = useRef(null);
   const busMarkerRef = useRef(null);
   const abortControllerRef = useRef(null);
-  const moveTimerRef = useRef(null); // time di chuyển
-
+  const moveTimerRef = useRef(null); // timer di chuyển xe
+  const LichTrinhCuId = useRef(null);
   const [busPosition, setBusPosition] = useState(null);
   const fullRouteCoordinates = useRef([]);
-  const allowedCoordinates = useRef([]);
+  const allowedCoordinates = useRef([])
+  const currentIndex = useRef(0);
+
   const busIcon = L.divIcon({
     html: `
       <div style="
-        background: #3b82f6; color: white; width: AbortController40px; height: 40px;
+        background: #3b82f6; color: white; width: 40px; height: 40px;
         border-radius: 50%; display: flex; align-items: center; justify-content: center;
         font-weight: bold; font-size: 16px; border: 4px solid white;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4);
@@ -43,67 +45,73 @@ export default function SimpleMap({
     iconAnchor: [20, 20],
   });
 
-  const updateAllowedRoute = async () => {
-    if (markers.length === 0) return;
-
-    // Tìm điểm đã xác nhận cuối cùng
+  const viTriXacNhanCuoi = () => {
     let DDXacNhanCuoi = -1;
-    markers.forEach(marker => {
-      if (marker.trangthai === 1 && marker.thutu > DDXacNhanCuoi) {
-        DDXacNhanCuoi = marker.thutu;
+    let index = -1;
+    markers.forEach((m, i) => {
+      if (m.trangthai === 1 && m.thutu > DDXacNhanCuoi) {
+        DDXacNhanCuoi = m.thutu;
+        index = i;
       }
     });
-    const lastConfirmedRealIndex = DDXacNhanCuoi >= 0 ? DDXacNhanCuoi - 1 : -1;
+    return index;
+  };
 
-    if (lastConfirmedRealIndex === -1) {
+  const updateAllowedRoute = async () => {
+    if (markers.length === 0) return;
+    const dDXNCuoiIndex = viTriXacNhanCuoi();
+    const dDTiepTheoIndex = dDXNCuoiIndex + 1;
+    if (dDXNCuoiIndex === -1) {
       const first = markers[0];
-      setBusPosition({ lat: first.vido, lng: first.kinhdo });
       allowedCoordinates.current = [[first.vido, first.kinhdo]];
+      currentIndex.current = 0;
+      setBusPosition({ lat: first.vido, lng: first.kinhdo });
       return;
     }
-    const DDTiepTheo = lastConfirmedRealIndex + 1;
-    if (DDTiepTheo >= markers.length) { // Hết điểm kế tiếp
+    if (dDTiepTheoIndex >= markers.length) {
       const last = markers[markers.length - 1];
       setBusPosition({ lat: last.vido, lng: last.kinhdo });
       return;
     }
 
-    const stopsUpToNext = markers.slice(0, DDTiepTheo + 1); // Tọa độ từ đầu đến kế tiếp
-    const coordsStr = stopsUpToNext.map(m => `${m.kinhdo},${m.vido}`).join(";");
+    const batdau = markers[dDXNCuoiIndex];
+    const toaDoMarkerTiepTheo = markers[dDTiepTheoIndex];
     try {
       const response = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${coordsStr}?overview=full&geometries=geojson`,
-        { signal: abortControllerRef.current?.signal }
+        `https://router.project-osrm.org/route/v1/driving/${batdau.kinhdo},${batdau.vido};${toaDoMarkerTiepTheo.kinhdo},${toaDoMarkerTiepTheo.vido}?overview=full&geometries=geojson`
       );
-      const data = await response.json(); // Đọc dữ liệu trả về chuyển thành Json
-      if (data.routes?.[0]) {
+      const data = await response.json();
+      if (data.routes?.[0]?.geometry?.coordinates) {
         const toaDo_VidoKinhDo = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-        allowedCoordinates.current = toaDo_VidoKinhDo;
-        startBusMoving();         // Bắt đầu chạy xe trên đoạn được phép
+        allowedCoordinates.current = [...allowedCoordinates.current, ...toaDo_VidoKinhDo];
+        startBusMoving();
       }
     } catch (err) {
-      if (err.name === "AbortError") return;
-      console.error("OSRM lỗi đoạn cho phép:", err);
+      console.error("Lỗi OSRM đoạn mới:", err);
+      allowedCoordinates.current.push([toaDoMarkerTiepTheo.vido, toaDoMarkerTiepTheo.kinhdo]);
+      startBusMoving();
     }
   };
 
   const startBusMoving = () => {
-    if (moveTimerRef.current) clearInterval(moveTimerRef.current); // Nếu đang chạy thì xóa 
-    const toaDoDuocChay = allowedCoordinates.current;
-    if (toaDoDuocChay.length === 0) return;
-
-    let i = 0; // chỉ số index dựa trên geometry.coordinates lấy được
+    if (moveTimerRef.current) clearInterval(moveTimerRef.current); // Nếu đang chạy thì xóa chạy mới
+    const geometry_toaDo = allowedCoordinates.current;
+    if (geometry_toaDo.length === 0) return;
+    let i = currentIndex.current;
     moveTimerRef.current = setInterval(() => {
-      if (i >= toaDoDuocChay.length) {
+      if (i >= geometry_toaDo.length - 1) {
         clearInterval(moveTimerRef.current);
-        const last = toaDoDuocChay[toaDoDuocChay.length - 1];
-        setBusPosition({ lat: last[0], lng: last[1] });
+        moveTimerRef.current = null;
+        const toaDoCuoi = geometry_toaDo[geometry_toaDo.length - 1];
+        setBusPosition({ lat: toaDoCuoi[0], lng: toaDoCuoi[1] });
+        currentIndex.current = geometry_toaDo.length - 1;
         return;
       }
-      const [lat, lng] = toaDoDuocChay[i];
+      i++;
+      currentIndex.current = i;
+      const [lat, lng] = geometry_toaDo[i];
       setBusPosition({ lat, lng });
-      i += 2; // Tốc độ chạy trên mỗi array
-    }, 80);
+    }, 100);
   };
 
   useEffect(() => {
@@ -113,11 +121,9 @@ export default function SimpleMap({
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
       }).addTo(mapInstanceRef.current);
-
       markersLayerRef.current = L.layerGroup().addTo(mapInstanceRef.current);
       routeLayerRef.current = L.layerGroup().addTo(mapInstanceRef.current);
     }
-
     return () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
@@ -132,22 +138,26 @@ export default function SimpleMap({
     }
   }, [center, zoom]);
 
-  useEffect(() => { // Vẽ marker và route
+  useEffect(() => {
     if (!mapInstanceRef.current || !markersLayerRef.current || !routeLayerRef.current) return;
-    if (abortControllerRef.current) abortControllerRef.current.abort(); // Hủy request cũ nếu có
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+    if (abortControllerRef.current) abortControllerRef.current.abort();
+    abortControllerRef.current = new AbortController();
 
-    markersLayerRef.current.clearLayers(); // Dọn sạch map
-    routeLayerRef.current.clearLayers();
-    if (busMarkerRef.current) {
-      mapInstanceRef.current.removeLayer(busMarkerRef.current);
-      busMarkerRef.current = null;
+    const isNewSchedule = LichTrinhCuId.current !== selectedTrackingId;
+    if (isNewSchedule) { // Nếu là LT mới
+      setBusPosition(null);
+      allowedCoordinates.current = [];
+      currentIndex.current = 0;
+      fullRouteCoordinates.current = [];
+      if (busMarkerRef.current) {
+        mapInstanceRef.current.removeLayer(busMarkerRef.current);
+        busMarkerRef.current = null;
+      }
     }
-    setBusPosition(null);
-    fullRouteCoordinates.current = [];
-    allowedCoordinates.current = [];
-
+    LichTrinhCuId.current = selectedTrackingId;
+    
+    markersLayerRef.current.clearLayers();
+    routeLayerRef.current.clearLayers();
     markers.forEach((marker) => {
       const isConfirmed = marker.trangthai === 1;
       const iconHtml = `
@@ -176,30 +186,26 @@ export default function SimpleMap({
         .addTo(markersLayerRef.current);
     });
 
-    if (markers.length < 2) return;
-    const fullToaDo = markers.map(m => `${m.kinhdo},${m.vido}`).join(";");
-    const fullUrl = `https://router.project-osrm.org/route/v1/driving/${fullToaDo}?overview=full&geometries=geojson`;
-
-    const fetchFullRoute = async () => {
-      try {
-        const response = await fetch(fullUrl, { signal: controller.signal });
-        const data = await response.json();
-        if (controller.signal.aborted || !data.routes?.[0]) return;
-
-        fullRouteCoordinates.current = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-        L.geoJSON(data.routes[0].geometry, {
-          style: { color: "#1d4ed8", weight: 6, opacity: 0.9 },
-        }).addTo(routeLayerRef.current);
-        await updateAllowedRoute();
-      } catch (err) {
-        if (err.name === "AbortError") return;
-        console.error("OSRM lỗi, vẽ đường thẳng");
-        const latlngs = markers.map(m => [m.vido, m.kinhdo]);
-        L.polyline(latlngs, { color: "#64748b", weight: 5, dashArray: "10, 10" }).addTo(routeLayerRef.current);
-      }
-    };
-
-    fetchFullRoute();
+    if (markers.length >= 2) {
+      const toaDoDayDu = markers.map(m => `${m.kinhdo},${m.vido}`).join(";");
+      fetch(`https://router.project-osrm.org/route/v1/driving/${toaDoDayDu}?overview=full&geometries=geojson`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.routes?.[0]) {
+            const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+            fullRouteCoordinates.current = coords;
+            L.geoJSON(data.routes[0].geometry, {
+              style: { color: "#1d4ed8", weight: 6, opacity: 0.9 },
+            }).addTo(routeLayerRef.current);
+          }
+        })
+        .catch(() => {
+          const latlngs = markers.map(m => [m.vido, m.kinhdo]);
+          L.polyline(latlngs, { color: "#64748b", weight: 5, dashArray: "10, 10" })
+            .addTo(routeLayerRef.current);
+        });
+    }
+    updateAllowedRoute();
 
     return () => {
       if (abortControllerRef.current) abortControllerRef.current.abort();
@@ -207,9 +213,8 @@ export default function SimpleMap({
     };
   }, [markers, selectedTrackingId]);
 
-  useEffect(() => {   // Cập nhật vị trí icon xe
+  useEffect(() => {
     if (!mapInstanceRef.current || !busPosition) return;
-
     if (busMarkerRef.current) {
       busMarkerRef.current.setLatLng([busPosition.lat, busPosition.lng]);
     } else {
