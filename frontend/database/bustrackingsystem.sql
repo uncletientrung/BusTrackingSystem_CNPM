@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 21, 2025 lúc 08:50 AM
+-- Thời gian đã tạo: Th10 23, 2025 lúc 03:37 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.2.12
+-- Phiên bản PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -38,10 +38,6 @@ CREATE TABLE `ctlichtrinh` (
 --
 
 INSERT INTO `ctlichtrinh` (`malt`, `mahs`, `trangthai`) VALUES
-(5, 4, 1),
-(5, 5, 1),
-(6, 1, 1),
-(6, 2, 1),
 (9, 1, 1),
 (12, 1, 1),
 (13, 1, 1),
@@ -51,9 +47,22 @@ INSERT INTO `ctlichtrinh` (`malt`, `mahs`, `trangthai`) VALUES
 (17, 1, 1),
 (18, 2, 1),
 (19, 1, 1),
+(31, 1, 1),
+(31, 2, 1),
+(31, 6, 1),
+(31, 7, 1),
+(31, 8, 0),
+(31, 9, 1),
+(31, 10, 1),
+(31, 11, 0),
+(31, 12, 1),
+(31, 13, 1),
+(31, 14, 1),
+(31, 15, 1),
+(31, 20, 1),
 (8, 1, 1),
 (8, 2, 1),
-(7, 2, 1),
+(7, 1, 1),
 (7, 3, 1),
 (7, 4, 1),
 (7, 5, 0),
@@ -68,8 +77,10 @@ INSERT INTO `ctlichtrinh` (`malt`, `mahs`, `trangthai`) VALUES
 (7, 14, 1),
 (7, 15, 1),
 (7, 20, 1),
-(4, 1, 1),
-(4, 2, 1);
+(32, 1, 1),
+(32, 2, 1),
+(32, 3, 1),
+(33, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -246,11 +257,41 @@ CREATE TABLE `lichtrinh` (
 --
 
 INSERT INTO `lichtrinh` (`malt`, `matx`, `matd`, `maxe`, `thoigianbatdau`, `thoigianketthuc`, `tonghocsinh`, `trangthai`) VALUES
-(4, 8, 1, 2, '2025-11-10 16:30:00', '2025-11-10 17:15:00', 2, 2),
-(5, 9, 2, 3, '2025-11-11 00:00:00', '2025-11-11 00:50:00', 2, 2),
-(6, 4, 1, 1, '2025-11-19 04:10:00', '2025-11-19 06:12:00', 2, 1),
-(7, 4, 2, 1, '2025-11-18 21:15:00', '2025-11-18 23:15:00', 15, 1),
-(8, 9, 1, 1, '2025-11-18 22:28:00', '2025-11-20 22:28:00', 2, 1);
+(7, 4, 2, 1, '2025-11-18 07:15:00', '2025-11-18 09:15:00', 15, 1),
+(8, 9, 1, 1, '2025-11-18 15:28:00', '2025-11-20 15:28:00', 2, 1),
+(31, 4, 2, 1, '2025-11-22 05:00:00', '2025-11-23 05:00:00', 13, 1),
+(32, 8, 2, 2, '2025-11-22 01:08:00', '2025-11-23 01:08:00', 3, 1),
+(33, 8, 1, 3, '2025-11-23 03:21:00', '2025-11-24 03:21:00', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(50) NOT NULL,
+  `sender_id` int(50) NOT NULL COMMENT 'ID người gửi (mand hoặc matx)',
+  `receiver_id` int(50) NOT NULL COMMENT 'ID người nhận (mand hoặc matx)',
+  `sender_role` varchar(20) NOT NULL COMMENT 'Vai trò người gửi: admin hoặc taixe',
+  `receiver_role` varchar(20) NOT NULL COMMENT 'Vai trò người nhận: admin hoặc taixe',
+  `content` text NOT NULL COMMENT 'Nội dung tin nhắn',
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Thời gian gửi tin nhắn',
+  `is_read` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: chưa đọc, 1: đã đọc'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Bảng lưu lịch sử tin nhắn chat realtime';
+
+--
+-- Đang đổ dữ liệu cho bảng `messages`
+--
+
+INSERT INTO `messages` (`id`, `sender_id`, `receiver_id`, `sender_role`, `receiver_role`, `content`, `timestamp`, `is_read`) VALUES
+(1, 1, 4, 'admin', 'taixe', 'Chào anh Lê Văn Cường, hôm nay chuyến đi có suôn sẻ không?', '2025-11-23 08:00:00', 1),
+(2, 4, 1, 'taixe', 'admin', 'Dạ chào admin, mọi thứ đều ổn, xe đang đi đúng lịch trình ạ.', '2025-11-23 08:05:00', 1),
+(3, 1, 4, 'admin', 'taixe', 'Tốt lắm! Nhớ thông báo nếu có vấn đề gì nhé.', '2025-11-23 08:10:00', 1),
+(4, 4, 1, 'taixe', 'admin', 'Dạ vâng, em sẽ báo cáo ngay nếu có sự cố.', '2025-11-23 08:15:00', 0),
+(5, 1, 8, 'admin', 'taixe', 'Chị Lê Thị Giang, hôm nay xe có bị trễ không?', '2025-11-23 09:00:00', 1),
+(6, 8, 1, 'taixe', 'admin', 'Dạ không ạ, xe đang đi đúng giờ, học sinh đã lên xe đầy đủ.', '2025-11-23 09:10:00', 1),
+(7, 1, 8, 'admin', 'taixe', 'Được rồi, cảm ơn chị nhé!', '2025-11-23 09:15:00', 0);
 
 -- --------------------------------------------------------
 
@@ -346,6 +387,17 @@ CREATE TABLE `taixe` (
   `trangthai` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `taixe`
+--
+
+INSERT INTO `taixe` (`matx`, `hoten`, `ngaysinh`, `gioitinh`, `email`, `sdt`, `diachi`, `trangthai`) VALUES
+(4, 'Lê Văn Cường', '1988-11-02', 1, 'levancuong@gmail.com', '0901122334', '789 Trần Hưng Đạo, Quận 3, TP.HCM', 1),
+(5, 'Trần Văn B', '1992-05-15', 1, 'tranvanb@gmail.com', '0123456789', '123 Lê Lợi, Hà Nội', 1),
+(6, 'Nguyễn Văn C', '1990-03-20', 1, 'nguyenvanc@gmail.com', '0987654321', '456 Nguyễn Huệ, Đà Nẵng', 1),
+(7, 'Phạm Minh Đức', '1995-08-10', 1, 'phamminhduc@gmail.com', '0933221100', '111 Hai Bà Trưng, Quận 1, TP.HCM', 1),
+(8, 'Hoàng Thị E', '1993-12-25', 0, 'hoangthie@gmail.com', '0944332211', '222 Điện Biên Phủ, Quận 3, TP.HCM', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -353,7 +405,7 @@ CREATE TABLE `taixe` (
 --
 
 CREATE TABLE `thongbao` (
-  `matb` int(50) NOT NULL,
+  `matb` int(11) NOT NULL,
   `matx` int(50) NOT NULL,
   `maph` int(50) NOT NULL,
   `thoigiantao` datetime NOT NULL DEFAULT current_timestamp(),
@@ -370,19 +422,11 @@ CREATE TABLE `thongbao` (
 --
 
 INSERT INTO `thongbao` (`matb`, `matx`, `maph`, `thoigiantao`, `thoigiangui`, `tieude`, `noidung`, `loaithongbao`, `mucdouutien`, `trangthai`) VALUES
-(1, 4, 2, '2025-11-11 09:00:00', '2025-11-11 09:15:00', 'Hoàn thành chuyến đi an toàn', 'Con bạn đã được trả an toàn tại điểm Trường THCS ABC lúc 7:45 AM. Cảm ơn quý phụ huynh đã tin tưởng dịch vụ.', 'Lịch trình', 'Bình thường', 1),
-(2, 9, 10, '2025-11-11 10:30:00', NULL, 'Xe buýt BUS-002 bị trễ 15 phút', 'Xe buýt BUS-002 đang bị trễ 15 phút do tắc đường. Dự kiến đến điểm đón lúc 7:45 AM.', 'Khẩn cấp', 'Cao', 2),
-(3, 9, 3, '2025-11-11 11:00:00', NULL, 'Xe buýt BUS-001 đã đến điểm Bến Thành', 'Con bạn đã được đón tại điểm Bến xe Bến Thành lúc 7:15 AM. Xe đang trên đường đến trường.', 'Thông tin', 'Bình thường', 2),
-(4, 8, 6, '2025-11-11 12:15:00', NULL, 'Thông báo thay đổi lịch trình', 'Do sửa chữa đường, tuyến Quận 1 - Quận 7 sẽ thay đổi lộ trình từ ngày mai. Thời gian đón trả không đổi.', 'Thông tin', 'Bình thường', 1),
-(5, 0, 0, '2025-11-20 05:08:12', NULL, 'aa', 'aa', 'Thông tin', 'Bình thường', 2),
-(6, 1, 1, '2025-11-20 18:33:36', '2025-11-20 18:33:36', 'Bắt đầu xuất phát chuyến đi', 'Con đã được đón ở Bến xe Tiến Trung và bắt đầu đi', 'Lịch trình', 'Bình thường', 2),
-(7, 1, 2, '2025-11-20 18:33:36', '2025-11-20 18:33:36', 'Bắt đầu xuất phát chuyến đi', 'Con đã được đón ở Bến xe Tiến Trung và bắt đầu đi', 'Lịch trình', 'Bình thường', 2),
-(8, 1, 1, '2025-11-20 18:33:57', '2025-11-20 18:33:57', 'Đã đến Chợ Tân Địnhh', 'Đã đến trạm Chợ Tân Địnhh, cha mẹ chú ý đưa/ đón con mình', 'Lịch trình', 'Bình thường', 2),
-(9, 1, 2, '2025-11-20 18:33:57', '2025-11-20 18:33:57', 'Đã đến Chợ Tân Địnhh', 'Đã đến trạm Chợ Tân Địnhh, cha mẹ chú ý đưa/ đón con mình', 'Lịch trình', 'Bình thường', 2),
-(10, 1, 1, '2025-11-21 03:36:56', '2025-11-21 03:36:56', 'Đã đến Công viên Tao Đàn', 'Đã đến trạm Công viên Tao Đàn, cha mẹ chú ý đưa/ đón con mình', 'Lịch trình', 'Bình thường', 2),
-(11, 1, 2, '2025-11-21 03:36:56', '2025-11-21 03:36:56', 'Đã đến Công viên Tao Đàn', 'Đã đến trạm Công viên Tao Đàn, cha mẹ chú ý đưa/ đón con mình', 'Lịch trình', 'Bình thường', 2),
-(12, 1, 2, '2025-11-21 04:24:55', '2025-11-21 04:24:55', 'Đã đến Chợ Gò Vấp', 'Đã đến trạm Chợ Gò Vấp, cha mẹ chú ý đưa/ đón con mình', 'Lịch trình', 'Bình thường', 2),
-(13, 1, 3, '2025-11-21 04:24:55', '2025-11-21 04:24:55', 'Đã đến Chợ Gò Vấp', 'Đã đến trạm Chợ Gò Vấp, cha mẹ chú ý đưa/ đón con mình', 'Lịch trình', 'Bình thường', 2);
+(10, 0, 2, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(11, 0, 3, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(12, 0, 10, '2025-11-23 14:33:19', '2025-11-23 07:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(13, 0, 6, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1),
+(14, 0, 7, '2025-11-23 14:33:19', '2025-11-23 14:33:00', 's', 's', 'Thông tin', 'Bình thường', 1);
 
 -- --------------------------------------------------------
 
@@ -391,13 +435,40 @@ INSERT INTO `thongbao` (`matb`, `matx`, `maph`, `thoigiantao`, `thoigiangui`, `t
 --
 
 CREATE TABLE `tracking` (
-  `matheodoi` int(50) NOT NULL,
-  `thoigian` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `vidoCenter` decimal(9,6) NOT NULL,
-  `kinhdoCenter` decimal(9,6) NOT NULL,
-  `vantoc` double NOT NULL,
-  `malt` int(11) NOT NULL
+  `malt` int(50) NOT NULL,
+  `matd` int(50) NOT NULL,
+  `madd` int(50) NOT NULL,
+  `thutu` int(11) NOT NULL,
+  `trangthai` tinyint(4) NOT NULL,
+  `hocsinhconlai` int(11) NOT NULL,
+  `thoigianden` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `tracking`
+--
+
+INSERT INTO `tracking` (`malt`, `matd`, `madd`, `thutu`, `trangthai`, `hocsinhconlai`, `thoigianden`) VALUES
+(7, 2, 4, 1, 1, 15, '2025-11-22 14:04:16'),
+(7, 2, 8, 4, 0, 15, '2025-11-22 14:04:16'),
+(7, 2, 9, 3, 0, 15, '2025-11-22 14:04:16'),
+(7, 2, 11, 2, 1, 15, '2025-11-22 14:04:16'),
+(8, 1, 1, 1, 1, 2, '2025-11-22 14:04:08'),
+(8, 1, 2, 2, 0, 2, '2025-11-22 14:04:08'),
+(8, 1, 3, 3, 0, 2, '2025-11-22 14:04:08'),
+(8, 1, 5, 4, 0, 2, '2025-11-22 14:04:08'),
+(31, 2, 4, 1, 1, 13, '2025-11-22 12:00:50'),
+(31, 2, 8, 4, 0, 13, '2025-11-22 12:00:50'),
+(31, 2, 9, 3, 0, 13, '2025-11-22 12:00:50'),
+(31, 2, 11, 2, 0, 13, '2025-11-22 12:00:50'),
+(32, 2, 4, 1, 1, 2, '2025-11-22 15:09:18'),
+(32, 2, 8, 4, 0, 2, '2025-11-22 15:09:18'),
+(32, 2, 9, 3, 1, 2, '2025-11-22 15:09:18'),
+(32, 2, 11, 2, 1, 2, '2025-11-22 15:09:18'),
+(33, 1, 1, 1, 1, 1, '2025-11-23 03:21:33'),
+(33, 1, 2, 2, 0, 1, '2025-11-23 03:21:33'),
+(33, 1, 3, 3, 0, 1, '2025-11-23 03:21:33'),
+(33, 1, 5, 4, 0, 1, '2025-11-23 03:21:33');
 
 -- --------------------------------------------------------
 
@@ -499,6 +570,15 @@ ALTER TABLE `lichtrinh`
   ADD PRIMARY KEY (`malt`);
 
 --
+-- Chỉ mục cho bảng `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_sender` (`sender_id`,`sender_role`),
+  ADD KEY `idx_receiver` (`receiver_id`,`receiver_role`),
+  ADD KEY `idx_timestamp` (`timestamp`);
+
+--
 -- Chỉ mục cho bảng `nguoidung`
 --
 ALTER TABLE `nguoidung`
@@ -532,7 +612,7 @@ ALTER TABLE `thongbao`
 -- Chỉ mục cho bảng `tracking`
 --
 ALTER TABLE `tracking`
-  ADD PRIMARY KEY (`matheodoi`);
+  ADD PRIMARY KEY (`malt`,`matd`,`madd`);
 
 --
 -- Chỉ mục cho bảng `tuyenduong`
@@ -563,64 +643,16 @@ ALTER TABLE `diemdung`
   MODIFY `madd` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT cho bảng `hocsinh`
+-- AUTO_INCREMENT cho bảng `messages`
 --
-ALTER TABLE `hocsinh`
-  MODIFY `mahs` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
-
---
--- AUTO_INCREMENT cho bảng `lichtrinh`
---
-ALTER TABLE `lichtrinh`
-  MODIFY `malt` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
-
---
--- AUTO_INCREMENT cho bảng `nguoidung`
---
-ALTER TABLE `nguoidung`
-  MODIFY `mand` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT cho bảng `nhomquyen`
---
-ALTER TABLE `nhomquyen`
-  MODIFY `manq` int(50) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `taikhoan`
---
-ALTER TABLE `taikhoan`
-  MODIFY `matk` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT cho bảng `taixe`
---
-ALTER TABLE `taixe`
-  MODIFY `matx` int(50) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `messages`
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `thongbao`
 --
 ALTER TABLE `thongbao`
-  MODIFY `matb` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT cho bảng `tracking`
---
-ALTER TABLE `tracking`
-  MODIFY `matheodoi` int(50) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `tuyenduong`
---
-ALTER TABLE `tuyenduong`
-  MODIFY `matd` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT cho bảng `xe`
---
-ALTER TABLE `xe`
-  MODIFY `maxe` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `matb` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

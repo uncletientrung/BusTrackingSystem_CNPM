@@ -62,7 +62,6 @@ const NotificationController = {
             const {
                 matx,
                 maph,
-
                 thoigiangui = null,
                 tieude,
                 noidung,

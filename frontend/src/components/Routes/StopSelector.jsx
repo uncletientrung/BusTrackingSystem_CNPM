@@ -19,7 +19,7 @@ export default function StopSelector({ selectedStops, onStopsChange, availableSt
   const filteredStops = availableStops.filter(stop =>
     !selectedStops.find(s => s.madd === stop.madd) && // chưa được thêm
     (stop.tendiemdung.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      stop.madd.toLowerCase().includes(searchTerm.toLowerCase()))
+      stop.madd.toString().toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleAddStop = (stop) => {

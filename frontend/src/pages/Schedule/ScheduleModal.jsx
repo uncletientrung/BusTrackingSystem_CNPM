@@ -5,7 +5,6 @@ import ScheduleStudentSelector from "../../components/Schedule/ScheduleStudentSe
 
 export default function ScheduleModal({ onClose, onSave, schedule }) {
   const isEdit = !!schedule;
-
   const [buses, setBuses] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [drivers, setDrivers] = useState([]);
@@ -13,6 +12,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
   const [errors, setErrors] = useState({});
   const [isStudentSelectionBox, setIsStudentSelectionOpen] = useState(false);
   const [schedules, setSchedules] = useState([])
+  const [seletedRouteId, setSelectedRouteID] = useState(0);
 
   const [formData, setFormData] = useState({
     malt: null,
@@ -75,7 +75,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
           matx: "",
           thoigianbatdau: "",
           thoigianketthuc: "",
-          trangthai: 1,
+          trangthai: 0,
           students: [],
           trackings: []
         });
@@ -116,12 +116,21 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
         students: [],
       }));
     }
-    else {
+    else if (name === "matd") {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        students: [],
+      }));
+      setSelectedRouteID(Number(value))
+
+    } else {
       setFormData(prev => ({
         ...prev,
         [name]: value
       }));
     }
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -294,7 +303,6 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                   {errors.matx && <p className="mt-1 text-sm text-red-500">{errors.matx}</p>}
                 </div>
 
-                {/* Trạng thái (chỉ khi sửa) */}
                 {isEdit ? (
                   <div>
                     <label className="block text-sm font-medium mb-1">Trạng thái</label>
@@ -311,11 +319,10 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                 ) : <div><label /></div>}
               </div>
 
-              {/* Danh sách học sinh - GIỮ NGUYÊN */}
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-3">
                   <span className="font-medium">Học sinh ({formData.students.length})</span>
-                  {formData.thoigianbatdau && formData.thoigianketthuc ? (
+                  {formData.thoigianbatdau && formData.thoigianketthuc && formData.matd ? (
                     <button
                       type="button"
                       onClick={() => setIsStudentSelectionOpen(true)}
@@ -324,7 +331,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
                       <UserPlus className="h-4 w-4" /> Thêm học sinh
                     </button>
                   ) : <span className="font-medium text-red-600">
-                    Vui lòng chọn thời chạy
+                    Vui lòng chọn thời chạy và tuyến đường
                   </span>}
                 </div>
 
@@ -396,6 +403,7 @@ export default function ScheduleModal({ onClose, onSave, schedule }) {
           selectedStudents={formData.students}
           setListSelectedStudent={handleChangeStudentList}
           onClose={() => setIsStudentSelectionOpen(false)}
+          selectedRouteId={seletedRouteId}
         />
       )}
     </>

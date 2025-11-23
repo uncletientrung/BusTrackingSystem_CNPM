@@ -107,5 +107,19 @@ const UserController = {
       res.status(500).json({ message: error.message || "Xóa thất bại" });
     }
   },
+  
+  async getByAccountId(req, res) {
+    try {
+      const { matk } = req.params;
+      const user = await UserBUS.getByAccountId(Number(matk));
+      if (!user) {
+        return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error('Lỗi lấy user từ matk:', error);
+      res.status(500).json({ message: error.message });
+    }
+  },
 };
 module.exports = UserController;

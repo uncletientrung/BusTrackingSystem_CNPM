@@ -17,8 +17,8 @@ const TrackingController = {
     async updateStatus(req, res) {
         try {
             const { malt } = req.params;
-            const { matd, madd, trangthai } = req.body;
-            const updateCount = await TrackingBUS.updateStatus(malt, matd, madd, trangthai)
+            const { matd, madd, trangthai, soHSCanCapNhat } = req.body;
+            const updateCount = await TrackingBUS.updateStatus(malt, matd, madd, trangthai, soHSCanCapNhat)
             res.json({
                 message: 'Cập nhật trạng thái chi tiết tuyến đường thành công!',
                 updateCount: updateCount

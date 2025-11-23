@@ -139,6 +139,27 @@ const UserBUS = {
       throw error;
     }
   },
+  
+  async getByAccountId(matk) {
+    try {
+      const user = await UserDAO.getByAccountId(matk);
+      if (!user) return null;
+      
+      return new UserDTO(
+        user.mand,
+        user.hoten,
+        user.ngaysinh,
+        user.sdt,
+        user.email,
+        user.diachi,
+        user.trangthai,
+        user.gioitinh
+      );
+    } catch (error) {
+      console.error('Lỗi lấy user từ matk trong UserBUS:', error);
+      throw error;
+    }
+  },
 };
 
 module.exports = UserBUS;

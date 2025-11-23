@@ -9,8 +9,8 @@ const TrackingBUS = {
             tracking.thutu, tracking.trangthai, tracking.hocsinhconlai, tracking.thoigianden
         ))
     },
-    async updateStatus(malt, matd, madd, trangthai) {
-        const updateCount = TrackingDAO.updateStatus(malt, matd, madd, trangthai);
+    async updateStatus(malt, matd, madd, trangthai, soHSCanCapNhat) {
+        const updateCount = TrackingDAO.updateStatus(malt, matd, madd, trangthai, soHSCanCapNhat);
         return updateCount;
     }
 }

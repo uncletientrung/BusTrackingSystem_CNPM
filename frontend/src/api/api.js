@@ -1,15 +1,29 @@
 const BASE_URL = 'http://localhost:5000/api';
 
+// Sắp xếp danh sách theo trường thời gian tạo (thoigiantao) giảm dần
+// Chỉ áp dụng nếu là mảng và phần tử có thuộc tính thoigiantao.
+const sortByCreationTimeDesc = (data) => {
+  if (!Array.isArray(data)) return data;
+  return data.slice().sort((a, b) => {
+    const timeA = a && a.thoigiantao ? new Date(a.thoigiantao).getTime() : 0;
+    const timeB = b && b.thoigiantao ? new Date(b.thoigiantao).getTime() : 0;
+    return timeB - timeA; // mới nhất trước
+  });
+};
+
 const fetchAll = async (endpoint) => {
   const res = await fetch(`${BASE_URL}/${endpoint}`);
   if (!res.ok) throw new Error(`Lỗi lấy dữ liệu từ API của ${endpoint}`);
-  return await res.json();
+  const data = await res.json();
+  return sortByCreationTimeDesc(data);
 };
 
 const fetchById = async (endpoint, id) => {
   const res = await fetch(`${BASE_URL}/${endpoint}/${id}`);
   if (!res.ok) throw new Error(`Lỗi lấy dữ liệu từ API của ${endpoint} by id`);
-  return await res.json();
+  const data = await res.json();
+  // Trường hợp trả về mảng (một số API có thể trả list liên quan) vẫn sắp xếp.
+  return sortByCreationTimeDesc(data);
 };
 
 const create = async (endpoint, data) => {
@@ -76,5 +90,47 @@ const createBulk = async (endpoint, data) => {
 
   return await res.json();
 };
-const apiClient = { fetchAll, fetchById, create, deleteForm, update, createBulk };
+// API Client với axios-like interface
+const apiClient = {
+  get: async (endpoint) => {
+    const res = await fetch(`${BASE_URL}${endpoint}`);
+    if (!res.ok) throw new Error(`Lỗi GET ${endpoint}`);
+    return { data: await res.json() };
+  },
+  post: async (endpoint, data) => {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Lỗi POST ${endpoint}`);
+    return { data: await res.json() };
+  },
+  put: async (endpoint, data) => {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Lỗi PUT ${endpoint}`);
+    return { data: await res.json() };
+  },
+  delete: async (endpoint) => {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Lỗi DELETE ${endpoint}`);
+    return { data: await res.json() };
+  },
+  // Legacy support
+  fetchAll,
+  fetchById,
+  create,
+  deleteForm,
+  update,
+  createBulk
+};
+
+export { apiClient };
 export default apiClient;
