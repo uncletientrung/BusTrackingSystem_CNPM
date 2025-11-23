@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import busImg from '../../assets/bus.png'
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -29,20 +30,14 @@ export default function SimpleMap({
   const allowedCoordinates = useRef([])
   const currentIndex = useRef(0);
 
-  const busIcon = L.divIcon({
-    html: `
-      <div style="
-        background: #3b82f6; color: white; width: 40px; height: 40px;
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        font-weight: bold; font-size: 16px; border: 4px solid white;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      ">
-        BUS
-      </div>
-    `,
-    className: "",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+  const busIcon = L.icon({
+    iconUrl: busImg,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -32],
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    shadowSize: [41, 41],
+    shadowAnchor: [12, 38],
   });
 
   const viTriXacNhanCuoi = () => {
@@ -83,7 +78,8 @@ export default function SimpleMap({
       const data = await response.json();
       if (data.routes?.[0]?.geometry?.coordinates) {
         const toaDo_VidoKinhDo = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-        allowedCoordinates.current = [...allowedCoordinates.current, ...toaDo_VidoKinhDo];
+        const boQuaToaDoLap = toaDo_VidoKinhDo.slice(1)
+        allowedCoordinates.current = [...allowedCoordinates.current, ...boQuaToaDoLap];
         startBusMoving();
       }
     } catch (err) {
@@ -155,7 +151,7 @@ export default function SimpleMap({
       }
     }
     LichTrinhCuId.current = selectedTrackingId;
-    
+
     markersLayerRef.current.clearLayers();
     routeLayerRef.current.clearLayers();
     markers.forEach((marker) => {
