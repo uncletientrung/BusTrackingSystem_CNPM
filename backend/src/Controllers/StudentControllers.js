@@ -49,6 +49,19 @@ const StudentController = {
             console.error('Lỗi sửa học sinh:', error);
             res.status(400).json({ message: error.message });
         }
+    },
+    async getById(req, res) {
+        try {
+            const { mahs } = req.params;
+            const student = await StudentBUS.getById(Number(mahs));
+            if (!student) {
+                return res.status(404).json({ message: 'Không tìm thấy học sinh' });
+            }
+            res.json(student);
+        } catch (error) {
+            console.error('Lỗi lấy thông tin học sinh:', error);
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 

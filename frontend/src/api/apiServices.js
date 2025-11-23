@@ -24,6 +24,7 @@ export const AccountAPI = {
 
 export const StudentAPI = {
   getAllStudent: () => apiClient.fetchAll("Student"),
+  getStudentById: (mahs) => apiClient.fetchById("Student", mahs),
   createStudent: (newStudent) => apiClient.create("Student", newStudent),
   deleteStudent: (mahs) => apiClient.deleteForm("Student", mahs),
   updateStudent: (mahs, updateStudent) =>
