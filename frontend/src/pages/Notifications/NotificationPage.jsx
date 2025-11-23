@@ -1,6 +1,6 @@
 import { AlarmClock, Bell, BellElectric, BusFront, CalendarDays, Check, ClipboardCheck, ClipboardClock, ClockAlert, Construction, House, Info, Megaphone, MessageCircleWarning, Plus, PlusCircle, RefreshCcw, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NotificationAPI } from "../../api/apiServices";
+import { NotificationAPI, AccountAPI } from "../../api/apiServices";
 import toLocalString from "../../utils/DateFormated";
 
 export default function NotificationPage() {
@@ -10,11 +10,12 @@ export default function NotificationPage() {
   const [selectedNotifications, setSelectedNotifications] = useState([]); // Các thông báo được chọn
   const [isModalOpen, setIsModalOpen] = useState(false); // Mở modal tạo / sửa
   const [editingNotification, setEditingNotification] = useState(null); // Nếu != null là đang sửa
+  const [parents, setParents] = useState([]); // Danh sách phụ huynh (manq = 3)
   const [formNotification, setFormNotification] = useState({
     title: '',
     message: '',
     type: 'info',
-    recipients: 'all',
+    recipients: [],
     priority: 'normal',
     scheduledTime: ''
   });
@@ -25,6 +26,12 @@ export default function NotificationPage() {
         const listThongbao = await NotificationAPI.getAllNotification();
         console.log('API data:', listThongbao);
         setNotifications(listThongbao);
+
+        // Lấy danh sách tài khoản phụ huynh (manq = 3)
+        const allAccounts = await AccountAPI.getAllAccount();
+        const parentAccounts = allAccounts.filter(acc => acc.manq === 3);
+        setParents(parentAccounts);
+        console.log('Parent accounts:', parentAccounts);
 
       } catch (err) {
         console.error('Lỗi khi tải dữ liệu ở Notification:', err);
@@ -81,7 +88,7 @@ export default function NotificationPage() {
       title: '',
       message: '',
       type: 'info',
-      recipients: 'all',
+      recipients: [],
       priority: 'normal',
       scheduledTime: ''
     });
@@ -110,7 +117,7 @@ export default function NotificationPage() {
       title: noti.tieude,
       message: noti.noidung,
       type: reverseType(noti.loaithongbao),
-      recipients: 'all',
+      recipients: [],
       priority: reversePriority(noti.mucdouutien),
       scheduledTime: noti.thoigiangui ? new Date(noti.thoigiangui).toISOString().slice(0,16) : ''
     });
@@ -538,16 +545,53 @@ export default function NotificationPage() {
 
                 {/* Người nhận */}
                 <div>
-                  <select
-                    value={formNotification.recipients}
-                    onChange={(e) => setFormNotification({ ...formNotification, recipients: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">Tất cả phụ huynh</option>
-                    <option value="route1">Tuyến Bến Thành - Sân Bay</option>
-                    <option value="route2">Tuyến Quận 1 - Quận 7</option>
-                    <option value="route3">Tuyến Thủ Đức - Quận 3</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Người nhận (Phụ huynh)</label>
+                  <div className="space-y-2 border border-gray-300 rounded-lg p-3 max-h-64 overflow-y-auto">
+                    {/* Checkbox Tất cả */}
+                    <label className="flex items-center space-x-2 cursor-pointer sticky top-0 bg-white pb-2 border-b">
+                      <input
+                        type="checkbox"
+                        checked={formNotification.recipients.length === parents.length && parents.length > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormNotification({ ...formNotification, recipients: parents.map(p => p.matk) });
+                          } else {
+                            setFormNotification({ ...formNotification, recipients: [] });
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Tất cả phụ huynh ({parents.length})</span>
+                    </label>
+
+                    {/* Danh sách phụ huynh */}
+                    {parents.length === 0 ? (
+                      <p className="text-sm text-gray-500 ml-6">Không có phụ huynh nào</p>
+                    ) : (
+                      parents.map(parent => (
+                        <label key={parent.matk} className="flex items-center space-x-2 cursor-pointer ml-6 hover:bg-gray-50 p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={formNotification.recipients.includes(parent.matk)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                const newRecipients = [...formNotification.recipients, parent.matk];
+                                setFormNotification({ ...formNotification, recipients: newRecipients });
+                              } else {
+                                const newRecipients = formNotification.recipients.filter(r => r !== parent.matk);
+                                setFormNotification({ ...formNotification, recipients: newRecipients });
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-600">
+                            <span className="font-medium">ID: {parent.matk}</span> - {parent.tendangnhap}
+                          </span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Đã chọn: {formNotification.recipients.length} phụ huynh</p>
                 </div>
 
                 {/* Lịch gửi */}

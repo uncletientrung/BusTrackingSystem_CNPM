@@ -377,7 +377,7 @@ INSERT INTO `taixe` (`matx`, `hoten`, `ngaysinh`, `gioitinh`, `email`, `sdt`, `d
 CREATE TABLE `thongbao` (
   `matb` int(50) NOT NULL,
   `matx` int(50) NOT NULL,
-  `maph` int(50) NOT NULL,
+  `maph` TEXT DEFAULT NULL COMMENT 'Danh sách mã phụ huynh cách nhau bởi dấu cách (VD: "2 3 5 7")',
   `thoigiantao` datetime NOT NULL DEFAULT current_timestamp(),
   `thoigiangui` datetime DEFAULT NULL,
   `tieude` varchar(255) NOT NULL,
@@ -392,11 +392,11 @@ CREATE TABLE `thongbao` (
 --
 
 INSERT INTO `thongbao` (`matb`, `matx`, `maph`, `thoigiantao`, `thoigiangui`, `tieude`, `noidung`, `loaithongbao`, `mucdouutien`, `trangthai`) VALUES
-(1, 4, 2, '2025-11-11 09:00:00', '2025-11-11 09:15:00', 'Hoàn thành chuyến đi an toàn', 'Con bạn đã được trả an toàn tại điểm Trường THCS ABC lúc 7:45 AM. Cảm ơn quý phụ huynh đã tin tưởng dịch vụ.', 'Lịch trình', 'Bình thường', 1),
-(2, 9, 10, '2025-11-11 10:30:00', NULL, 'Xe buýt BUS-002 bị trễ 15 phút', 'Xe buýt BUS-002 đang bị trễ 15 phút do tắc đường. Dự kiến đến điểm đón lúc 7:45 AM.', 'Khẩn cấp', 'Cao', 2),
-(3, 9, 3, '2025-11-11 11:00:00', NULL, 'Xe buýt BUS-001 đã đến điểm Bến Thành', 'Con bạn đã được đón tại điểm Bến xe Bến Thành lúc 7:15 AM. Xe đang trên đường đến trường.', 'Thông tin', 'Bình thường', 2),
-(4, 8, 6, '2025-11-11 12:15:00', NULL, 'Thông báo thay đổi lịch trình', 'Do sửa chữa đường, tuyến Quận 1 - Quận 7 sẽ thay đổi lộ trình từ ngày mai. Thời gian đón trả không đổi.', 'Thông tin', 'Bình thường', 1),
-(5, 0, 0, '2025-11-20 05:08:12', NULL, 'aa', 'aa', 'Thông tin', 'Bình thường', 2);
+(1, 4, '2', '2025-11-11 09:00:00', '2025-11-11 09:15:00', 'Hoàn thành chuyến đi an toàn', 'Con bạn đã được trả an toàn tại điểm Trường THCS ABC lúc 7:45 AM. Cảm ơn quý phụ huynh đã tin tưởng dịch vụ.', 'Lịch trình', 'Bình thường', 1),
+(2, 9, '10', '2025-11-11 10:30:00', NULL, 'Xe buýt BUS-002 bị trễ 15 phút', 'Xe buýt BUS-002 đang bị trễ 15 phút do tắc đường. Dự kiến đến điểm đón lúc 7:45 AM.', 'Khẩn cấp', 'Cao', 2),
+(3, 9, '3', '2025-11-11 11:00:00', NULL, 'Xe buýt BUS-001 đã đến điểm Bến Thành', 'Con bạn đã được đón tại điểm Bến xe Bến Thành lúc 7:15 AM. Xe đang trên đường đến trường.', 'Thông tin', 'Bình thường', 2),
+(4, 8, '6', '2025-11-11 12:15:00', NULL, 'Thông báo thay đổi lịch trình', 'Do sửa chữa đường, tuyến Quận 1 - Quận 7 sẽ thay đổi lộ trình từ ngày mai. Thời gian đón trả không đổi.', 'Thông tin', 'Bình thường', 1),
+(5, 0, '2 3 5 6 7', '2025-11-20 05:08:12', NULL, 'Thông báo gửi nhiều phụ huynh', 'Đây là thông báo gửi cho nhiều phụ huynh cùng lúc', 'Thông tin', 'Bình thường', 2);
 
 -- --------------------------------------------------------
 
