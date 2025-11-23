@@ -13,13 +13,13 @@ const ScheduleController = {
     async create(req, res) {
         try {
             const { matd, matx, maxe, thoigianbatdau, thoigianketthuc,
-                tonghocsinh, trangthai, students } = req.body;
+                tonghocsinh, trangthai, students, trackings } = req.body;
             const lichtrinh = {
                 matd: Number(matd), matx: Number(matx), maxe: Number(maxe),
                 thoigianbatdau, thoigianketthuc, tonghocsinh: Number(tonghocsinh),
                 trangthai: Number(trangthai)
             }
-            const newSchedule = await ScheduleBUS.create(lichtrinh, students);
+            const newSchedule = await ScheduleBUS.create(lichtrinh, students, trackings);
             res.status(201).json({
                 message: 'Tạo lịch trình thành công!',
                 schedule: newSchedule
@@ -45,13 +45,13 @@ const ScheduleController = {
         try {
             const { malt } = req.params;
             const { matd, matx, maxe, thoigianbatdau, thoigianketthuc,
-                tonghocsinh, trangthai, students } = req.body;
+                tonghocsinh, trangthai, students, trackings } = req.body;
             const lichtrinh = {
                 matd: Number(matd), matx: Number(matx), maxe: Number(maxe),
                 thoigianbatdau, thoigianketthuc, tonghocsinh: Number(tonghocsinh),
                 trangthai: Number(trangthai)
             }
-            const updateSchedule = await ScheduleBUS.update(malt, lichtrinh, students);
+            const updateSchedule = await ScheduleBUS.update(malt, lichtrinh, students, trackings);
             res.status(201).json({
                 message: 'Sửa lịch trình thành công!',
                 schedule: updateSchedule

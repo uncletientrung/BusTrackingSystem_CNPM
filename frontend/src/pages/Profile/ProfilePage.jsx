@@ -1,5 +1,6 @@
 import { Edit, Eye, EyeOff, KeyRound, Mail, MapPin, Phone, Save, Shield, User } from "lucide-react";
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { UserAPI, AccountAPI } from "../../api/apiServices";
 
 export default function ProfilePage() {
 
@@ -22,53 +23,150 @@ export default function ProfilePage() {
       newPassword: '',
       confirmPassword: ''
    })
-   // Giả lập dữ liệu
+   
+   // Lấy dữ liệu từ database
    const [userProfile, setUserProfile] = useState({
-      id: 1,
-      name: 'Nguyễn Văn Admin',
-      email: 'admin@busmanager.com',
-      phone: '0901234567',
-      address: '123 Đường ABC, Quận 1, TP.HCM',
-      role: 'admin',
+      id: null,
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      role: '',
       avatar: null,
-      createdAt: '2024-01-15',
-      lastLogin: '2024-10-04 09:30',
-      loginCount: 156,
+      createdAt: '',
+      lastLogin: '',
+      loginCount: 0,
       profileCompleted: 90,
       twoFactorEnabled: false,
       preferences: {
-      language: 'vi',
-      timezone: 'Asia/Ho_Chi_Minh',
-      theme: 'light'
+         language: 'vi',
+         timezone: 'Asia/Ho_Chi_Minh',
+         theme: 'light'
       },
       statistics: {
-      totalLogins: 156,
-      averageSessionTime: '2h 30m',
-      lastActive: '2024-10-04 09:30',
-      deviceCount: 3
+         totalLogins: 0,
+         averageSessionTime: '0h 0m',
+         lastActive: '',
+         deviceCount: 1
       }
    })
+
+   // Load dữ liệu user từ sessionStorage và API
+   useEffect(() => {
+      const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+      if (currentUser) {
+         // Lấy thông tin từ bảng nguoidung
+         UserAPI.getAllUsers()
+            .then((users) => {
+               const userInfo = users.find(u => u.mand === currentUser.matk);
+               if (userInfo) {
+                  const roleMap = {
+                     1: 'admin',
+                     2: 'driver',
+                     3: 'parent'
+                  };
+                  setUserProfile({
+                     id: userInfo.mand,
+                     name: userInfo.hoten,
+                     email: userInfo.email,
+                     phone: userInfo.sdt,
+                     address: userInfo.diachi,
+                     role: roleMap[currentUser.manq] || 'user',
+                     avatar: null,
+                     createdAt: userInfo.createdAt || '',
+                     lastLogin: new Date().toISOString(),
+                     loginCount: 0,
+                     profileCompleted: 90,
+                     twoFactorEnabled: false,
+                     preferences: {
+                        language: 'vi',
+                        timezone: 'Asia/Ho_Chi_Minh',
+                        theme: 'light'
+                     },
+                     statistics: {
+                        totalLogins: 0,
+                        averageSessionTime: '0h 0m',
+                        lastActive: new Date().toLocaleString('vi-VN'),
+                        deviceCount: 1
+                     }
+                  });
+                  setEditForm({
+                     name: userInfo.hoten,
+                     email: userInfo.email,
+                     phone: userInfo.sdt,
+                     address: userInfo.diachi
+                  });
+               }
+            })
+            .catch((err) => console.error("Error loading user profile:", err));
+      }
+   }, []);
+
    const handleSaveProfile = () => { // Hàm chỉnh sửa
-      setIsEditing(false)
-      alert('Thông tin cá nhân đã được cập nhật!')
+      const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+      if (currentUser && userProfile.id) {
+         const updateData = {
+            name: editForm.name,
+            email: editForm.email,
+            phone: editForm.phone,
+            address: editForm.address
+         };
+         
+         UserAPI.updateUser(userProfile.id, updateData)
+            .then((response) => {
+               console.log("Update response:", response);
+               setUserProfile({
+                  ...userProfile,
+                  name: editForm.name,
+                  email: editForm.email,
+                  phone: editForm.phone,
+                  address: editForm.address
+               });
+               setIsEditing(false);
+               alert('Thông tin cá nhân đã được cập nhật thành công!');
+            })
+            .catch((err) => {
+               console.error("Error updating profile:", err);
+               alert('Có lỗi xảy ra khi cập nhật thông tin: ' + err.message);
+            });
+      }
    }
    const handleChangePassword = () => {
+      const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+      
+      if (passwordForm.currentPassword !== currentUser.matkhau) {
+         alert('Mật khẩu hiện tại không đúng!');
+         return;
+      }
+      
       if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-         alert('Mật khẩu xác nhận không khớp!')
-         return
+         alert('Mật khẩu xác nhận không khớp!');
+         return;
       }
-      if (passwordForm.newPassword.length < 6) {
-         alert('Mật khẩu mới phải có ít nhất 6 ký tự!')
-         return
+      
+      if (passwordForm.newPassword.length < 3) {
+         alert('Mật khẩu mới phải có ít nhất 3 ký tự!');
+         return;
       }
-      // In real app, this would make an API call
-      alert('Mật khẩu đã được thay đổi thành công!')
-      setPasswordForm({
-         currentPassword: '',
-         newPassword: '',
-         confirmPassword: ''
-      })
-      setShowChangePassword(false)
+
+      // Cập nhật mật khẩu trong database
+      AccountAPI.updateAccount(currentUser.matk, { matkhau: passwordForm.newPassword })
+         .then((response) => {
+            console.log("Password updated:", response);
+            alert('Mật khẩu đã được thay đổi thành công!');
+            currentUser.matkhau = passwordForm.newPassword;
+            sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
+            setPasswordForm({
+               currentPassword: '',
+               newPassword: '',
+               confirmPassword: ''
+            });
+            setShowChangePassword(false);
+         })
+         .catch((err) => {
+            console.error("Error changing password:", err);
+            alert('Có lỗi xảy ra khi thay đổi mật khẩu: ' + err.message);
+         });
    }
    
    const getRoleColor = (role) => { // Lấy màu role

@@ -35,6 +35,7 @@ export default function LoginPage() {
         sessionStorage.setItem("currentUser", JSON.stringify(user)); //lưu toàn bộ thông tin user, bao gồm quyền
         sessionStorage.setItem("isLoggedIn", "true");
         const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+
         if (currentUser.trangthai === 0) {
           alert("Tài khoản đã bị khóa");
           return;

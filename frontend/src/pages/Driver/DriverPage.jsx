@@ -216,7 +216,7 @@ export default function DriverPage() {
           }
           // sau khi co day du cac thong tin, bo no vo ca lam
           shifts.push({
-            id: `shift-${sch.malt}`,
+            id: `shift-${sch.malt}-${Date.now()}`,
             type: isMorning ? "morning" : "afternoon",
             startTime,
             endTime,

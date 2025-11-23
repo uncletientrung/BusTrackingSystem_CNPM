@@ -19,6 +19,7 @@ export const StopAPI = {
 export const AccountAPI = {
   getAllAccount: () => apiClient.fetchAll("Account"),
   getAccountById: (matk) => apiClient.fetchById("Account", matk),
+  updateAccount: (matk, accountData) => apiClient.update("Account", matk, accountData),
 };
 
 export const StudentAPI = {
@@ -66,4 +67,9 @@ export const CTRouteAPI = {
 
 export const CTScheduleAPI = {
   getCTLTById: (malt) => apiClient.fetchById("CTSchedule", malt)
+}
+
+export const TrackingAPI = {
+  getTrackingByIdLT: (malt) => apiClient.fetchById("Tracking", malt),
+  updateStatus: (malt, trackingData) => apiClient.update("Tracking", malt, trackingData)
 }
