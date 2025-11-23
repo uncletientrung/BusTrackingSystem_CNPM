@@ -547,488 +547,486 @@ export default function UsersPage() {
           </div>
         </div>
 
-        {/* Dialog thêm User */}
+        {/* ==================== MODAL THÊM NGƯỜI DÙNG (ĐÃ THU GỌN) ==================== */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                {/* Title Thêm */}
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900">
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+              onClick={() => setShowCreateModal(false)}
+            />
+
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between p-5 bg-white">
+                  <h2 className="text-xl font-bold text-gray-900">
                     Thêm người dùng mới
-                  </h3>
+                  </h2>
                   <button
                     onClick={() => setShowCreateModal(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <X size={20} />
+                    <X className="h-5 w-5 text-gray-500" />
                   </button>
                 </div>
+                <div className="h-px bg-gray-200" />
 
-                {/* Nội dung thêm */}
-                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Họ tên */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Họ tên *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Họ và tên đầy đủ"
-                        value={newUser.name}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, name: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
+                {/* Body - Form gọn hơn */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleCreateUser();
+                  }}
+                >
+                  <div className="p-5 space-y-4 overflow-y-auto max-h-[58vh]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Họ và tên <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newUser.name}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, name: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          placeholder="Nguyễn Văn A"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Giới tính <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={newUser.sex}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, sex: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        >
+                          <option value="male">Nam</option>
+                          <option value="female">Nữ</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Ngày sinh <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          required
+                          value={newUser.birthday}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, birthday: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={newUser.email}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, email: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          placeholder="email@gmail.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Số điện thoại <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={newUser.phone}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, phone: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          placeholder="0901234567"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Tên đăng nhập <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newUser.username}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, username: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Mật khẩu <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          value={newUser.password}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, password: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Xác nhận mật khẩu{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          value={newUser.confirmPassword}
+                          onChange={(e) =>
+                            setNewUser({
+                              ...newUser,
+                              confirmPassword: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 desk focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Vai trò <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={newUser.role}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, role: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        >
+                          <option value="parent">Phụ huynh</option>
+                          <option value="driver">Tài xế</option>
+                          <option value="admin">Quản trị viên</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Trạng thái <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={newUser.status}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, status: e.target.value })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        >
+                          <option value="active">Hoạt động</option>
+                          <option value="inactive">Tạm khóa</option>
+                        </select>
+                      </div>
                     </div>
 
-                    {/* Ô Giới tính */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Giới tính *
+                        Địa chỉ
                       </label>
-                      <select
-                        value={newUser.sex}
+                      <textarea
+                        rows={2}
+                        value={newUser.address}
                         onChange={(e) =>
-                          setNewUser({ ...newUser, sex: e.target.value })
+                          setNewUser({ ...newUser, address: e.target.value })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="male">Nam</option>
-                        <option value="female">Nữ</option>
-                      </select>
-                    </div>
-
-                    {/* Ô Ngày sinh*/}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ngày sinh *
-                      </label>
-                      <input
-                        type="date"
-                        placeholder="Ngày sinh"
-                        value={newUser.birthday}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, birthday: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="Địa chỉ email"
-                        value={newUser.email}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, email: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Số điện thoại *
-                      </label>
-                      <input
-                        type="tel"
-                        placeholder="Số điện thoại"
-                        value={newUser.phone}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, phone: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Tài khoản */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tài khoản *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Tên đăng nhập"
-                        value={newUser.username}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, username: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Mật khẩu */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Mật khẩu *
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="Mật khẩu"
-                        value={newUser.password}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, password: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Xác nhận mật khẩu */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Xác nhận mật khẩu *
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="Nhập lại mật khẩu"
-                        value={newUser.confirmPassword}
-                        onChange={(e) =>
-                          setNewUser({
-                            ...newUser,
-                            confirmPassword: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+                        placeholder="Nhập địa chỉ (không bắt buộc)"
                       />
                     </div>
                   </div>
 
-                  {/* Địa chỉ */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Địa chỉ
-                    </label>
-                    <textarea
-                      placeholder="Địa chỉ"
-                      value={newUser.address}
-                      onChange={(e) =>
-                        setNewUser({ ...newUser, address: e.target.value })
-                      }
-                      rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    />
+                  {/* Footer - Luôn hiện rõ 2 nút */}
+                  <div className="flex gap-3 p-5 border-t border-gray-200 bg-gray-50">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateModal(false)}
+                      className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2.5 px-4 rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Thêm mới
+                    </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Chọn Role */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Vai trò *
-                      </label>
-                      <select
-                        value={newUser.role}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, role: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="parent">Phụ huynh</option>
-                        <option value="driver">Tài xế</option>
-                        <option value="admin">Quản trị viên</option>
-                      </select>
-                    </div>
-
-                    {/* Trạng thái */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Trạng thái *
-                      </label>
-                      <select
-                        value={newUser.status}
-                        onChange={(e) =>
-                          setNewUser({ ...newUser, status: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="active">Hoạt động</option>
-                        <option value="inactive">Tạm khóa</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                {/* Nút đóng và thêm */}
-                <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 
-                      px-4 rounded-lg font-medium transition-colors"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={handleCreateUser}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 
-                      rounded-lg font-medium transition-colors"
-                  >
-                    Thêm
-                  </button>
-                </div>
+                </form>
               </div>
             </div>
           </div>
         )}
 
-        {/* Dialog sửa User */}
+        {/* ==================== MODAL SỬA NGƯỜI DÙNG (ĐÃ THU GỌN + CÓ MÃ) ==================== */}
         {showEditModal && editingUser && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                {/* Title */}
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Chỉnh sửa người dùng
-                </h3>
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+              onClick={() => setShowEditModal(false)}
+            />
 
-                {/* Nút đóng X */}
-                <button
-                  onClick={() => setEditingUser(false)}
-                  className="absolute top-2 right-2 mt-2 mr-2 text-gray-400 hover:text-gray-600"
-                >
-                  <X></X>
-                </button>
-
-                {/* Ô họ tên */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tài khoản *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Họ tên"
-                        value={editingUser.name}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            name: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Ô Giới tính */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Giới tính *
-                      </label>
-                      <select
-                        value={editingUser.sex}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            sex: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="male">Nam</option>
-                        <option value="female">Nữ</option>
-                      </select>
-                    </div>
-
-                    {/* Ô Ngày sinh*/}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ngày sinh *
-                      </label>
-                      <input
-                        type="date"
-                        placeholder="Ngày sinh"
-                        value={editingUser.birthday}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            birthday: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Ô Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        value={editingUser.email}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            email: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Ô số phone */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Số điện thoại *
-                      </label>
-                      <input
-                        type="tel"
-                        placeholder="Số điện thoại"
-                        value={editingUser.phone}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            phone: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Tài khoản */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tài khoản *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Tên đăng nhập"
-                        value={editingUser.username}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            username: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Mật khẩu */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Mật khẩu *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Mật khẩu"
-                        value={editingUser.password}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            password: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Xác nhận mật khẩu */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Xác nhận mật khẩu *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Nhập lại mật khẩu"
-                        value={editingUser.confirmPassword}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            confirmPassword: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Ô địa chỉ */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Địa chỉ *
-                    </label>
-                    <textarea
-                      type="text"
-                      placeholder="Địa chỉ"
-                      value={editingUser.address}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          address: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Ô chọn Role */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Vai trò *
-                      </label>
-                      <select
-                        value={editingUser.role}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            role: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="parent">Phụ huynh</option>
-                        <option value="driver">Tài xế</option>
-                        <option value="dispatch">Điều phối</option>
-                        <option value="admin">Quản trị viên</option>
-                      </select>
-                    </div>
-
-                    {/* Ô trạng thái */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Trạng thái *
-                      </label>
-                      <select
-                        value={editingUser.status}
-                        onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            status: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="active">Hoạt động</option>
-                        <option value="inactive">Tạm khóa</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 mt-6">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+                {/* Header có mã */}
+                <div className="flex items-center justify-between p-5 bg-white">
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    Chỉnh sửa người dùng – Mã:
+                    <span className="text-blue-600 font-bold">
+                      USR-{String(editingUser.mand).padStart(3, "0")}
+                    </span>
+                  </h2>
                   <button
                     onClick={() => setShowEditModal(false)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 
-                              px-4 rounded-lg font-medium transition-colors"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    Hủy
-                  </button>
-                  <button
-                    onClick={handleEditUser}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 
-                              rounded-lg font-medium transition-colors"
-                  >
-                    Cập nhật
+                    <X className="h-5 w-5 text-gray-500" />
                   </button>
                 </div>
+                <div className="h-px bg-gray-200" />
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleEditUser();
+                  }}
+                >
+                  <div className="p-5 space-y-4 overflow-y-auto max-h-[58vh]">
+                    {/* Nội dung giống modal thêm, chỉ thay đổi vài chỗ */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Họ và tên *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingUser.name}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              name: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Giới tính *
+                        </label>
+                        <select
+                          value={editingUser.sex}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              sex: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        >
+                          <option value="male">Nam</option>
+                          <option value="female">Nữ</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Ngày sinh
+                        </label>
+                        <input
+                          type="date"
+                          value={editingUser.birthday || ""}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              birthday: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={editingUser.email}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              email: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Số điện thoại *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={editingUser.phone}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              phone: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Tên đăng nhập *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={editingUser.username}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              username: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Mật khẩu mới{" "}
+                          <span className="text-xs text-gray-500">
+                            (để trống nếu không đổi)
+                          </span>
+                        </label>
+                        <input
+                          type="password"
+                          value={editingUser.password || ""}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              password: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                          placeholder="Chỉ nhập khi muốn đổi"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Xác nhận mật khẩu
+                        </label>
+                        <input
+                          type="password"
+                          value={editingUser.confirmPassword || ""}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              confirmPassword: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Vai trò *
+                        </label>
+                        <select
+                          value={editingUser.role}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              role: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        >
+                          <option value="parent">Phụ huynh</option>
+                          <option value="driver">Tài xế</option>
+                          <option value="admin">Quản trị viên</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Trạng thái *
+                        </label>
+                        <select
+                          value={editingUser.status}
+                          onChange={(e) =>
+                            setEditingUser({
+                              ...editingUser,
+                              status: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        >
+                          <option value="active">Hoạt động</option>
+                          <option value="inactive">Tạm khóa</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Địa chỉ
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingUser.address || ""}
+                        onChange={(e) =>
+                          setEditingUser({
+                            ...editingUser,
+                            address: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 p-5 border-t border-gray-200 bg-gray-50">
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2.5 px-4 rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Cập nhật
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

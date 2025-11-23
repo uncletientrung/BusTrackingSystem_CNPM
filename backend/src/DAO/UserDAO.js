@@ -66,6 +66,19 @@ const UserDAO = {
   async delete(mand) {
     return await User.destroy({ where: { mand } });
   },
+  
+  async getByAccountId(matk) {
+    // Lấy người dùng từ matk (tài khoản)
+    const result = await sequelize.query(
+      `SELECT nd.* FROM nguoidung nd 
+       WHERE nd.mand = :matk`,
+      {
+        replacements: { matk },
+        type: sequelize.QueryTypes.SELECT
+      }
+    );
+    return result[0];
+  },
 };
 
 module.exports = UserDAO;

@@ -12,8 +12,9 @@ const Notification = sequelize.define('Notification', {
         allowNull: false,
     },
     maph: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: null,
     },
     thoigiantao: {
         type: DataTypes.DATE,

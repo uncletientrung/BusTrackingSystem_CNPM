@@ -357,6 +357,17 @@ CREATE TABLE `taixe` (
   `trangthai` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `taixe`
+--
+
+INSERT INTO `taixe` (`matx`, `hoten`, `ngaysinh`, `gioitinh`, `email`, `sdt`, `diachi`, `trangthai`) VALUES
+(4, 'Lê Văn Cường', '1988-11-02', 1, 'levancuong@gmail.com', '0901122334', '789 Trần Hưng Đạo, Quận 3, TP.HCM', 1),
+(5, 'Trần Văn B', '1992-05-15', 1, 'tranvanb@gmail.com', '0123456789', '123 Lê Lợi, Hà Nội', 1),
+(6, 'Nguyễn Văn C', '1990-03-20', 1, 'nguyenvanc@gmail.com', '0987654321', '456 Nguyễn Huệ, Đà Nẵng', 1),
+(7, 'Phạm Minh Đức', '1995-08-10', 1, 'phamminhduc@gmail.com', '0933221100', '111 Hai Bà Trưng, Quận 1, TP.HCM', 1),
+(8, 'Hoàng Thị E', '1993-12-25', 0, 'hoangthie@gmail.com', '0944332211', '222 Điện Biên Phủ, Quận 3, TP.HCM', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -500,6 +511,38 @@ INSERT INTO `xe` (`maxe`, `bienso`, `hangxe`, `soghe`, `vantoctrungbinh`, `trang
 (35, 'test11', 'Mercedes', 40, 50, 2, 2023),
 (36, 'test5', 'Toyota', 40, 50, 0, 2000);
 
+
+-- Tạo bảng messages để lưu lịch sử tin nhắn
+-- Sử dụng cho hệ thống chat realtime giữa Admin và Tài xế
+
+CREATE TABLE `messages` (
+  `id` int(50) NOT NULL AUTO_INCREMENT,
+  `sender_id` int(50) NOT NULL COMMENT 'ID người gửi (mand hoặc matx)',
+  `receiver_id` int(50) NOT NULL COMMENT 'ID người nhận (mand hoặc matx)',
+  `sender_role` varchar(20) NOT NULL COMMENT 'Vai trò người gửi: admin hoặc taixe',
+  `receiver_role` varchar(20) NOT NULL COMMENT 'Vai trò người nhận: admin hoặc taixe',
+  `content` text NOT NULL COMMENT 'Nội dung tin nhắn',
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Thời gian gửi tin nhắn',
+  `is_read` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: chưa đọc, 1: đã đọc',
+  PRIMARY KEY (`id`),
+  KEY `idx_sender` (`sender_id`, `sender_role`),
+  KEY `idx_receiver` (`receiver_id`, `receiver_role`),
+  KEY `idx_timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Bảng lưu lịch sử tin nhắn chat realtime';
+
+-- Dữ liệu mẫu cho bảng messages
+-- sender_id và receiver_id đều dùng mand từ bảng nguoidung
+-- Admin (mand=1) nhắn với Tài xế Lê Văn Cường (mand=4), mand=8
+INSERT INTO `messages` (`sender_id`, `receiver_id`, `sender_role`, `receiver_role`, `content`, `timestamp`, `is_read`) VALUES
+(1, 4, 'admin', 'taixe', 'Chào anh Lê Văn Cường, hôm nay chuyến đi có suôn sẻ không?', '2025-11-23 08:00:00', 1),
+(4, 1, 'taixe', 'admin', 'Dạ chào admin, mọi thứ đều ổn, xe đang đi đúng lịch trình ạ.', '2025-11-23 08:05:00', 1),
+(1, 4, 'admin', 'taixe', 'Tốt lắm! Nhớ thông báo nếu có vấn đề gì nhé.', '2025-11-23 08:10:00', 1),
+(4, 1, 'taixe', 'admin', 'Dạ vâng, em sẽ báo cáo ngay nếu có sự cố.', '2025-11-23 08:15:00', 0),
+
+(1, 8, 'admin', 'taixe', 'Chị Lê Thị Giang, hôm nay xe có bị trễ không?', '2025-11-23 09:00:00', 1),
+(8, 1, 'taixe', 'admin', 'Dạ không ạ, xe đang đi đúng giờ, học sinh đã lên xe đầy đủ.', '2025-11-23 09:10:00', 1),
+(1, 8, 'admin', 'taixe', 'Được rồi, cảm ơn chị nhé!', '2025-11-23 09:15:00', 0);
+
 --
 -- Chỉ mục cho các bảng đã đổ
 --
@@ -545,6 +588,15 @@ ALTER TABLE `nhomquyen`
 --
 ALTER TABLE `taikhoan`
   ADD PRIMARY KEY (`matk`);
+
+--
+-- Chỉ mục cho bảng `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_sender` (`sender_id`, `sender_role`),
+  ADD KEY `idx_receiver` (`receiver_id`, `receiver_role`),
+  ADD KEY `idx_timestamp` (`timestamp`);
 
 --
 -- Chỉ mục cho bảng `taixe`
@@ -605,6 +657,12 @@ ALTER TABLE `lichtrinh`
   MODIFY `malt` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
+-- AUTO_INCREMENT cho bảng `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT cho bảng `nguoidung`
 --
 ALTER TABLE `nguoidung`
@@ -626,7 +684,7 @@ ALTER TABLE `taikhoan`
 -- AUTO_INCREMENT cho bảng `taixe`
 --
 ALTER TABLE `taixe`
-  MODIFY `matx` int(50) NOT NULL AUTO_INCREMENT;
+  MODIFY `matx` int(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `thongbao`
