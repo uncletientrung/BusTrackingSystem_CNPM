@@ -130,6 +130,10 @@ export default function NotificationPage() {
       alert('Vui lòng điền đầy đủ tiêu đề và nội dung!');
       return;
     }
+    if (formNotification.recipients.length === 0) {
+      alert('Vui lòng chọn ít nhất một phụ huynh!');
+      return;
+    }
     const mapType = (t) => {
       switch (t) {
         case 'pickup': return 'Đón học sinh';
@@ -143,7 +147,12 @@ export default function NotificationPage() {
     };
     const mapPriority = (p) => p === 'high' ? 'Cao' : 'Bình thường';
     const matx = currentUser?.manq === 2 ? Number(currentUser.matk) : 0;
-    const maph = currentUser?.manq === 3 ? Number(currentUser.matk) : 0;
+    
+    // Nếu chọn tất cả phụ huynh thì maph = "0", nếu không thì join bằng dấu cách
+    const maph = formNotification.recipients.length === parents.length && parents.length > 0
+      ? "0"
+      : formNotification.recipients.join(' ');
+    
     const payload = {
       matx,
       maph,
@@ -388,7 +397,13 @@ export default function NotificationPage() {
                   return notification.matx === currentUser.matk;
                 }
                 if (currentUser.manq === 3) {
-                  return notification.maph === currentUser.matk;
+                  // Nếu maph = "0" thì hiển thị cho tất cả phụ huynh
+                  // Nếu không thì kiểm tra xem matk của user có trong danh sách maph không
+                  if (notification.maph === "0" || notification.maph === 0) {
+                    return true;
+                  }
+                  const parentIds = String(notification.maph).split(' ').map(id => Number(id.trim()));
+                  return parentIds.includes(currentUser.matk);
                 }
                 return false;
               })
