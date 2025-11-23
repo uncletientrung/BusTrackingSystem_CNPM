@@ -109,8 +109,6 @@ export default function TrackingPage() {
 
   const Markers = selectedTracking.map((item) => {
     const xacNhan = item.trangthai == 1;
-    console.log(item);
-
     return {
       vido: item.vido,
       kinhdo: item.kinhdo,

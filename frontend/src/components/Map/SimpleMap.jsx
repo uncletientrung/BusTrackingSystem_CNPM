@@ -48,7 +48,6 @@ export default function SimpleMap({
     iconAnchor: [20, 20],
   });
 
-  // Hàm tính đoạn đường xe được phép chạy (từ đầu đến điểm đã xác nhận cuối cùng + điểm kế tiếp nếu đang chạy)
   const updateAllowedRoute = async () => {
     if (markers.length === 0) return;
 
@@ -82,13 +81,11 @@ export default function SimpleMap({
         `https://router.project-osrm.org/route/v1/driving/${coordsStr}?overview=full&geometries=geojson`,
         { signal: abortControllerRef.current?.signal }
       );
-      const data = await response.json();
-
+      const data = await response.json(); // Đọc dữ liệu trả về chuyển thành Json
       if (data.routes?.[0]) {
-        const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-        allowedCoordinates.current = coords;
-        // Bắt đầu chạy xe trên đoạn được phép
-        startBusMoving();
+        const toaDo_VidoKinhDo = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+        allowedCoordinates.current = toaDo_VidoKinhDo;
+        startBusMoving();         // Bắt đầu chạy xe trên đoạn được phép
       }
     } catch (err) {
       if (err.name === "AbortError") return;
@@ -96,23 +93,22 @@ export default function SimpleMap({
     }
   };
 
-  // Hàm bắt đầu chạy xe trên đoạn được phép
   const startBusMoving = () => {
-    if (moveTimerRef.current) clearInterval(moveTimerRef.current);
-    const coords = allowedCoordinates.current;
-    if (coords.length === 0) return;
+    if (moveTimerRef.current) clearInterval(moveTimerRef.current); // Nếu đang chạy thì xóa 
+    const toaDoDuocChay = allowedCoordinates.current;
+    if (toaDoDuocChay.length === 0) return;
 
-    let i = 0;
+    let i = 0; // chỉ số index dựa trên geometry.coordinates lấy được
     moveTimerRef.current = setInterval(() => {
-      if (i >= coords.length) {
+      if (i >= toaDoDuocChay.length) {
         clearInterval(moveTimerRef.current);
-        const last = coords[coords.length - 1];
+        const last = toaDoDuocChay[toaDoDuocChay.length - 1];
         setBusPosition({ lat: last[0], lng: last[1] });
         return;
       }
-      const [lat, lng] = coords[i];
+      const [lat, lng] = toaDoDuocChay[i];
       setBusPosition({ lat, lng });
-      i += 2; // Tốc độ nhanh chậm tùy chỉnh ở đây
+      i += 2; // Tốc độ chạy trên mỗi array
     }, 80);
   };
 
@@ -142,17 +138,13 @@ export default function SimpleMap({
     }
   }, [center, zoom]);
 
-  // Khi markers hoặc selectedTrackingId thay đổi → vẽ lại toàn bộ
-  useEffect(() => {
+  useEffect(() => { // Vẽ marker và route
     if (!mapInstanceRef.current || !markersLayerRef.current || !routeLayerRef.current) return;
-
-    // Hủy request cũ nếu có
-    if (abortControllerRef.current) abortControllerRef.current.abort();
+    if (abortControllerRef.current) abortControllerRef.current.abort(); // Hủy request cũ nếu có
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    // Xóa cũ
-    markersLayerRef.current.clearLayers();
+    markersLayerRef.current.clearLayers(); // Dọn sạch map
     routeLayerRef.current.clearLayers();
     if (busMarkerRef.current) {
       mapInstanceRef.current.removeLayer(busMarkerRef.current);
@@ -162,7 +154,6 @@ export default function SimpleMap({
     fullRouteCoordinates.current = [];
     allowedCoordinates.current = [];
 
-    // Vẽ lại marker
     markers.forEach((marker) => {
       const isConfirmed = marker.trangthai === 1;
       const iconHtml = `
@@ -192,26 +183,20 @@ export default function SimpleMap({
     });
 
     if (markers.length < 2) return;
-
-    // VẼ ĐẦY ĐỦ TUYẾN ĐƯỜNG TỪ ĐẦU ĐẾN CUỐI (luôn luôn)
-    const fullCoordsStr = markers.map(m => `${m.kinhdo},${m.vido}`).join(";");
-    const fullUrl = `https://router.project-osrm.org/route/v1/driving/${fullCoordsStr}?overview=full&geometries=geojson`;
+    const fullToaDo = markers.map(m => `${m.kinhdo},${m.vido}`).join(";");
+    const fullUrl = `https://router.project-osrm.org/route/v1/driving/${fullToaDo}?overview=full&geometries=geojson`;
 
     const fetchFullRoute = async () => {
       try {
         const response = await fetch(fullUrl, { signal: controller.signal });
         const data = await response.json();
-
         if (controller.signal.aborted || !data.routes?.[0]) return;
 
         fullRouteCoordinates.current = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-
         L.geoJSON(data.routes[0].geometry, {
           style: { color: "#1d4ed8", weight: 6, opacity: 0.9 },
         }).addTo(routeLayerRef.current);
-
-        // Sau khi vẽ xong toàn bộ tuyến → tính đoạn xe được phép chạy
-        await updateAllowedRoute();
+        await updateAllowedRoute(); 
       } catch (err) {
         if (err.name === "AbortError") return;
         console.error("OSRM lỗi, vẽ đường thẳng");
@@ -226,10 +211,9 @@ export default function SimpleMap({
       if (abortControllerRef.current) abortControllerRef.current.abort();
       if (moveTimerRef.current) clearInterval(moveTimerRef.current);
     };
-  }, [markers, selectedTrackingId]); // Khi markers thay đổi (do bấm xác nhận) → xe chạy tiếp
+  }, [markers, selectedTrackingId]);
 
-  // Cập nhật vị trí icon xe
-  useEffect(() => {
+  useEffect(() => {   // Cập nhật vị trí icon xe
     if (!mapInstanceRef.current || !busPosition) return;
 
     if (busMarkerRef.current) {
