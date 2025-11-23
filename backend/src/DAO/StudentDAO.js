@@ -66,6 +66,9 @@ const StudentDAO = {
     async update(mahs, studentData) {
         return await Student.update(studentData, { where: { mahs } })
     },
+    async getById(mahs) {
+        return await Student.findOne({ where: { mahs } });
+    }
 };
 
 module.exports = StudentDAO;

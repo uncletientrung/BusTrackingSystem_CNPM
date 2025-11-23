@@ -44,6 +44,25 @@ const StudentBUS = {
         return new StudentDTO(updateStudent.mahs, updateStudent.hoten, updateStudent.ngaysinh, updateStudent.gioitinh,
             updateStudent.lop, updateStudent.diachi, updateStudent.sdt, updateStudent.maph, updateStudent.diemdon,
             updateStudent.diemdung, updateStudent.trangthai);
+    },
+    async getById(mahs) {
+        const student = await StudentDAO.getById(mahs);
+        if (!student) {
+            return null;
+        }
+        return new StudentDTO(
+            student.mahs,
+            student.hoten,
+            student.ngaysinh,
+            student.gioitinh,
+            student.lop,
+            student.diachi,
+            student.sdt,
+            student.maph,
+            student.madiemdon,
+            student.madiemtra,
+            student.trangthai
+        );
     }
 
 }
