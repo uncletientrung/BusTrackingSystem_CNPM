@@ -68,3 +68,8 @@ export const CTRouteAPI = {
 export const CTScheduleAPI = {
   getCTLTById: (malt) => apiClient.fetchById("CTSchedule", malt)
 }
+
+export const TrackingAPI = {
+  getTrackingByIdLT: (malt) => apiClient.fetchById("Tracking", malt),
+  updateStatus: (malt, trackingData) => apiClient.update("Tracking", malt, trackingData)
+}

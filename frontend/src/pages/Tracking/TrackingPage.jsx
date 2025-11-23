@@ -1,11 +1,11 @@
 import { CircleCheck, FlagTriangleRight, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import SimpleMap from "../../components/Map/SimpleMap";
-import { BusAPI, CTRouteAPI, CTScheduleAPI, NotificationAPI, RouteAPI, ScheduleAPI, StopAPI, StudentAPI, UserAPI } from "../../api/apiServices";
+import { BusAPI, CTRouteAPI, CTScheduleAPI, NotificationAPI, RouteAPI, ScheduleAPI, StopAPI, StudentAPI, TrackingAPI, UserAPI } from "../../api/apiServices";
+import toLocalString from "../../utils/DateFormated";
 
 export default function TrackingPage() {
-  const [selectedTracking, setSelectedTracking] = useState(0); // lịch trình được theo dõi
-  const [confirmedStops, setConfirmedStops] = useState([]);
+  const [selectedTrackingId, setSelectedTrackingId] = useState(0); // lịch trình được theo dõi
   const [users, setUsers] = useState([])
   const [routes, setRoutes] = useState([])
   const [schedules, setSchedule] = useState([])
@@ -13,7 +13,7 @@ export default function TrackingPage() {
   const [buses, setBuses] = useState([])
   const [students, setStudents] = useState([])
   const [dsTheoDoi, setDSTheoDoi] = useState([]) // Danh sách đầy các lịch trình có thể theo dõi
-  const [selectedCTTD, setSelectedCTTD] = useState([]); // Danh sách đầy đủ các thông tin chi tiết
+  const [selectedTracking, setSelectedTracking] = useState([]); // Danh sách đầy đủ các thông tin chi tiết
   const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
   useEffect(() => {
@@ -48,32 +48,31 @@ export default function TrackingPage() {
   }, []);
 
   const handleSelecteTracking = async (malt) => {
-    setSelectedTracking(malt);
+    setSelectedTrackingId(malt);
     const schedule = schedules.find(sch => sch.malt == malt)
     try {
-      const listCTTD = await CTRouteAPI.getCTTTById(schedule.matd);
-      const dsCTTDDayDu = listCTTD.map(ct => {
-        const stop = stops.find(s => s.madd == ct.madd);
+      const listTracking = await TrackingAPI.getTrackingByIdLT(malt)
+      const dsTrackingDayDu = listTracking.map(tracking => {
+        const stop = stops.find(s => s.madd == tracking.madd);
         return {
           malt: malt,
-          matd: ct.matd, madd: ct.madd, thutu: ct.thutu, trangthai: ct.trangthai,
+          matd: tracking.matd, madd: tracking.madd, thutu: tracking.thutu, trangthai: tracking.trangthai,
           tendiemdung: stop.tendiemdung, vido: stop.vido, kinhdo: stop.kinhdo,
           diachi: stop.diachi,
-          thoigianbatdau: schedule.thoigianbatdau, thoigianketthuc: schedule.thoigianketthuc
+          thoigianbatdau: schedule.thoigianbatdau, thoigianketthuc: schedule.thoigianketthuc,
+          thoigianden: tracking.thoigianden, hocsinhconlai: tracking.hocsinhconlai
         }
       });
-      setSelectedCTTD(dsCTTDDayDu);
-      
+      setSelectedTracking(dsTrackingDayDu);
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
     }
   }
 
-  const selectedBusData = dsTheoDoi.find(tracking => tracking.malt === selectedTracking);
+  const selectedBusData = dsTheoDoi.find(tracking => tracking.malt === selectedTrackingId);
 
   const confirmStop = async (malt, thutu, tendiemdung, matd, madd) => {
     try {
-      const schedule = schedules.find(sch => sch.malt == malt);
       const CTSchedule = await CTScheduleAPI.getCTLTById(malt);  // Xử lý gửi thông báo
       const listPHTrongSchedule = students.filter(std => CTSchedule.some(ct => ct.mahs === std.mahs))
         .map(std => std.maph);
@@ -91,63 +90,67 @@ export default function TrackingPage() {
         trangthai: 2
       }));
       if (window.confirm("Gửi thông báo này cho phụ huynh")) {
-        await NotificationAPI.insertNhieuNotification({DSFormThongBao});
+        // await NotificationAPI.insertNhieuNotification({ DSFormThongBao });
         // Xử lý cập nhật tuyến đã đến
-        const updateStatus = { matd: matd, madd: madd, thutu: thutu, trangthai: 1 };
-        await CTRouteAPI.updateStatus(matd, updateStatus);
-        setSelectedCTTD(prev => prev.map(item =>
-            item.matd === matd && item.madd === madd && item.thutu === thutu && malt == malt
-              ? { ...item, trangthai: 1 }
-              : item
-          )
+        const updateStatus = { matd: matd, madd: madd, trangthai: 1 };
+        await TrackingAPI.updateStatus(malt, updateStatus);
+        setSelectedTracking(prev => prev.map(item =>
+          item.matd === matd && item.madd === madd && item.malt == malt
+            ? { ...item, trangthai: 1 }
+            : item
+        )
         );
       }
 
     } catch (error) {
       console.error('Lỗi khi tải dữ liệu chi tiết:', error);
     }
-
-
-
   };
 
-  const Markers = selectedCTTD.map((item) => {
+  const Markers = selectedTracking.map((item) => {
     const xacNhan = item.trangthai == 1;
+    console.log(item);
+
     return {
       vido: item.vido,
       kinhdo: item.kinhdo,
       thutu: item.thutu,
       title: item.tendiemdung,
+      trangthai: item.trangthai,
       diachi: item.diachi,
       thoigianbatdau: item.thoigianbatdau,
       thoigianketthuc: item.thoigianketthuc,
       popup: `
-      <div style="font-family: Arial, sans-serif; min-width: 240px; padding: 4px;">
-        <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">
-          ${item.tendiemdung || 'Không có tên'}
-        </h3>
-        
-        <div style="margin-bottom: 8px; padding: 6px 10px; background: ${xacNhan ? '#ecfdf5' : '#fffbeb'}; 
-                    border-left: 4px solid ${xacNhan ? '#059669' : '#d97706'}; border-radius: 4px;">
-          <p style="margin: 4px 0; font-size: 14px; color: #374151;">
-            <strong>Địa chỉ:</strong><br/>
-            <span style="color: #111827;">${item.diachi}</span>
-          </p>
+        <div style="font-family: system-ui,sans-serif; min-width:260px; background:white; border-radius:14px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+          <div style="padding:12px 16px; background:${xacNhan ? '#10b981' : '#f59e0b'}; color:white; font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px;">
+           ${item.tendiemdung || 'Điểm dừng'}
+          </div>
+
+          <div style="padding:14px 16px; line-height:1.5;">
+            <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px;">
+              <div>
+                <div style="color:#64748b;">Học sinh còn lại</div>
+                <div style="font-weight:700; font-size:14px; color:${xacNhan ? '#10b981' : '#92400e'};">
+                  ${xacNhan ? item.hocsinhconlai : "Chưa cập nhật"}
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="color:#64748b;">Thời gian đến</div>
+                <div style="font-weight:700; color:${xacNhan ? '#059669' : '#92400e'};">
+                  ${xacNhan
+          ? toLocalString(new Date(item.thoigianden))
+          : 'Chưa cập nhật'
+        }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:12px 16px; background:${xacNhan ? '#10b981' : '#f59e0b'}; color:white; font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px;">
+            ${xacNhan ? 'Đã xác nhận đón học sinh' : 'Xe đang trên đường'}
+          </div>
         </div>
-        <p style="
-          margin: 8px 0 0;
-          padding: 6px 10px;
-          background: ${xacNhan ? '#059669' : '#d97706'};
-          color: white;
-          border-radius: 4px;
-          font-weight: 600;
-          text-align: center;
-          font-size: 14px;
-        ">
-          ${xacNhan ? '✓ Đã đến' : '→ Sắp đến'}
-        </p>
-      </div>
-    `
+        `
     };
   });
 
@@ -165,7 +168,7 @@ export default function TrackingPage() {
           <div className="flex items-center space-x-3">
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Chọn theo dõi:</label>
             <select
-              value={selectedTracking}
+              value={selectedTrackingId}
               onChange={(e) => handleSelecteTracking(Number(e.target.value))}
               className="w-full max-w-md px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none transition-all shadow-sm"
               style={{ appearance: 'none' }}
@@ -194,83 +197,132 @@ export default function TrackingPage() {
       </div>
 
       {/* Map */}
-      <div className="flex flex-col lg:flex-row flex-1 p-4 gap-4">
-        <div className="flex-1">
-          <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
-            <div className="flex-1">
-              <SimpleMap
-                key={selectedTracking}
-                center={[10.8231, 106.6297]}
-                zoom={12}
-                markers={Markers}
-                className="w-full h-full rounded-b-xl"
-              />
-            </div>
-          </div>
-        </div>
+      {selectedTrackingId != 0 ? (
 
-        {/* Thanh thông báo */}
-        <div className="w-full lg:w-96">
-          <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
-            <div className="p-4 bg-blue-600 text-white rounded-t-xl">
-              <h1 className="text-lg font-semibold">Xác nhận điểm đến</h1>
-            </div>
 
-            <div className="p-4 bg-gray-50 border-b">
-              <div className="text-center mb-3">
-                <span className="text-2xl font-bold text-blue-600">
-                  {selectedCTTD.filter(ct => ct.trangthai == 1).length}
-                </span>
-                <span className="text-gray-500"> / {selectedCTTD.length}</span>
-                <p className="text-sm text-gray-600">Điểm đã hoàn thành</p>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  className="bg-blue-500 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${(selectedCTTD.filter(ct => ct.trangthai == 1).length / selectedCTTD.length) * 100}%` }}
+        <div className="flex flex-col lg:flex-row flex-1 p-4 gap-4">
+          <div className="flex-1">
+            <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
+              <div className="flex-1">
+                <SimpleMap
+                  key={selectedTrackingId}
+                  center={[10.8231, 106.6297]}
+                  zoom={13}
+                  markers={Markers}
+                  selectedTrackingId={selectedTrackingId}
+                  onArriveAtStop={confirmStop}
+                  className="w-full h-full rounded-b-xl"
                 />
               </div>
             </div>
+          </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {selectedCTTD.map((ct, index) => {
-                const isConfirmed = ct.trangthai == 1;
-                const text = (index + 1 == 1) ? "Bắt đầu chạy" : "Thông báo đã đến";
-                return (
+          {/* Thanh thông báo */}
+          <div className="w-full lg:w-96">
+            <div className="bg-white rounded-xl shadow-lg h-full flex flex-col">
+              <div className="p-4 bg-blue-600 text-white rounded-t-xl">
+                <h1 className="text-lg font-semibold">Xác nhận điểm đến</h1>
+              </div>
+
+              <div className="p-4 bg-gray-50 border-b">
+                <div className="text-center mb-3">
+                  <span className="text-2xl font-bold text-blue-600">
+                    {selectedTracking.filter(ct => ct.trangthai == 1).length}
+                  </span>
+                  <span className="text-gray-500"> / {selectedTracking.length}</span>
+                  <p className="text-sm text-gray-600">
+                    Điểm đã hoàn thành
+                  </p>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
-                    key={ct.madd}
-                    className={`p-4 rounded-lg border-2 transition-all ${isConfirmed ? 'bg-green-50 border-green-300' : 'bg-white border-gray-200'}`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${isConfirmed ? 'bg-green-500' : 'bg-gray-400'}`}>
-                          {index + 1}
-                        </div>
-                        <span className="font-medium text-gray-800 text-sm">{ct.tendiemdung}</span>
-                      </div>
-                    </div>
+                    className="bg-blue-500 h-3 rounded-full transition-all duration-500"
+                    style={{ width: `${(selectedTracking.filter(ct => ct.trangthai == 1).length / selectedTracking.length) * 100}%` }}
+                  />
+                </div>
+              </div>
 
-                    {!isConfirmed ? (
-                      <button
-                        onClick={() => confirmStop(ct.malt, ct.thutu, ct.tendiemdung, ct.matd, ct.madd)}
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors flex items-center justify-center space-x-2"
-                      >
-                        <span>
-                          {text}
-                        </span>
-                      </button>
-                    ) : (
-                      <div className="text-center py-2 bg-green-100 rounded-md">
-                        <span className="text-green-700 font-medium text-sm">Hoàn thành</span>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {selectedTracking.map((ct, index) => {
+                  const xacNhan = ct.trangthai == 1;
+                  const DiemDau = index === 0;
+                  const canConfirm = DiemDau || selectedTracking[index - 1]?.trangthai == 1;
+                  const text = DiemDau ? "Bắt đầu chạy" : "Xác nhận đã đến";
+                  return (
+                    <div
+                      key={ct.madd}
+                      className={`p-4 rounded-lg border-2 transition-all ${xacNhan
+                        ? 'bg-green-50 border-green-400 shadow-md'
+                        : canConfirm
+                          ? 'bg-white border-blue-300 shadow-sm hover:shadow-md'
+                          : 'bg-gray-50 border-gray-200 opacity-70'
+                        }`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex flex-col space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm ${xacNhan ? 'bg-green-500' : canConfirm ? 'bg-blue-500' : 'bg-gray-400'
+                                }`}
+                            >
+                              {index + 1}
+                            </div>
+                            <span className={`font-medium text-sm ${xacNhan ? 'text-gray-800' : 'text-gray-700'}`}>
+                              {ct.tendiemdung}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-500 ml-9">
+                            {ct.diachi || 'Không có địa chỉ'}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                      {!xacNhan && canConfirm ? (
+                        <button
+                          onClick={() => confirmStop(ct.malt, ct.thutu, ct.tendiemdung, ct.matd, ct.madd)}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-md text-sm transition-all transform hover:scale-105 active:scale-95 shadow-md flex items-center justify-center gap-2"
+                        >
+                          {text}
+                        </button>
+                      ) : !xacNhan && !canConfirm ? (
+                        <div className="text-center py-2.5 bg-gray-100 rounded-md border border-gray-300">
+                          <span className="text-gray-500 text-xs font-medium">
+                            Chờ điểm trước hoàn thành
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-center py-2.5 bg-green-100 rounded-md">
+                          <span className="text-green-700 font-semibold text-sm flex items-center justify-center gap-2">
+                            Đã hoàn thành
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="text-center max-w-md">
+            <div className="w-28 h-28 mx-auto mb-8 bg-blue-100 rounded-full flex items-center justify-center shadow-lg">
+              <MapPin className="w-14 h-14 text-blue-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Chưa chọn lịch trình theo dõi
+            </h2>
+            <p className="text-gray-600 text-lg leading-relaxed">
+              Vui lòng chọn một lịch trình xe buýt từ danh sách trên
+            </p>
+            <div className="mt-8 flex justify-center">
+              <div className="animate-bounce">
+                <div className="w-10 h-10 bg-blue-500 rounded-full opacity-20"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

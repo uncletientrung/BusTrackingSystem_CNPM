@@ -32,6 +32,7 @@ const CTRouteController = {
                 message: 'Cập nhật trạng thái chi tiết tuyến đường thành công!',
                 updateCount: updateStopStatusCount
             });
+            
         } catch (error) {
             console.error('Lỗi updateStatus từ CTRouteController:', error);
             res.status(500).json({ message: error.message });

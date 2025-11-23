@@ -120,11 +120,6 @@ export default function SchedulePage() {
     try {
       if (editingSchedule) {
         const updateSchedule = await ScheduleAPI.updateSchedule(editingSchedule.malt, scheduleData);
-        console.log(updateSchedule.schdule);
-        for (const key in updateSchedule.schdule) {
-          console.log(key, "=>", typeof updateSchedule.schdule[key]);
-        }
-
         setSchedules(schedules.map(
           lt => lt.malt == scheduleData.malt ? { ...lt, ...updateSchedule.schedule } : lt))
       } else {
@@ -171,14 +166,14 @@ export default function SchedulePage() {
             <div className="p-3 bg-green-500 rounded-lg"><CircleCheck className="h-6 w-6 text-white" /></div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Hoàn thành</p>
-              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 2).length}</p>
+              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 1).length}</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
             <div className="p-3 bg-orange-400 rounded-lg"><Hourglass className="h-6 w-6 text-white" /></div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Đang chạy</p>
-              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai === 1).length}</p>
+              <p className="text-sm font-medium text-gray-500">Chưa hoàn thành</p>
+              <p className="text-2xl font-bold">{filteredSchedules.filter(s => s.trangthai !== 1).length}</p>
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ const ScheduleRoutes = require('./Routes/ScheduleRoutes');
 const NotificationRoutes = require('./Routes/NotificationRoutes');
 const CTRoutes = require('./Routes/CTRouteRoutes');
 const CTScheduleRoutes = require('./Routes/CTScheduleRoutes');
+const TrackingRoutes = require('./Routes/TrackingRoutes');
 
 const app = express(); // là đối tượng Express chính, đại diện cho server.
 const PORT = 5000;
@@ -27,6 +28,7 @@ app.use('/api/Schedule', ScheduleRoutes);
 app.use('/api/Notification', NotificationRoutes);
 app.use('/api/CTRoute', CTRoutes);
 app.use('/api/CTSchedule', CTScheduleRoutes);
+app.use('/api/Tracking', TrackingRoutes);
 
 const startServer = async () => {
     await connectDB();
