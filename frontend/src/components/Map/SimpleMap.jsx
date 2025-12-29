@@ -86,7 +86,7 @@ export default function SimpleMap({
       console.error("Lỗi OSRM đoạn mới:", err);
       allowedCoordinates.current.push([toaDoMarkerTiepTheo.vido, toaDoMarkerTiepTheo.kinhdo]);
       startBusMoving();
-    }
+    } 
   };
 
   const startBusMoving = () => {
