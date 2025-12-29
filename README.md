@@ -1,16 +1,10 @@
 <!-- author: uncletientrung -->
 # Đồ án môn Công nghệ phần mềm  <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExYW00MjZ1bmkwcWpscWVkenI1YmsycXJrMTlyNGJ4bm1sMDBsZTJ3dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PhAcH2l5RgYzT2pKAj/giphy.gif" width="50">
 ## Đề tài: Hệ thống theo dõi xe buýt 
-<!-- ### Thành viên nhóm
-<img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> Nguyễn Tiến Trung (L) - 3123410396  <br>
-<img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> Nguyễn Minh Thuận - 3123410365  <br>
-<img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> Nguyễn Thái Vinh - 3123410433       <br>
-<img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> Phan Hoàng Vũ - 3123410436
-<img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30"> Đặng Nhật Đức - 3123410082 -->
 
 ## Thành viên & Đóng góp
 | Thành viên | MSSV | Vai trò | Frontend | Backend | 
-|-----------|------|--------|----------|
+|-----------|------|--------|----------|----------|
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Nguyễn Tiến Trung | 3123410396 | Nhóm trưởng | 20% | 70% |
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Nguyễn Minh Thuận | 3123410365 | Thành viên | 10% | 10% |
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Nguyễn Thái Vinh | 3123410433 | Thành viên | 60% | 10% |
@@ -26,8 +20,17 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
    ```
 2. Mở xampp và vào trang http://localhost/phpmyadmin/ tạo 1 database mới có tên là bustrackingsystem và import cơ sở dữ liệu trong folder frontend -> database -> file bustrackingsystem.sql trong source code.
 3. Sử dụng Visual Studio Code để chạy chương trình
-4. 4.1: Mở terminal -> cd frontend -> npm run dev
-    4.2: Mở terminal mới -> cd backend -> npm start
+4. Chạy chương trình:
+   - Terminal 1:
+     ```bash
+     cd frontend
+     npm run dev
+     ```
+   - Terminal 2:
+     ```bash
+     cd backend
+     npm start
+     ```
 5. Truy cập "http://localhost:5173/" để sử dụng chương trình
 
 ### Tài khoản Admin
@@ -35,7 +38,12 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 - Password: 123
 
 ### Giao diện
- ![Giao diện đăng nhập](./img/trangchu.jpg)
+<p align="center">
+  <img src="./img/trangchu.jpg" 
+       style="border:1px solid #ccc; border-radius:8px; padding:4px; background:#fff;" 
+       width="800">
+</p>
+<h4 align="center">Trang chủ</h4>
  
  <h4 align="center">Trang chủ</h4>
 
