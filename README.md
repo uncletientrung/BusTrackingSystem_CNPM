@@ -39,52 +39,92 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 - Password: 123
 
 ### Giao diện
-<p align="center">
-  <img src="./img/trangchu.jpg" 
-       style="border:1px solid #ccc; border-radius:8px; padding:4px; background:#000;" 
-       width="800">
-</p>
- <h4 align="center">Trang chủ</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/trangchu.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Trang chủ</h4>
 
-<table align="center" border="1" cellpadding="8">
+<table align="center" border="2" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qlxebuyt.jpg" width="800">
     </td>
   </tr>
 </table>
-<h4 align="center">Trang chủ</h4>
- 
- <h4 align="center">Quản lý xe buýt</h4>
+<h4 align="center">Quản lý xe buýt</h4>
 
- ![Giao diện đăng nhập](./img/qltuyenduong.jpg)
- 
- <h4 align="center">Quản lý tuyến đường</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/qltuyenduong.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Quản lý tuyến đường</h4>
 
- ![Giao diện đăng nhập](./img/qldiemdung.jpg)
- 
- <h4 align="center">Quản lý điểm dừng</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/qldiemdung.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Quản lý điểm dừng</h4>
 
- ![Giao diện đăng nhập](./img/qlhocsinh.jpg)
- 
- <h4 align="center">Quản lý học sinh</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/qlhocsinh.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Quản lý học sinh</h4>
 
- ![Giao diện đăng nhập](./img/gps.jpg)
- 
- <h4 align="center">Theo dõi vị trí xe</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/gps.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Theo dõi vị trí xe</h4>
 
- ![Giao diện đăng nhập](./img/qllichtrinh.jpg)
- 
- <h4 align="center">Quản lý lịch trình</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/qllichtrinh.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Quản lý lịch trình</h4>
 
- ![Giao diện đăng nhập](./img/tinnhan.jpg)
- 
- <h4 align="center">Nhắn tin với tài xế</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/tinnhan.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Nhắn tin với tài xế</h4>
 
- ![Giao diện đăng nhập](./img/nguoidung.jpg)
- 
- <h4 align="center">Quản lý người dùng</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/nguoidung.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Quản lý người dùng</h4>
 
- ![Giao diện đăng nhập](./img/qlthongbao.jpg)
- 
- <h4 align="center">Quản lý thông báo</h4>
+<table align="center" border="2" cellpadding="10" cellspacing="0">
+  <tr>
+    <td>
+      <img src="./img/qlthongbao.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Quản lý thông báo</h4>
