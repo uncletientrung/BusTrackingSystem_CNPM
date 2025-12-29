@@ -39,7 +39,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 - Password: 123
 
 ### Giao diện
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/trangchu.jpg" width="800">
@@ -48,7 +48,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Trang chủ</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qlxebuyt.jpg" width="800">
@@ -57,7 +57,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Quản lý xe buýt</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qltuyenduong.jpg" width="800">
@@ -66,7 +66,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Quản lý tuyến đường</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qldiemdung.jpg" width="800">
@@ -75,7 +75,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Quản lý điểm dừng</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qlhocsinh.jpg" width="800">
@@ -84,7 +84,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Quản lý học sinh</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/gps.jpg" width="800">
@@ -93,7 +93,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Theo dõi vị trí xe</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qllichtrinh.jpg" width="800">
@@ -102,7 +102,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Quản lý lịch trình</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/tinnhan.jpg" width="800">
@@ -111,7 +111,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Nhắn tin với tài xế</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/nguoidung.jpg" width="800">
@@ -120,7 +120,7 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 </table>
 <h4 align="center">Quản lý người dùng</h4>
 
-<table align="center" border="2" cellpadding="10" cellspacing="0">
+<table align="center" border="5" cellpadding="10" cellspacing="0">
   <tr>
     <td>
       <img src="./img/qlthongbao.jpg" width="800">
