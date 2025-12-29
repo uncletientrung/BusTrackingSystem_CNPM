@@ -4,12 +4,13 @@
 
 ## Thành viên & Đóng góp
 | Thành viên | MSSV | Vai trò | Frontend | Backend | 
-|-----------|------|--------|----------|----------|
+|----|------|--------|----------|----------|
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Nguyễn Tiến Trung | 3123410396 | Nhóm trưởng | 20% | 70% |
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Nguyễn Minh Thuận | 3123410365 | Thành viên | 10% | 10% |
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Nguyễn Thái Vinh | 3123410433 | Thành viên | 60% | 10% |
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Phan Hoàng Vũ | 3123410436 | Thành viên | 10% | 10% |
 | <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="25"> Đặng Nhật Đức | 3123410082 | Thành viên | 0% | 0% |
+
 **Lưu ý**: Nhóm thực hiện khoảng **30% khối lượng công việc ở Frontend**, 
 có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra cứu tài liệu, gợi ý giải pháp và chỉnh sửa nội dung.
 
@@ -40,14 +41,19 @@ có tham khảo và sử dụng **công cụ AI hỗ trợ** trong việc tra c�
 ### Giao diện
 <p align="center">
   <img src="./img/trangchu.jpg" 
-       style="border:1px solid #ccc; border-radius:8px; padding:4px; background:#fff;" 
+       style="border:1px solid #ccc; border-radius:8px; padding:4px; background:#000;" 
        width="800">
 </p>
-<h4 align="center">Trang chủ</h4>
- 
  <h4 align="center">Trang chủ</h4>
 
- ![Giao diện đăng nhập](./img/qlxebuyt.jpg)
+<table align="center" border="1" cellpadding="8">
+  <tr>
+    <td>
+      <img src="./img/qlxebuyt.jpg" width="800">
+    </td>
+  </tr>
+</table>
+<h4 align="center">Trang chủ</h4>
  
  <h4 align="center">Quản lý xe buýt</h4>
 
